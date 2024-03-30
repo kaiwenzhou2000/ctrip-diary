@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:mobile": "pnpm -F @apps/mobile-app run start",
+    "dev:admin": "pnpm -F @apps/admin-panel run dev"
   },
   "keywords": [],
   "author": "",
