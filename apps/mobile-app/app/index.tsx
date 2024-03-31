@@ -1,20 +1,22 @@
-import Gradient from "../assets/Icons/Gradient";
-import DocumentData from "../assets/Icons/DocumentData";
-import LightBulbPerson from "../assets/Icons/LightbulbPerson";
-import Rocket from "../assets/Icons/Rocket";
-import Logo from "../assets/Icons/Logo";
-import {
-  Box,
-  Button,
-  ButtonText,
-  HStack,
-  ScrollView,
-  Text,
-} from "@gluestack-ui/themed";
+import React from 'react'
+import Gradient from '../assets/Icons/Gradient'
+import DocumentData from '../assets/Icons/DocumentData'
+import LightBulbPerson from '../assets/Icons/LightbulbPerson'
+import Rocket from '../assets/Icons/Rocket'
+import Logo from '../assets/Icons/Logo'
+import { Box, HStack, ScrollView, Text } from '@gluestack-ui/themed'
 
-import { Link } from "expo-router";
+import { Link } from 'expo-router'
 
-const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
+const FeatureCard = ({
+  iconSvg: IconSvg,
+  name,
+  desc,
+}: {
+  iconSvg: () => React.JSX.Element
+  name: string
+  desc: string
+}) => {
   return (
     <Box
       flexDirection="column"
@@ -37,23 +39,14 @@ const FeatureCard = ({ iconSvg: IconSvg, name, desc }: any) => {
         {desc}
       </Text>
     </Box>
-  );
-};
+  )
+}
 
 export default function Home() {
   return (
     <Box flex={1} backgroundColor="$black">
-      <ScrollView
-        style={{ height: "100%" }}
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
-        <Box
-          position="absolute"
-          $base-h={500}
-          $base-w={500}
-          $lg-h={500}
-          $lg-w={500}
-        >
+      <ScrollView style={{ height: '100%' }} contentContainerStyle={{ flexGrow: 1 }}>
+        <Box position="absolute" $base-h={500} $base-w={500} $lg-h={500} $lg-w={500}>
           <Gradient />
         </Box>
 
@@ -128,5 +121,5 @@ export default function Home() {
         </Box>
       </ScrollView>
     </Box>
-  );
+  )
 }

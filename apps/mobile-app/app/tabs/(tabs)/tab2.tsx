@@ -1,5 +1,6 @@
-import EditScreenInfo from "@/components/EditScreenInfo";
-import { Heading, Center, Divider, Text } from "@gluestack-ui/themed";
+import React from 'react'
+import EditScreenInfo from '@/components/EditScreenInfo'
+import { Heading, Center, Divider, Text } from '@gluestack-ui/themed'
 
 export default function Tab2() {
   return (
@@ -11,5 +12,5 @@ export default function Tab2() {
       <Text p="$4">Example below to use gluestack-ui components.</Text>
       <EditScreenInfo path="app/(app)/(tabs)/tab2.tsx" />
     </Center>
-  );
+  )
 }

@@ -1,18 +1,19 @@
-import { Link, Stack } from "expo-router";
+import React from 'react'
+import { Link, Stack } from 'expo-router'
 
-import { Text, Center } from "@gluestack-ui/themed";
+import { Text, Center } from '@gluestack-ui/themed'
 
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: "Oops!" }} />
+      <Stack.Screen options={{ title: 'Oops!' }} />
       <Center flex={1}>
-        <Text color="$textDark200">This screen doesn't exist.</Text>
+        <Text color="$textDark200">This screen doesnt exist.</Text>
 
         <Link href="/" style={{ marginTop: 10 }}>
           <Text color="$primary500">Go to home screen!</Text>
         </Link>
       </Center>
     </>
-  );
+  )
 }

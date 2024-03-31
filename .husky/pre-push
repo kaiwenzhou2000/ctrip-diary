@@ -1,0 +1,14 @@
+#!/bin/sh
+
+
+remote_branch=$(git rev-parse --symbolic-full-name --abbrev-ref @{u})
+
+
+protected_branch="origin/main"
+
+if [ "$protected_branch" = "$remote_branch" ]; then
+  echo "You cannot push directly to the protected branch."
+  exit 1
+fi
+
+exit 0

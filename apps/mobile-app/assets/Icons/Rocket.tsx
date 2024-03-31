@@ -1,5 +1,5 @@
-import React from "react";
-import { Svg, Path } from "react-native-svg";
+import React from 'react'
+import { Svg, Path } from 'react-native-svg'
 
 const SvgComponent = () => {
   return (
@@ -9,7 +9,7 @@ const SvgComponent = () => {
         fill="#FAFAFA"
       />
     </Svg>
-  );
-};
+  )
+}
 
-export default SvgComponent;
+export default SvgComponent

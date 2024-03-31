@@ -1,0 +1,32 @@
+{
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "npm.packageManager": "pnpm",
+    "eslint.Packagemanager": "pnpm",
+    "eslint.probe": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+      "html",
+      "vue",
+      "markdown",
+      "json",
+      "jsonc"
+    ],
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+      "html",
+      "vue",
+      "markdown",
+      "json",
+      "jsonc"
+    ],
+    "files.eol": "\n",
+    "editor.tabSize": 2,
+    "cmake.configureOnOpen": false
+  }
