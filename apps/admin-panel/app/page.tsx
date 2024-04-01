@@ -22,6 +22,7 @@ import { css } from '@emotion/css'
 import { Button, ConfigProvider, Divider, Dropdown, Input, Popover, theme } from 'antd'
 import React, { useState } from 'react'
 import defaultProps from './_defaultProps'
+import Image from 'next/image'
 
 const Item: React.FC<{ children: React.ReactNode }> = (props) => {
   const { token } = theme.useToken()
@@ -153,7 +154,10 @@ const MenuCard = () => {
                       }
                     `}
                   >
-                    <img src="https://gw.alipayobjects.com/zos/antfincdn/6FTGmLLmN/bianzu%25252013.svg" />
+                    <Image
+                      alt=""
+                      src="https://gw.alipayobjects.com/zos/antfincdn/6FTGmLLmN/bianzu%25252013.svg"
+                    />
                     <div
                       style={{
                         marginInlineStart: 14,

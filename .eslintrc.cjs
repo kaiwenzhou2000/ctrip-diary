@@ -35,7 +35,10 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.ts', '*.tsx'], // 只针对TypeScript和TSX文件
+      files: ['*.cjs'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
+      },
     },
     {
       files: ['apps/admin-panel/**'],
