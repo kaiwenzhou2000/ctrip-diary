@@ -7,10 +7,11 @@
     "dev:mobile": "pnpm -F @apps/mobile-app run start",
     "dev:admin": "pnpm -F @apps/admin-panel run dev",
     "dev:server": "pnpm -F @apps/server-api run dev",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx}\"",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.cjs,.mjs",
+    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,cjs,mjs}\"",
     "buildAll": "pnpm -F @apps/mobile-app run build && pnpm -F @apps/admin-panel run build && pnpm -F @apps/server-api run build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:admin": "pnpm -F @apps/admin-panel run build"
   },
   "husky": {
     "hooks": {
@@ -18,7 +19,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,vue,ts,tsx,json}": [
+    "*.{js,jsx,ts,tsx,cjs,mjs}": [
       "./node_modules/.bin/eslint"
     ]
   },

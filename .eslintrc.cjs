@@ -31,12 +31,19 @@ module.exports = {
   },
   rules: {
     // 在此定义自己的规则或覆盖规则
+    'import/no-anonymous-default-export': 'off',
   },
   overrides: [
     {
       files: ['*.ts', '*.tsx'], // 只针对TypeScript和TSX文件
+    },
+    {
+      files: ['apps/admin-panel/**'],
+      extends: ['next/core-web-vitals'],
       rules: {
-        // TypeScript特定的规则覆盖
+        // 在此定义自己的规则或覆盖规则
+        'import/no-anonymous-default-export': 'off',
+        'react/display-name': 'off',
       },
     },
   ],
