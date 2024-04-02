@@ -35,6 +35,7 @@ import {
 import Register from '../register'
 import { UploadMedia } from '@/components/uploadMedia'
 import { Pressable } from 'react-native'
+import { useAuth } from '@/components/authContext'
 
 type ChildProps = {
   loginSuccess: () => void
@@ -42,6 +43,7 @@ type ChildProps = {
 
 export default function Login({ loginSuccess }: ChildProps) {
   const toast = useToast()
+  const { setIsLoggedIn } = useAuth()
   // const [userInfo, setUserInfo] = useState({})
   const [username, setUsername] = useState('')
   const [usernameValid, setUsernameValid] = useState(false)
@@ -55,6 +57,7 @@ export default function Login({ loginSuccess }: ChildProps) {
     //   avatar: selectedAvatar,
     // }
     // setUserInfo(userItem)
+
     const pattern = /^[A-Za-z0-9_]+$/
     // 用户名正确
     if (pattern.test(username)) {
@@ -78,6 +81,7 @@ export default function Login({ loginSuccess }: ChildProps) {
           },
         })
         loginSuccess()
+        setIsLoggedIn(true)
       } else {
         // 密码错误
         setPasswordValid(true)

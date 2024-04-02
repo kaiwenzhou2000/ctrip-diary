@@ -10,15 +10,14 @@ export default function Tab2() {
   }
   return (
     <>
-      {!isLogin && (
-        <Center flex={1}>
-          <Login loginSuccess={loginSuccess} />
-        </Center>
-      )}
-      {isLogin && (
+      {isLogin ? (
         <View flex={1}>
           <Admin />
         </View>
+      ) : (
+        <Center flex={1}>
+          <Login loginSuccess={loginSuccess} />
+        </Center>
       )}
     </>
   )

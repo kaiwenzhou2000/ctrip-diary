@@ -109,7 +109,7 @@ export default function Register({ registerStatus }: ChildProps) {
         <VStack space="xs" pb="$4" w="$80" alignItems="center">
           <Heading lineHeight={30}>注册</Heading>
           <Avatar bgColor="$amber600" size="lg" borderRadius="$full">
-            <AvatarFallbackText>Sandeep Srivastava</AvatarFallbackText>
+            <AvatarFallbackText>Rinna Chen</AvatarFallbackText>
           </Avatar>
         </VStack>
         <VStack space="xl" py="$2">
