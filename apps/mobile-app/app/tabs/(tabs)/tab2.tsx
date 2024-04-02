@@ -1,16 +1,25 @@
-import React from 'react'
-import EditScreenInfo from '@/components/EditScreenInfo'
-import { Heading, Center, Divider, Text } from '@gluestack-ui/themed'
+import React, { useState } from 'react'
+import { Center, View } from '@gluestack-ui/themed'
+import Login from '@/app/login'
+import Admin from '@/app/admin'
 
 export default function Tab2() {
+  const [isLogin, setIsLogin] = useState(false)
+  const loginSuccess = () => {
+    setIsLogin(true)
+  }
   return (
-    <Center flex={1}>
-      <Heading bold size="2xl">
-        Expo V3 - Tab 2
-      </Heading>
-      <Divider marginVertical={30} width="80%" />
-      <Text p="$4">Example below to use gluestack-ui components.</Text>
-      <EditScreenInfo path="app/(app)/(tabs)/tab2.tsx" />
-    </Center>
+    <>
+      {!isLogin && (
+        <Center flex={1}>
+          <Login loginSuccess={loginSuccess} />
+        </Center>
+      )}
+      {isLogin && (
+        <View flex={1}>
+          <Admin />
+        </View>
+      )}
+    </>
   )
 }
