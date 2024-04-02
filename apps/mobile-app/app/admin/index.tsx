@@ -14,18 +14,11 @@ export default function Admin() {
   return (
     <>
       <ScrollView flex={1}>
-        {/* <View flex={1} flexDirection="row" justifyContent="flex-end" marginTop={10}>
-          <Button borderRadius="$full" size="md" p="$3.5" bg="$indigo600" borderColor="$indigo600">
-            <ButtonIcon as={EditIcon} />
-          </Button>
-          <Button borderRadius="$full" size="md" p="$3.5" bg="$indigo600" borderColor="$indigo600">
-            <ButtonIcon as={SettingsIcon} />
-          </Button>
-        </View> */}
         <Card p="$6" borderRadius="$lg" m="$3">
           <Box flexDirection="row">
             <Avatar mr="$4" bgColor="$indigo600">
               <AvatarFallbackText fontFamily="$heading">RC</AvatarFallbackText>
+              {/* 获取用户头像 */}
               {/* <AvatarImage
                 source={{
                   uri: 'https://images.unsplash.com/photo-1620403724159-40363e84a155?q=80&w=2646&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',

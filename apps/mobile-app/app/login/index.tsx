@@ -42,12 +42,19 @@ type ChildProps = {
 
 export default function Login({ loginSuccess }: ChildProps) {
   const toast = useToast()
+  // const [userInfo, setUserInfo] = useState({})
   const [username, setUsername] = useState('')
   const [usernameValid, setUsernameValid] = useState(false)
   const [password, setPassword] = useState('')
   const [passwordValid, setPasswordValid] = useState(false)
 
   const checkLogin = () => {
+    // const userItem = {
+    //   username,
+    //   password,
+    //   avatar: selectedAvatar,
+    // }
+    // setUserInfo(userItem)
     const pattern = /^[A-Za-z0-9_]+$/
     // 用户名正确
     if (pattern.test(username)) {
