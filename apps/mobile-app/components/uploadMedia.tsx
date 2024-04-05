@@ -27,6 +27,7 @@ export const UploadMedia = async ({ allowsMultipleSelection = false, mediaTypes 
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: mediaTypeOption,
     allowsMultipleSelection: allowsMultipleSelection,
+    base64: false,
   })
 
   if (result.canceled) {

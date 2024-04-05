@@ -13,7 +13,7 @@ export default function Tabs1() {
         <Publish />
       ) : (
         <Center flex={1}>
-          <Link href="/tabs/(tabs)/tab2" asChild>
+          <Link href="/login/" asChild>
             <Pressable>
               <Text style={styles.loginBtn}>请先登录</Text>
             </Pressable>

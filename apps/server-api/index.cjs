@@ -1,12 +1,124 @@
 const express = require('express')
+const mongoose = require('mongoose')
+const cookieParser = require('cookie-parser')
+const cors = require('cors')
+const bcrypt = require('bcrypt')
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' }) // 存储到`uploads`目录
+
 const app = express()
 
-// 当对主页发出 GET 请求时，响应“hello world”
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  })
+)
+app.use(cookieParser())
+app.use('/uploads', express.static('uploads'))
+
+const User = require('./model/UserModel.cjs')
+
 app.get('/', function (req, res) {
   res.send('hello world')
 })
 
-// 监听 3000 端口
-app.listen(3000, function () {
-  console.log('app is listening at port 3000')
+// 配置Multer存储
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'uploads/') // 确保uploads目录已存在
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + '-' + file.originalname)
+//   },
+// })
+
+// 用户注册
+app.post('/register', async (req, res) => {
+  try {
+    const { username, password } = req.body
+    if (!username || !password) {
+      return res.status(400).send({ message: 'Username and password are required.' })
+    }
+
+    // 检查用户是否已存在
+    const existingUser = await User.findOne({ username })
+    if (existingUser) {
+      return res.status(400).send({ message: '用户名已经存在，请直接登录' })
+    }
+
+    // 加密密码
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // 创建新用户
+    const user = new User({
+      username,
+      password: hashedPassword,
+    })
+    await user.save()
+
+    res.status(200).send({ code: 0, message: 'User registered successfully.', data: user })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ code: 500, message: 'Error registering user.' })
+  }
+})
+
+// 用户登录
+app.post('/login', upload.single('avatar'), async (req, res) => {
+  try {
+    const { username, password } = req.body
+    let user = await User.findOne({ username })
+    // 如果用户不存在
+    if (!user) {
+      return res.status(401).send({ message: '用户名不存在' })
+    }
+
+    // 如果用户存在，则验证密码
+    const validPassword = await bcrypt.compare(password, user.password)
+    if (!validPassword) {
+      return res.status(401).send({ message: '密码错误' })
+    }
+    // 保存上传的头像路径到用户记录
+    if (req.file) {
+      user.avatar = req.file.path
+      await user.save()
+    }
+    console.log(user)
+
+    // 如果用户名和密码都有效，发送成功消息
+    // const token = jwt.sign({ userId: user._id }, 'qweasdzxciopjklbnm', { expiresIn: '1h' })
+    // req.session.token = token
+
+    return res.status(200).send({ message: 'success', data: user })
+  } catch (error) {
+    console.error('Error logging in:', error)
+    res.status(500).json({ error: 'Error logging in' })
+  }
+})
+
+// 获取用户信息
+app.get('/getUserInfo/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const user = await User.findById(userId)
+    const avatarUrl = req.protocol + '://' + req.get('host') + '/' + user.avatar
+    const userInfo = {
+      ...user.toObject(),
+      avatarUrl,
+    }
+    res.status(200).send({ message: 'success', data: userInfo })
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+mongoose.connect('mongodb://localhost/ctrip').then(async () => {
+  console.log('连接数据库成功!!!')
+  // 监听 3000 端口
+  app.listen(3000, function () {
+    console.log('app is listening at port 3000')
+  })
 })

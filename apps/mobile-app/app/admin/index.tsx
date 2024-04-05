@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Avatar,
   AvatarFallbackText,
@@ -9,8 +9,24 @@ import {
   VStack,
   Text,
   Image,
+  AvatarImage,
 } from '@gluestack-ui/themed'
+import { useAuth } from '@/components/authContext'
+import { getUserItem } from '@/app/api/user'
+
 export default function Admin() {
+  const { userId } = useAuth()
+  const [userInfo, setUserInfo] = useState({
+    username: '',
+    avatarUrl: '',
+  })
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const res = await getUserItem(userId)
+      setUserInfo(res.data)
+    }
+    getUserInfo()
+  }, [userId])
   return (
     <>
       <ScrollView flex={1}>
@@ -19,15 +35,16 @@ export default function Admin() {
             <Avatar mr="$4" bgColor="$indigo600">
               <AvatarFallbackText fontFamily="$heading">RC</AvatarFallbackText>
               {/* 获取用户头像 */}
-              {/* <AvatarImage
+              <AvatarImage
+                alt=""
                 source={{
-                  uri: 'https://images.unsplash.com/photo-1620403724159-40363e84a155?q=80&w=2646&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                  uri: userInfo.avatarUrl,
                 }}
-              /> */}
+              />
             </Avatar>
             <VStack>
               <Heading size="md" fontFamily="$heading" mb="$1">
-                Rinna Chen
+                {userInfo.username}
               </Heading>
               <Text size="sm" fontFamily="$heading">
                 lina_chen02@163.com

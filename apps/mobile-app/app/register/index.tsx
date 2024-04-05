@@ -28,20 +28,17 @@ import {
   Avatar,
   AvatarFallbackText,
 } from '@gluestack-ui/themed'
-// import { router } from 'expo-router'
+import { router } from 'expo-router'
+import { registerUser } from '../api/user'
 
-type ChildProps = {
-  registerStatus: () => void
-}
-
-export default function Register({ registerStatus }: ChildProps) {
+export default function Register() {
   const toast = useToast()
   const [username, setUsername] = useState('')
   const [usernameValid, setUsernameValid] = useState(false)
   const [password, setPassword] = useState('')
   const [passwordValid, setPasswordValid] = useState(false)
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     const pattern = /^[A-Za-z0-9_]+$/
     // 用户名正确
     if (pattern.test(username)) {
@@ -52,6 +49,11 @@ export default function Register({ registerStatus }: ChildProps) {
           setAgreement(true)
           return
         }
+        const userInfo = {
+          username,
+          password,
+        }
+        await registerUser(userInfo)
         toast.show({
           placement: 'top',
           render: () => {
@@ -64,7 +66,9 @@ export default function Register({ registerStatus }: ChildProps) {
             )
           },
         })
-        registerStatus()
+        // 暂时
+        router.push('/login/')
+        router.setParams({ name: username })
       } else {
         // 密码校验失败
         setPasswordValid(true)
@@ -149,11 +153,6 @@ export default function Register({ registerStatus }: ChildProps) {
         <VStack space="lg" pt="$4">
           <Button size="sm" bgColor="$indigo600" onPress={handleRegister}>
             <ButtonText color="$white">注册</ButtonText>
-            {/* <Link href="/register" asChild>
-              <Pressable>
-                <ButtonText color="$white">注册</ButtonText>
-              </Pressable>
-            </Link> */}
           </Button>
         </VStack>
         <VStack pt="$4">

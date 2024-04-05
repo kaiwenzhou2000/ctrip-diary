@@ -3,15 +3,20 @@ import React, { createContext, useContext, useState, ReactNode } from 'react'
 interface AuthContextType {
   isLoggedIn: boolean
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
+  userId: string
+  setUserId: React.Dispatch<React.SetStateAction<string>>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userId, setUserId] = useState<string>('')
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, userId, setUserId }}>
+      {children}
+    </AuthContext.Provider>
   )
 }
 
