@@ -5,6 +5,13 @@ type User = {
   password: string
   avatar?: string
 }
+
+type PublishItem = {
+  title: string
+  description: string
+  [key: string]: string
+}
+
 export const registerUser = (data: User) => {
   return request({
     url: '/register',
@@ -28,7 +35,7 @@ export const getUserItem = (userId: string) => {
   })
 }
 
-export const publishTourItem = (data: any) => {
+export const publishTourItem = (data: PublishItem) => {
   return request({
     url: '/publish',
     method: 'POST',

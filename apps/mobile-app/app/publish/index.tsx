@@ -23,7 +23,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 import { UploadMedia } from '@/components/uploadMedia'
 import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import { router } from 'expo-router'
+// import { router } from 'expo-router'
 import { publishTourItem } from '../api/user'
 
 export default function Publish() {
