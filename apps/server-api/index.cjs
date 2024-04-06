@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // 根据请求中的某些条件动态设置存储目录
     let uploadFolder = 'uploads/' // 默认目录
-    if (req.baseUrl.includes('register')) {
+    if (req.path.includes('login')) {
       uploadFolder += 'avatar/'
     } else {
       if (file.mimetype.startsWith('image/')) {
