@@ -4,7 +4,33 @@ const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const bcrypt = require('bcrypt')
 const multer = require('multer')
-const upload = multer({ dest: 'uploads/' }) // 存储到`uploads`目录
+const fs = require('fs')
+// const upload = multer({ dest: 'uploads/' }) // 存储到`uploads`目录
+
+// 配置Multer存储
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // 根据请求中的某些条件动态设置存储目录
+    let uploadFolder = 'uploads/' // 默认目录
+    if (req.baseUrl.includes('register')) {
+      uploadFolder += 'avatar/'
+    } else {
+      if (file.mimetype.startsWith('image/')) {
+        uploadFolder += 'images/'
+      } else if (file.mimetype.startsWith('video/')) {
+        uploadFolder += 'videos/'
+      }
+    }
+    // 确保目录存在
+    fs.mkdirSync(uploadFolder, { recursive: true })
+    cb(null, uploadFolder)
+  },
+  filename: function (req, file, cb) {
+    // 当前时间戳-原始文件名
+    cb(null, Date.now() + '-' + file.originalname)
+  },
+})
+const upload = multer({ storage: storage })
 
 const app = express()
 
@@ -20,20 +46,11 @@ app.use(cookieParser())
 app.use('/uploads', express.static('uploads'))
 
 const User = require('./model/UserModel.cjs')
+const ReleaseNote = require('./model/ReleaseModel.cjs')
 
 app.get('/', function (req, res) {
   res.send('hello world')
 })
-
-// 配置Multer存储
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'uploads/') // 确保uploads目录已存在
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + '-' + file.originalname)
-//   },
-// })
 
 // 用户注册
 app.post('/register', async (req, res) => {
@@ -86,7 +103,6 @@ app.post('/login', upload.single('avatar'), async (req, res) => {
       user.avatar = req.file.path
       await user.save()
     }
-    console.log(user)
 
     // 如果用户名和密码都有效，发送成功消息
     // const token = jwt.sign({ userId: user._id }, 'qweasdzxciopjklbnm', { expiresIn: '1h' })
@@ -110,6 +126,30 @@ app.get('/getUserInfo/:userId', async (req, res) => {
       avatarUrl,
     }
     res.status(200).send({ message: 'success', data: userInfo })
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+app.post('/publish', upload.single('file'), async (req, res) => {
+  try {
+    const { title, description } = req.body
+    const releaseNote = new ReleaseNote({
+      title,
+      description,
+    })
+
+    if (req.file) {
+      if (req.file.mimetype.startsWith('image/')) {
+        releaseNote.images.push(req.file.path)
+      } else if (req.file.mimetype.startsWith('video/')) {
+        releaseNote.video = req.file.path
+      }
+    }
+    console.log(releaseNote)
+    await releaseNote.save()
+
+    return res.status(200).send({ message: 'success', data: releaseNote })
   } catch (e) {
     console.log(e)
   }

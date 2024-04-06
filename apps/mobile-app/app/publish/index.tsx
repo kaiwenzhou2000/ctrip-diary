@@ -13,6 +13,10 @@ import {
   Pressable,
   Image,
   FormControl,
+  AlertCircleIcon,
+  FormControlError,
+  FormControlErrorIcon,
+  FormControlErrorText,
 } from '@gluestack-ui/themed'
 import { TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
@@ -20,28 +24,78 @@ import { UploadMedia } from '@/components/uploadMedia'
 import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
+import { publishTourItem } from '../api/user'
 
 export default function Publish() {
   const videoRef = useRef(null)
   const [hasVideo, setHasVideo] = useState(false)
   const [hasImages] = useState(false)
   const [imageList] = useState([])
-  const [selectedVideo, setSelectedVideo] = useState<{ localUri: string } | null>(null)
+  const [selectedVideoUri, setSelectedVideoUri] = useState<{ localUri: string } | null>(null)
+  const [selectedVideo, setSelectedVideo] = useState({
+    uri: '',
+    type: '',
+    fileName: '',
+  })
   const handleSelectVideo = async () => {
     const videos = await UploadMedia({ allowsMultipleSelection: false, mediaTypes: 'Videos' })
     if (videos.length > 0) {
+      setSelectedVideo(videos[0])
       const { uri } = videos[0]
-      setSelectedVideo({ localUri: uri })
+      setSelectedVideoUri({ localUri: uri })
       setHasVideo(true)
     }
   }
 
-  const publishTour = () => {
-    router.push('/tabs/(tabs)/tab2')
+  const [titleValid, setTitleValid] = useState(false)
+  const [title, setTitle] = useState('')
+  const handleTitleChange = (value: string) => {
+    setTitle(value)
+    if (!value) {
+      setTitleValid(true)
+    } else {
+      setTitleValid(false)
+    }
   }
 
-  // const [titleValid, setTitleValid] = useState(false)
-  const [title, setTitle] = useState('')
+  const [descriptionValid, setDescriptionValid] = useState(false)
+  const [description, setDescription] = useState('')
+  const handleDescriptionChange = (value: string) => {
+    setDescription(value)
+    if (!value) {
+      setDescriptionValid(true)
+    } else {
+      setDescriptionValid(false)
+    }
+  }
+
+  // 发布
+  const publishTour = async () => {
+    if (!title) {
+      setTitleValid(true)
+      return
+    }
+    if (!description) {
+      setDescriptionValid(true)
+      return
+    }
+    const formData = new FormData()
+    const { type } = selectedVideo
+    const filename = selectedVideoUri?.localUri.split('/').pop()
+    formData.append('title', title)
+    formData.append('description', description)
+    formData.append('file', {
+      uri: selectedVideoUri?.localUri,
+      name: filename,
+      type,
+    })
+    try {
+      await publishTourItem(formData)
+    } catch (e) {
+      console.log(e)
+    }
+    // router.push('/tabs/(tabs)/tab2')
+  }
 
   return (
     <ScrollView style={styles.scrollview} contentContainerStyle={styles.container}>
@@ -81,7 +135,7 @@ export default function Publish() {
                   ) : (
                     <Video
                       ref={videoRef}
-                      source={{ uri: selectedVideo?.localUri || '' }}
+                      source={{ uri: selectedVideoUri?.localUri || '' }}
                       rate={1.0}
                       volume={0}
                       isMuted={false}
@@ -96,19 +150,33 @@ export default function Publish() {
               </ScrollView>
             </HStack>
           </View>
-          <FormControl isRequired={true}>
+          <FormControl isRequired={true} isInvalid={titleValid}>
             <Input variant="underlined" size="md" ml="$2">
-              <InputField placeholder="填写标题" value={title} onChangeText={setTitle} />
+              <InputField placeholder="填写标题" value={title} onChangeText={handleTitleChange} />
             </Input>
+            <FormControlError>
+              <FormControlErrorIcon as={AlertCircleIcon} />
+              <FormControlErrorText>标题不能为空</FormControlErrorText>
+            </FormControlError>
           </FormControl>
-          <Textarea
-            size="md"
-            isInvalid={false}
-            mt="$2"
-            style={{ borderWidth: 0, height: textareaHeight }}
-          >
-            <TextareaInput placeholder="详细分享你的真实体验、实用攻略和一些小Tip，你的旅游足迹等...." />
-          </Textarea>
+          <FormControl isRequired={true} isInvalid={descriptionValid}>
+            <Textarea
+              size="md"
+              isInvalid={false}
+              mt="$2"
+              style={{ borderWidth: 0, height: textareaHeight }}
+            >
+              <TextareaInput
+                placeholder="详细分享你的真实体验、实用攻略和一些小Tip，你的旅游足迹等...."
+                value={description}
+                onChangeText={handleDescriptionChange}
+              />
+            </Textarea>
+            <FormControlError>
+              <FormControlErrorIcon as={AlertCircleIcon} />
+              <FormControlErrorText>内容不能为空</FormControlErrorText>
+            </FormControlError>
+          </FormControl>
         </Card>
 
         <HStack style={styles.publishContainer}>

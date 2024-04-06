@@ -27,3 +27,11 @@ export const getUserItem = (userId: string) => {
     method: 'GET',
   })
 }
+
+export const publishTourItem = (data: any) => {
+  return request({
+    url: '/publish',
+    method: 'POST',
+    data,
+  })
+}

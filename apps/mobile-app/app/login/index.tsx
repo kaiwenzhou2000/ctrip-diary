@@ -73,10 +73,10 @@ export default function Login() {
 
     if (selectedAvatar) {
       const localUri = selectedAvatar.localUri
+      console.log(localUri)
       const filename = localUri.split('/').pop()
       // const match = /\.(\w+)$/.exec(filename)
       // const type = match ? `image/${match[1]}` : `image`
-      console.log(filename, localUri)
       formData.append('avatar', { uri: localUri, name: filename, type: selectedImage.mimeType })
     }
     // 1. 用户名、密码正确，数据库无 - 未注册
