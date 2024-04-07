@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Alert } from 'react-native'
 
 const request = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'http://172.20.10.2:3000',
   timeout: 10000,
 })
 

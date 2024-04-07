@@ -1,3 +1,3 @@
 import Welcome from './Welcome'
-
-export { Welcome }
+import Text101 from './text'
+export { Welcome,Text101 }

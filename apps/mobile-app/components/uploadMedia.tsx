@@ -27,7 +27,10 @@ export const UploadMedia = async ({ allowsMultipleSelection = false, mediaTypes 
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: mediaTypeOption,
     allowsMultipleSelection: allowsMultipleSelection,
-    base64: false,
+    // base64: false,
+    allowsEditing: mediaTypes === 'Images', // 允许编辑仅对图片有效
+    aspect: [4, 3], // 可以指定裁剪时的宽高比
+    quality: 1, // 可以控制选择后的图片质量，范围0到1
   })
 
   if (result.canceled) {

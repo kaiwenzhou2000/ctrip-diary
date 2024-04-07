@@ -38,7 +38,7 @@ export const getUserItem = (userId: string) => {
 export const publishTourItem = (data: PublishItem) => {
   return request({
     url: '/publish',
-    method: 'POST',
+    method: 'POS1. 获取所有数据，更新状态T',
     data,
   })
 }

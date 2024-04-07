@@ -1,6 +1,5 @@
 import { ChromeFilled, CrownFilled, SmileFilled, TabletFilled } from '@ant-design/icons'
-
-import { Welcome } from './pages'
+import { Welcome,Text101 } from './pages'
 
 export default {
   route: {
@@ -54,7 +53,7 @@ export default {
                 path: 'sub-sub-page1',
                 name: '一一级列表页面',
                 icon: <CrownFilled />,
-                component: <Welcome />,
+                component: <Text101 />,
               },
               {
                 path: 'sub-sub-page2',

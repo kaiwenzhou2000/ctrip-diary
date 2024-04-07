@@ -29,8 +29,8 @@ import { publishTourItem } from '../api/user'
 export default function Publish() {
   const videoRef = useRef(null)
   const [hasVideo, setHasVideo] = useState(false)
-  const [hasImages] = useState(false)
-  const [imageList] = useState([])
+  const [hasImages, setHasImages] = useState(false)
+  const [imageList, setImageList] = useState([])
   const [selectedVideoUri, setSelectedVideoUri] = useState<{ localUri: string } | null>(null)
   const [selectedVideo, setSelectedVideo] = useState({
     uri: '',
@@ -44,6 +44,19 @@ export default function Publish() {
       const { uri } = videos[0]
       setSelectedVideoUri({ localUri: uri })
       setHasVideo(true)
+    }
+  }
+
+  const handleSelectImage = async () => {
+    const images = await UploadMedia({
+      allowsMultipleSelection: true, // 允许选择多张图片
+      mediaTypes: 'Images', // 选择的媒体类型为图片
+    })
+
+    // 检查用户是否选择了图片
+    if (images.length > 0) {
+      setHasImages(true)
+      setImageList(images) // 更新图片列表状态
     }
   }
 
@@ -70,31 +83,68 @@ export default function Publish() {
   }
 
   // 发布
+  // const publishTour = async () => {
+  //   if (!title) {
+  //     setTitleValid(true)
+  //     return
+  //   }
+  //   if (!description) {
+  //     setDescriptionValid(true)
+  //     return
+  //   }
+  //   const formData = new FormData()
+  //   const { type } = selectedVideo
+  //   const filename = selectedVideoUri?.localUri.split('/').pop()
+  //   formData.append('title', title)
+  //   formData.append('description', description)
+  //   formData.append('file', {
+  //     uri: selectedVideoUri?.localUri,
+  //     name: filename,
+  //     type,
+  //   })
+  //   try {
+  //     await publishTourItem(formData)
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  //   // router.push('/tabs/(tabs)/tab2')
+  // }
+
   const publishTour = async () => {
-    if (!title) {
-      setTitleValid(true)
-      return
-    }
-    if (!description) {
-      setDescriptionValid(true)
+    if (!title || !description) {
+      setTitleValid(!title)
+      setDescriptionValid(!description)
       return
     }
     const formData = new FormData()
-    const { type } = selectedVideo
-    const filename = selectedVideoUri?.localUri.split('/').pop()
     formData.append('title', title)
     formData.append('description', description)
-    formData.append('file', {
-      uri: selectedVideoUri?.localUri,
-      name: filename,
-      type,
-    })
-    try {
-      await publishTourItem(formData)
-    } catch (e) {
-      console.log(e)
+
+    if (selectedVideoUri) {
+      formData.append('file', {
+        uri: selectedVideoUri.localUri,
+        type: selectedVideo.type,
+        name: selectedVideo.fileName || 'video.mp4',
+      })
     }
-    // router.push('/tabs/(tabs)/tab2')
+
+    // 处理图片
+    imageList.forEach((img, index) => {
+      formData.append('file', img)
+    })
+
+    try {
+      const response = await fetch('http://localhost:3000/publish', {
+        method: 'POST',
+        body: formData,
+        // 注意：当使用FormData时，不要手动设置Content-Type头部
+      })
+      const responseData = await response.json()
+      console.log('Publish Success:', responseData)
+      // 发布成功后的操作，比如跳转到其他页面
+    } catch (error) {
+      console.error('Publish Error:', error)
+    }
   }
 
   return (
@@ -107,22 +157,34 @@ export default function Publish() {
           <View>
             <HStack style={styles.uploadContainer}>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                {!hasImages ? (
-                  <TouchableOpacity style={[styles.upload, styles.uploadBtn]}>
-                    <Icon name="collections" size={30} />
-                    <Text>选择图片</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <>
-                    {imageList.map((_img, index) => {
-                      return <Image key={index} alt="" style={[styles.upload, styles.uploadBtn]} />
-                    })}
-                    <TouchableOpacity style={[styles.upload, styles.uploadBtn]}>
+                {
+                  !hasImages ? (
+                    <TouchableOpacity
+                      style={[styles.upload, styles.uploadBtn]}
+                      onPress={handleSelectImage}
+                    >
                       <Icon name="collections" size={30} />
                       <Text>选择图片</Text>
                     </TouchableOpacity>
-                  </>
-                )}
+                  ) : null // 如果已经选择了图片，则不显示"选择图片"按钮
+                }
+                {imageList.map((img, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: img.uri }}
+                    style={[styles.upload, styles.uploadBtn]}
+                  />
+                ))}
+                {
+                  // 始终提供一个按钮以便用户可以继续添加图片
+                  <TouchableOpacity
+                    style={[styles.upload, styles.uploadBtn]}
+                    onPress={handleSelectImage}
+                  >
+                    <Icon name="collections" size={30} />
+                    <Text>选择更多图片</Text>
+                  </TouchableOpacity>
+                }
                 <TouchableOpacity
                   style={[styles.upload, styles.uploadVideo]}
                   onPress={handleSelectVideo}
@@ -232,7 +294,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 10,
-    borderStyle: 'solid',
+    // borderStyle: 'solid',
     borderWidth: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
@@ -240,13 +302,13 @@ const styles = StyleSheet.create({
   },
   uploadBtn: {
     marginRight: 10,
-    borderColor: '#EOEOEO',
+    // borderColor: '#EOEOEO',
   },
   uploadVideo: {
     width: 120,
     height: 120,
     borderRadius: 10,
-    borderStyle: 'solid',
+    // borderStyle: 'solid',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

@@ -131,29 +131,58 @@ app.get('/getUserInfo/:userId', async (req, res) => {
   }
 })
 
-app.post('/publish', upload.single('file'), async (req, res) => {
+// app.post('/publish', upload.single('file'), async (req, res) => {
+//   try {
+//     const { title, description } = req.body
+//     const releaseNote = new ReleaseNote({
+//       title,
+//       description,
+//     })
+
+//     if (req.file) {
+//       if (req.file.mimetype.startsWith('image/')) {
+//         releaseNote.images.push(req.file.path)
+//       } else if (req.file.mimetype.startsWith('video/')) {
+//         releaseNote.video = req.file.path
+//       }
+//     }
+//     console.log(releaseNote)
+//     await releaseNote.save()
+
+//     return res.status(200).send({ message: 'success', data: releaseNote })
+//   } catch (e) {
+//     console.log(e)
+//   }
+// })
+
+// 修改这部分代码
+app.post('/publish', upload.array('file', 12), async (req, res) => { // 允许最多上传12个文件
   try {
-    const { title, description } = req.body
+    const { title, description } = req.body;
     const releaseNote = new ReleaseNote({
       title,
       description,
-    })
+      images: [], // 确保images字段是一个数组
+      video: ''
+    });
 
-    if (req.file) {
-      if (req.file.mimetype.startsWith('image/')) {
-        releaseNote.images.push(req.file.path)
-      } else if (req.file.mimetype.startsWith('video/')) {
-        releaseNote.video = req.file.path
+    // 遍历所有上传的文件
+    req.files.forEach(file => {
+      if (file.mimetype.startsWith('image/')) {
+        releaseNote.images.push(file.path); // 处理图片文件
+      } else if (file.mimetype.startsWith('video/')) {
+        releaseNote.video = file.path; // 假设只允许上传一个视频
       }
-    }
-    console.log(releaseNote)
-    await releaseNote.save()
+    });
 
-    return res.status(200).send({ message: 'success', data: releaseNote })
+    await releaseNote.save();
+    return res.status(200).send({ message: 'success', data: releaseNote });
   } catch (e) {
-    console.log(e)
+    console.log(e);
+    res.status(500).send({ message: 'Error publishing note.' });
   }
-})
+});
+
 
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   console.log('连接数据库成功!!!')
