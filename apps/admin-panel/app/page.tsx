@@ -256,6 +256,10 @@ const SearchInput = () => {
   )
 }
 
+const getCurrentComponent = (pathname: string) => {
+  return defaultProps.route.routes.find((item) => item.path === pathname)?.component
+}
+
 export default () => {
   const [settings, setSetting] = useState<Partial<ProSettings> | undefined>({
     fixSiderbar: true,
@@ -263,7 +267,7 @@ export default () => {
     splitMenus: true,
   })
 
-  const [pathname, setPathname] = useState('/list/sub-page/sub-sub-page1')
+  const [pathname, setPathname] = useState('/welcome')
   const [num, setNum] = useState(40)
   if (typeof document === 'undefined') {
     return <div />
@@ -427,7 +431,7 @@ export default () => {
                   minHeight: 800,
                 }}
               >
-                <div />
+                <div>{getCurrentComponent(pathname)}</div>
               </ProCard>
             </PageContainer>
 
