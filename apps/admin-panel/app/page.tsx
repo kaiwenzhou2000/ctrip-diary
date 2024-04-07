@@ -256,9 +256,38 @@ const SearchInput = () => {
   )
 }
 
-const getCurrentComponent = (pathname: string) => {
-  return defaultProps.route.routes.find((item) => item.path === pathname)?.component
+const findComponentByPath = (routes, pathname: string) => {
+  // 递归函数遍历路由配置
+  const findComponent = (routesArray, path: string) => {
+    for (const route of routesArray) {
+      if (route.path === path) {
+        // 直接返回找到的组件
+        return route.component
+      }
+      // 如果当前路由有子路由，递归搜索
+      if (route.routes) {
+        const foundComponent = findComponent(route.routes, path)
+        // 如果在子路由中找到了组件，直接返回
+        if (foundComponent) return foundComponent
+      }
+    }
+    // 如果没有找到组件，返回 null
+    return null
+  }
+
+  return findComponent(routes, pathname)
 }
+
+const getCurrentComponent = (pathname: string) => {
+  // 使用 defaultProps.route.routes 作为路由配置的起点
+  const component = findComponentByPath(defaultProps.route.routes, pathname)
+  return component
+}
+
+// const getCurrentComponent = (pathname: string) => {
+//   console.log(defaultProps.route.routes.find((item) => item.path === pathname)?.component)
+//   return defaultProps.route.routes.find((item) => item.path === pathname)?.component
+// }
 
 export default () => {
   const [settings, setSetting] = useState<Partial<ProSettings> | undefined>({
@@ -404,26 +433,26 @@ export default () => {
               token={{
                 paddingInlinePageContainerContent: num,
               }}
-              extra={[
-                <Button key="3">操作</Button>,
-                <Button key="2">操作</Button>,
-                <Button
-                  key="1"
-                  type="primary"
-                  onClick={() => {
-                    setNum(num > 0 ? 0 : 40)
-                  }}
-                >
-                  主操作
-                </Button>,
-              ]}
-              subTitle="简单的描述"
-              footer={[
-                <Button key="3">重置</Button>,
-                <Button key="2" type="primary">
-                  提交
-                </Button>,
-              ]}
+              // extra={[
+              //   <Button key="3">操作</Button>,
+              //   <Button key="2">操作</Button>,
+              //   <Button
+              //     key="1"
+              //     type="primary"
+              //     onClick={() => {
+              //       setNum(num > 0 ? 0 : 40)
+              //     }}
+              //   >
+              //     主操作
+              //   </Button>,
+              // ]}
+              // subTitle="简单的描述"
+              // footer={[
+              //   <Button key="3">重置</Button>,
+              //   <Button key="2" type="primary">
+              //     提交
+              //   </Button>,
+              // ]}
             >
               <ProCard
                 style={{

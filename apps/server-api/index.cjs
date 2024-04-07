@@ -47,6 +47,7 @@ app.use('/uploads', express.static('uploads'))
 
 const User = require('./model/UserModel.cjs')
 const ReleaseNote = require('./model/ReleaseModel.cjs')
+const PCUser = require('./model/PCUserModel.cjs')
 
 app.get('/', function (req, res) {
   res.send('hello world')
@@ -131,6 +132,7 @@ app.get('/getUserInfo/:userId', async (req, res) => {
   }
 })
 
+// 发布游记（当前用户）
 app.post('/publish/:userId', upload.single('file'), async (req, res) => {
   try {
     const userId = req.params.userId
@@ -156,7 +158,62 @@ app.post('/publish/:userId', upload.single('file'), async (req, res) => {
   }
 })
 
+// 获取客户端用户列表
+app.get('/getPCUserList', async (req, res) => {
+  try {
+    const userList = await PCUser.find()
+    const totalCount = await PCUser.countDocuments()
+    const response = {
+      page: 1,
+      per_page: 5,
+      totalCount,
+      userList,
+    }
+    return res.status(200).send({ message: 'success', data: response })
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+// 删除用户
+app.delete('/deletePCUser/:userId', async (req, res) => {
+  try {
+    const taskId = req.params.userId
+    const deletedUserItem = await PCUser.findByIdAndDelete(taskId)
+    if (!deletedUserItem) {
+      return res.status(404).send({ status: 1, msg: '未找到要删除的用户' })
+    }
+    return res.status(200).send({ status: 0, msg: '用户已成功删除' })
+  } catch (error) {
+    console.error('删除用户异常', error)
+    res.status(500).send({ status: 1, msg: '删除用户异常，请重新尝试' })
+  }
+})
+
+const insertSampleUser = async () => {
+  try {
+    // 检查是否已有用户数据
+    const existingUsers = await PCUser.find()
+    if (existingUsers.length > 0) {
+      console.log('已存在用户数据，无需插入示例数据')
+      return
+    }
+
+    // 插入新的用户数据
+    await PCUser.insertMany([
+      { username: 'test', password: 'test111', identity: 'superadmin' },
+      { username: 'aaa', password: 'aaa111', identity: 'publishGroup' },
+      { username: 'uuu', password: 'uuu111', identity: 'monitorGroup' },
+      { username: '要删掉的', password: 'uuu111', identity: 'monitorGroup' },
+    ])
+    console.log('Sample user inserted successfully')
+  } catch (error) {
+    console.error('Error inserting sample user:', error)
+  }
+}
+
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
+  await insertSampleUser()
   console.log('连接数据库成功!!!')
   // 监听 3000 端口
   app.listen(3000, function () {
