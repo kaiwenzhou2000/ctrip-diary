@@ -13,9 +13,9 @@ import {
 } from '@gluestack-ui/themed'
 import { useAuth } from '@/components/authContext'
 import { getUserItem } from '@/app/api/user'
-
+import { AntDesign } from '@expo/vector-icons'
 export default function Admin() {
-  const { userId } = useAuth()
+  const { userId, setUserId, setIsLoggedIn } = useAuth()
   const [userInfo, setUserInfo] = useState({
     username: '',
     avatarUrl: '',
@@ -27,29 +27,39 @@ export default function Admin() {
     }
     getUserInfo()
   }, [userId])
+
+  // 退出登录
+  const userLogout = () => {
+    setIsLoggedIn(false)
+    setUserId('')
+  }
+
   return (
     <>
       <ScrollView flex={1}>
         <Card p="$6" borderRadius="$lg" m="$3">
-          <Box flexDirection="row">
-            <Avatar mr="$4" bgColor="$indigo600">
-              <AvatarFallbackText fontFamily="$heading">RC</AvatarFallbackText>
-              {/* 获取用户头像 */}
-              <AvatarImage
-                alt=""
-                source={{
-                  uri: userInfo.avatarUrl,
-                }}
-              />
-            </Avatar>
-            <VStack>
-              <Heading size="md" fontFamily="$heading" mb="$1">
-                {userInfo.username}
-              </Heading>
-              <Text size="sm" fontFamily="$heading">
-                lina_chen02@163.com
-              </Text>
-            </VStack>
+          <Box flexDirection="row" justifyContent="space-between">
+            <Box flexDirection="row" justifyContent="flex-start" alignItems="center">
+              <Avatar mr="$4" bgColor="$indigo600">
+                <AvatarFallbackText fontFamily="$heading">RC</AvatarFallbackText>
+                {/* 获取用户头像 */}
+                <AvatarImage
+                  alt=""
+                  source={{
+                    uri: userInfo.avatarUrl,
+                  }}
+                />
+              </Avatar>
+              <VStack>
+                <Heading size="md" fontFamily="$heading" mb="$1">
+                  {userInfo.username}
+                </Heading>
+                <Text size="sm" fontFamily="$heading">
+                  lina_chen02@163.com
+                </Text>
+              </VStack>
+            </Box>
+            <AntDesign name="logout" size={18} color="black" onPress={userLogout} />
           </Box>
           <Box
             mt="$5"

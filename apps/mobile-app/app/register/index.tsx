@@ -66,7 +66,7 @@ export default function Register() {
             )
           },
         })
-        // 暂时
+        // 注册成功进入登录页面
         router.push('/login/')
         router.setParams({ name: username })
       } else {

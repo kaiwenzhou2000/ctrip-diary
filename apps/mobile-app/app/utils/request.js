@@ -1,6 +1,6 @@
 // axios封装处理
 import axios from 'axios'
-import { Alert } from 'react-native'
+// import { Alert } from 'react-native'
 
 const request = axios.create({
   baseURL: 'http://localhost:3000',
@@ -24,10 +24,11 @@ request.interceptors.response.use(
     return response.data
   },
   (error) => {
+    console.log(error)
     // 监控401状态码
     if (error.response.status === 401) {
-      const { message } = error.response.data
-      Alert.alert(message)
+      // const { message } = error.response.data
+      // Alert.alert(message)
       // router.navigate('/login')
     }
     return Promise.reject(error)

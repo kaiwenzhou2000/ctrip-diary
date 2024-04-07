@@ -25,8 +25,10 @@ import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 // import { router } from 'expo-router'
 import { publishTourItem } from '../api/user'
+import { useAuth } from '@/components/authContext'
 
 export default function Publish() {
+  const { userId } = useAuth()
   const videoRef = useRef(null)
   const [hasVideo, setHasVideo] = useState(false)
   const [hasImages] = useState(false)
@@ -90,7 +92,7 @@ export default function Publish() {
       type,
     })
     try {
-      await publishTourItem(formData)
+      await publishTourItem(userId, formData)
     } catch (e) {
       console.log(e)
     }
