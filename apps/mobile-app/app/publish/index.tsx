@@ -10,7 +10,6 @@ import {
   ButtonText,
   Input,
   InputField,
-  Pressable,
   Image,
   FormControl,
   AlertCircleIcon,
@@ -18,50 +17,21 @@ import {
   FormControlErrorIcon,
   FormControlErrorText,
 } from '@gluestack-ui/themed'
-import { TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native'
+import { TouchableOpacity, StyleSheet, ScrollView, Dimensions, Pressable } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { UploadMedia } from '@/components/uploadMedia'
 import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-// import { router } from 'expo-router'
+import { router } from 'expo-router'
 import { publishTourItem } from '../api/user'
+import { useAuth } from '@/components/authContext'
 
 export default function Publish() {
-  const videoRef = useRef(null)
-  const [hasVideo, setHasVideo] = useState(false)
-  const [hasImages, setHasImages] = useState(false)
-  const [imageList, setImageList] = useState([])
-  const [selectedVideoUri, setSelectedVideoUri] = useState<{ localUri: string } | null>(null)
-  const [selectedVideo, setSelectedVideo] = useState({
-    uri: '',
-    type: '',
-    fileName: '',
-  })
-  const handleSelectVideo = async () => {
-    const videos = await UploadMedia({ allowsMultipleSelection: false, mediaTypes: 'Videos' })
-    if (videos.length > 0) {
-      setSelectedVideo(videos[0])
-      const { uri } = videos[0]
-      setSelectedVideoUri({ localUri: uri })
-      setHasVideo(true)
-    }
-  }
-
-  const handleSelectImage = async () => {
-    const images = await UploadMedia({
-      allowsMultipleSelection: true, // 允许选择多张图片
-      mediaTypes: 'Images', // 选择的媒体类型为图片
-    })
-
-    // 检查用户是否选择了图片
-    if (images.length > 0) {
-      setHasImages(true)
-      setImageList(images) // 更新图片列表状态
-    }
-  }
+  const { userId } = useAuth()
 
   const [titleValid, setTitleValid] = useState(false)
   const [title, setTitle] = useState('')
+  // 标题变化的回调
   const handleTitleChange = (value: string) => {
     setTitle(value)
     if (!value) {
@@ -73,6 +43,7 @@ export default function Publish() {
 
   const [descriptionValid, setDescriptionValid] = useState(false)
   const [description, setDescription] = useState('')
+  // 描述内容变化的回调
   const handleDescriptionChange = (value: string) => {
     setDescription(value)
     if (!value) {
@@ -82,68 +53,93 @@ export default function Publish() {
     }
   }
 
-  // 发布
-  // const publishTour = async () => {
-  //   if (!title) {
-  //     setTitleValid(true)
-  //     return
-  //   }
-  //   if (!description) {
-  //     setDescriptionValid(true)
-  //     return
-  //   }
-  //   const formData = new FormData()
-  //   const { type } = selectedVideo
-  //   const filename = selectedVideoUri?.localUri.split('/').pop()
-  //   formData.append('title', title)
-  //   formData.append('description', description)
-  //   formData.append('file', {
-  //     uri: selectedVideoUri?.localUri,
-  //     name: filename,
-  //     type,
-  //   })
-  //   try {
-  //     await publishTourItem(formData)
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  //   // router.push('/tabs/(tabs)/tab2')
-  // }
+  interface ImageState {
+    uri: string
+    mimeType?: string
+    type?: string
+    fileName?: string
+  }
 
+  const [hasMedia, setHasMedia] = useState(false)
+  const [hasImages, setHasImages] = useState(false)
+  const [imageList, setImageList] = useState<ImageState[]>([])
+
+  const videoRef = useRef(null)
+
+  const [hasVideo, setHasVideo] = useState(false)
+  const [selectedVideoUri, setSelectedVideoUri] = useState<{ localUri: string } | null>(null)
+  const [selectedVideo, setSelectedVideo] = useState({
+    uri: '',
+    type: '',
+    fileName: '',
+  })
+
+  // 上传图片或视频
+  const handleSelectImgOrVideo = async () => {
+    const medias = await UploadMedia({ allowsMultipleSelection: true, mediaTypes: 'All' })
+    if (medias.length > 0) {
+      setHasMedia(true)
+
+      // 过滤图片
+      const selectedImages = medias.filter((media) => media.mimeType?.startsWith('image'))
+      console.log(selectedImages, imageList)
+      if (selectedImages.length > 0) {
+        setImageList((prevImages) => [
+          ...prevImages.filter((img) => img.uri), // 过滤掉空uri元素
+          ...selectedImages,
+        ])
+        setHasImages(true)
+      }
+
+      // 过滤视频
+      const selectedVideos = medias.filter((media) => media.mimeType?.startsWith('video'))
+      if (selectedVideos.length > 0) {
+        const selectedVideo = selectedVideos[0]
+        setSelectedVideo(selectedVideo)
+        setSelectedVideoUri({ localUri: selectedVideo.uri })
+        setHasVideo(true)
+      }
+    }
+  }
+
+  // 发布
   const publishTour = async () => {
-    if (!title || !description) {
-      setTitleValid(!title)
-      setDescriptionValid(!description)
+    if (!title) {
+      setTitleValid(true)
       return
     }
+    if (!description) {
+      setDescriptionValid(true)
+      return
+    }
+
     const formData = new FormData()
     formData.append('title', title)
     formData.append('description', description)
-
-    if (selectedVideoUri) {
-      formData.append('file', {
-        uri: selectedVideoUri.localUri,
+    if (selectedVideo) {
+      const filename = selectedVideoUri?.localUri.split('/').pop()
+      formData.append('video', {
+        uri: selectedVideoUri?.localUri,
+        name: filename,
         type: selectedVideo.type,
-        name: selectedVideo.fileName || 'video.mp4',
       })
     }
-
-    // 处理图片
-    imageList.forEach((img, index) => {
-      formData.append('file', img)
-    })
-
-    try {
-      const response = await fetch('http://localhost:3000/publish', {
-        method: 'POST',
-        body: formData,
-        // 注意：当使用FormData时，不要手动设置Content-Type头部
+    if (imageList) {
+      imageList.forEach((img) => {
+        const imgFilename = img?.uri.split('/').pop()
+        const imgData = {
+          uri: img.uri,
+          name: imgFilename,
+          type: img.type,
+        }
+        formData.append('images', imgData)
       })
-      const responseData = await response.json()
-      console.log('Publish Success:', responseData)
-      // 发布成功后的操作，比如跳转到其他页面
-    } catch (error) {
-      console.error('Publish Error:', error)
+    }
+    try {
+      await publishTourItem(userId, formData)
+      router.push('/tabs/(tabs)/tab2')
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -157,58 +153,51 @@ export default function Publish() {
           <View>
             <HStack style={styles.uploadContainer}>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                {
-                  !hasImages ? (
-                    <TouchableOpacity
-                      style={[styles.upload, styles.uploadBtn]}
-                      onPress={handleSelectImage}
-                    >
-                      <Icon name="collections" size={30} />
-                      <Text>选择图片</Text>
-                    </TouchableOpacity>
-                  ) : null // 如果已经选择了图片，则不显示"选择图片"按钮
-                }
-                {imageList.map((img, index) => (
-                  <Image
-                    key={index}
-                    source={{ uri: img.uri }}
-                    style={[styles.upload, styles.uploadBtn]}
-                  />
-                ))}
-                {
-                  // 始终提供一个按钮以便用户可以继续添加图片
+                {!hasMedia ? (
                   <TouchableOpacity
                     style={[styles.upload, styles.uploadBtn]}
-                    onPress={handleSelectImage}
+                    onPress={handleSelectImgOrVideo}
                   >
-                    <Icon name="collections" size={30} />
-                    <Text>选择更多图片</Text>
+                    <Icon name="add-a-photo" size={30} />
+                    <Text>选择图片/视频</Text>
                   </TouchableOpacity>
-                }
-                <TouchableOpacity
-                  style={[styles.upload, styles.uploadVideo]}
-                  onPress={handleSelectVideo}
-                >
-                  {!hasVideo ? (
-                    <>
-                      <Icon name="add-a-photo" size={30} />
-                      <Text>上传视频</Text>
-                    </>
-                  ) : (
-                    <Video
-                      ref={videoRef}
-                      source={{ uri: selectedVideoUri?.localUri || '' }}
-                      rate={1.0}
-                      volume={0}
-                      isMuted={false}
-                      resizeMode={ResizeMode.COVER}
-                      shouldPlay
-                      isLooping
-                      useNativeControls
-                      style={styles.uploadVideo}
-                    />
-                  )}
-                </TouchableOpacity>
+                ) : (
+                  <>
+                    {hasImages &&
+                      imageList.map((img, index) => {
+                        return (
+                          <Image
+                            key={index}
+                            alt=""
+                            source={{ uri: img.uri }}
+                            style={[styles.upload, styles.uploadBtn]}
+                            resizeMode={ResizeMode.COVER}
+                          />
+                        )
+                      })}
+                    {hasVideo && (
+                      <Video
+                        ref={videoRef}
+                        source={{ uri: selectedVideoUri?.localUri || '' }}
+                        rate={1.0}
+                        volume={1}
+                        isMuted={false}
+                        resizeMode={ResizeMode.COVER}
+                        shouldPlay
+                        isLooping
+                        useNativeControls
+                        style={styles.uploadVideo}
+                      />
+                    )}
+                    <TouchableOpacity
+                      style={[styles.upload, styles.uploadBtn]}
+                      onPress={handleSelectImgOrVideo}
+                    >
+                      <Icon name="collections" size={30} />
+                      <Text>选择图片/视频</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
               </ScrollView>
             </HStack>
           </View>
@@ -243,11 +232,7 @@ export default function Publish() {
 
         <HStack style={styles.publishContainer}>
           <View>
-            <Pressable
-              style={styles.saveBtn}
-              onPress={() => console.log('Hello')}
-              $hover-bg="$primary50"
-            >
+            <Pressable style={styles.saveBtn}>
               {({ pressed }) => (
                 <>
                   <FontAwesome name="save" size={18} color={pressed ? 'grey' : 'black'} />
@@ -256,13 +241,21 @@ export default function Publish() {
                   </Text>
                 </>
               )}
-              {/* <FontAwesome name="save" size={18} color="black" /> */}
-              {/* <Text style={styles.saveText}>存草稿</Text> */}
             </Pressable>
           </View>
-          <Button variant="solid" size="md" bgColor="$indigo600" width={200} onPress={publishTour}>
-            <ButtonText color="$white">发布</ButtonText>
-          </Button>
+          <Pressable>
+            {({ pressed }) => (
+              <Button
+                variant="solid"
+                size="md"
+                width={200}
+                onPress={publishTour}
+                bgColor={pressed ? '$indigo400' : '$indigo600'}
+              >
+                <ButtonText color={pressed ? '$whitePressed' : '$white'}>发布</ButtonText>
+              </Button>
+            )}
+          </Pressable>
         </HStack>
       </View>
     </ScrollView>
@@ -308,10 +301,11 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 10,
-    // borderStyle: 'solid',
+    borderStyle: 'solid',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 10,
   },
   publishContainer: {
     width: '100%',

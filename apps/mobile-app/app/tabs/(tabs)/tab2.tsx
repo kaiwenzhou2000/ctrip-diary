@@ -5,11 +5,7 @@ import Admin from '@/app/admin'
 import { useAuth } from '@/components/authContext'
 
 export default function Tab2() {
-  // const [isLogin, setIsLogin] = useState(false)
   const { isLoggedIn } = useAuth()
-  // const loginSuccess = () => {
-  //   setIsLoggedIn(true)
-  // }
   return (
     <>
       {isLoggedIn ? (
@@ -18,7 +14,7 @@ export default function Tab2() {
         </View>
       ) : (
         <Center flex={1}>
-          <Login />
+          <Login type="tab2" />
         </Center>
       )}
     </>

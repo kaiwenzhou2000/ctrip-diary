@@ -1,12 +1,15 @@
 import * as ImagePicker from 'expo-image-picker'
-
 /**
  * 异步函数，用于从设备的媒体库中选择图片或视频。
  * @param {Object} options - 选择媒体的选项。
  * @param {boolean} options.allowsMultipleSelection - 是否允许选择多个媒体文件。
  * @param {string} options.mediaTypes - 要选择的媒体类型，'Images'、'Videos' 或 'All'。
  */
-export const UploadMedia = async ({ allowsMultipleSelection = false, mediaTypes = 'All' }) => {
+export const UploadMedia = async ({
+  allowsMultipleSelection = false,
+  mediaTypes = 'All',
+  // allowEditing = false,
+}) => {
   // 请求媒体库访问权限
   const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
@@ -27,10 +30,10 @@ export const UploadMedia = async ({ allowsMultipleSelection = false, mediaTypes 
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: mediaTypeOption,
     allowsMultipleSelection: allowsMultipleSelection,
-    // base64: false,
+    base64: false,
     allowsEditing: mediaTypes === 'Images', // 允许编辑仅对图片有效
-    aspect: [4, 3], // 可以指定裁剪时的宽高比
-    quality: 1, // 可以控制选择后的图片质量，范围0到1
+    aspect: [4, 3], // 指定裁剪宽高比
+    quality: 1, // 图片质量
   })
 
   if (result.canceled) {
