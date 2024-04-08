@@ -6,7 +6,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useRef } from 'react'
 import { delPCUser } from '@/app/api/systemUser'
 import request from 'umi-request'
-
+// import UserForm from './userForm'
 type UserPersonalInfo = {
   url?: string
   _id: string
@@ -24,6 +24,7 @@ const status: { [key: string]: JSX.Element } = {
 
 export default () => {
   const actionRef = useRef<ActionType>()
+  // const [openUserDialog, setOpenUserDialog] = useState(false)
   // const [userList, setUserList] = useState<UserItem[]>([])
   // useEffect(() => {
   //   const getSystemUserList = async () => {
@@ -33,6 +34,10 @@ export default () => {
   //   getSystemUserList()
   // }, [userList])
 
+  const handleEditOrAddUser = (id: string) => {
+    // setOpenUserDialog(true)
+    console.log(id)
+  }
   const deleteUser = async (id: string) => {
     await delPCUser(id)
   }
@@ -101,7 +106,12 @@ export default () => {
       render: (_text, record) => {
         return (
           <Space size="middle">
-            <Button type="primary" shape="circle" icon={<EditOutlined />} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              onClick={() => handleEditOrAddUser(record._id)}
+            />
             <Popconfirm
               title="确认删除该项任务吗?"
               onConfirm={() => deleteUser(record._id)}
@@ -137,64 +147,68 @@ export default () => {
   ]
 
   return (
-    <ProTable<UserPersonalInfo>
-      columns={columns}
-      actionRef={actionRef}
-      cardBordered
-      request={async (params) => {
-        return request<{
-          data: UserPersonalInfo[]
-        }>('http://localhost:3000/getPCUserList', {
-          params,
-        })
-      }}
-      editable={{
-        type: 'multiple',
-      }}
-      columnsState={{
-        persistenceKey: 'pro-table-singe-demos',
-        persistenceType: 'localStorage',
-        defaultValue: {
-          option: { fixed: 'right', disable: true },
-        },
-      }}
-      rowKey="_id"
-      search={{
-        labelWidth: 'auto',
-      }}
-      options={{
-        setting: {
-          listsHeight: 400,
-        },
-      }}
-      form={{
-        syncToUrl: (values, type) => {
-          if (type === 'get') {
-            return {
-              ...values,
-              created_at: [values.startTime, values.endTime],
+    <>
+      {/* <UserForm visible={openUserDialog} /> */}
+      <ProTable<UserPersonalInfo>
+        columns={columns}
+        actionRef={actionRef}
+        cardBordered
+        request={async (params) => {
+          return request<{
+            data: UserPersonalInfo[]
+          }>('http://localhost:3000/getPCUserList', {
+            params,
+          })
+        }}
+        editable={{
+          type: 'multiple',
+        }}
+        columnsState={{
+          persistenceKey: 'pro-table-singe-demos',
+          persistenceType: 'localStorage',
+          defaultValue: {
+            option: { fixed: 'right', disable: true },
+          },
+        }}
+        rowKey="_id"
+        search={{
+          labelWidth: 'auto',
+        }}
+        options={{
+          setting: {
+            listsHeight: 400,
+          },
+        }}
+        form={{
+          syncToUrl: (values, type) => {
+            if (type === 'get') {
+              return {
+                ...values,
+                created_at: [values.startTime, values.endTime],
+              }
             }
-          }
-          return values
-        },
-      }}
-      pagination={{
-        pageSize: 5,
-      }}
-      dateFormatter="string"
-      headerTitle="用户管理"
-      toolBarRender={() => [
-        <Button
-          key="button"
-          icon={<PlusOutlined />}
-          onClick={() => {
-            actionRef.current?.reload()
-          }}
-          type="primary"
-        >
-          新建
-        </Button>,
-      ]}
-    />
+            return values
+          },
+        }}
+        pagination={{
+          pageSize: 5,
+        }}
+        dateFormatter="string"
+        headerTitle="用户管理"
+        toolBarRender={() => [
+          <Button
+            key="button"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              // actionRef.current?.reload()
+              handleEditOrAddUser('')
+            }}
+            type="primary"
+          >
+            新建
+          </Button>,
+        ]}
+      />
+    </>
   )
 }

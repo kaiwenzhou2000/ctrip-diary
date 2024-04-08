@@ -158,20 +158,42 @@ app.post('/publish/:userId', upload.single('file'), async (req, res) => {
   }
 })
 
-// 获取客户端用户列表
+// PC端接口
+
+// 获取客户端用户列表(包含筛选和分页)
 app.get('/getPCUserList', async (req, res) => {
   try {
-    const userList = await PCUser.find()
-    const totalCount = await PCUser.countDocuments()
-    const response = {
-      page: 1,
-      per_page: 5,
-      totalCount,
-      userList,
+    // 分页
+    const page = parseInt(req.query.current) || 1
+    const pageSize = parseInt(req.query.pageSize) || 5
+    // 筛选
+    let findParams = {}
+
+    if (req.query.username) {
+      findParams.username = req.query.username
     }
-    return res.status(200).send({ message: 'success', data: response })
+    if (req.query.identity) {
+      findParams.identity = req.query.identity
+    }
+    if (req.query.startTime && req.query.endTime) {
+      findParams.created_at = {
+        $gte: req.query.startTime,
+        $lte: req.query.endTime,
+      }
+    }
+    const skip = (page - 1) * pageSize
+    const userList = await PCUser.find(findParams).skip(skip).limit(pageSize)
+    const totalCount = await PCUser.countDocuments(findParams)
+
+    return res.status(200).send({
+      data: userList,
+      page,
+      success: true,
+      total: totalCount,
+    })
   } catch (e) {
-    console.log(e)
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
   }
 })
 
@@ -199,12 +221,44 @@ const insertSampleUser = async () => {
       return
     }
 
-    // 插入新的用户数据
+    // 插入新的用户数据，后续删除
     await PCUser.insertMany([
-      { username: 'test', password: 'test111', identity: 'superadmin' },
-      { username: 'aaa', password: 'aaa111', identity: 'publishGroup' },
-      { username: 'uuu', password: 'uuu111', identity: 'monitorGroup' },
-      { username: '要删掉的', password: 'uuu111', identity: 'monitorGroup' },
+      {
+        username: 'test',
+        password: 'test111',
+        identity: 'superadmin',
+        created_at: '2024-04-10T10:51:47Z',
+      },
+      {
+        username: 'aaa',
+        password: 'aaa111',
+        identity: 'publishGroup',
+        created_at: '2024-04-01T19:01:47Z',
+      },
+      {
+        username: 'uuu',
+        password: 'uuu111',
+        identity: 'monitorGroup',
+        created_at: '2024-04-03T14:13:47Z',
+      },
+      {
+        username: '要删掉的',
+        password: 'uuu111',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+      },
+      {
+        username: 'fegdgdr',
+        password: 'grgeher',
+        identity: 'publishGroup',
+        created_at: '2024-04-03T14:13:47Z',
+      },
+      {
+        username: '5geg6j',
+        password: 'vsniodvnis',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+      },
     ])
     console.log('Sample user inserted successfully')
   } catch (error) {
