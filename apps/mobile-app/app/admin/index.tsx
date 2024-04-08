@@ -8,7 +8,6 @@ import {
   ScrollView,
   VStack,
   Text,
-  Image,
   AvatarImage,
 } from '@gluestack-ui/themed'
 import { useAuth } from '@/components/authContext'
@@ -25,7 +24,9 @@ export default function Admin() {
       const res = await getUserItem(userId)
       setUserInfo(res.data)
     }
-    getUserInfo()
+    if (userId) {
+      getUserInfo()
+    }
   }, [userId])
 
   // 退出登录
@@ -42,13 +43,14 @@ export default function Admin() {
             <Box flexDirection="row" justifyContent="flex-start" alignItems="center">
               <Avatar mr="$4" bgColor="$indigo600">
                 <AvatarFallbackText fontFamily="$heading">RC</AvatarFallbackText>
-                {/* 获取用户头像 */}
-                <AvatarImage
-                  alt=""
-                  source={{
-                    uri: userInfo.avatarUrl,
-                  }}
-                />
+                {userInfo.avatarUrl !== null && (
+                  <AvatarImage
+                    alt=""
+                    source={{
+                      uri: userInfo.avatarUrl,
+                    }}
+                  />
+                )}
               </Avatar>
               <VStack>
                 <Heading size="md" fontFamily="$heading" mb="$1">
@@ -143,7 +145,7 @@ export default function Admin() {
               },
             }}
           >
-            <Image
+            {/* <Image
               mb="$3"
               $xs-borderRadius="$md"
               sx={{
@@ -191,7 +193,7 @@ export default function Admin() {
               source={{
                 uri: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?q=80&w=2425&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
               }}
-            />
+            /> */}
           </Box>
         </Card>
       </ScrollView>
