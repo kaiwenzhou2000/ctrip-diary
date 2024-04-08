@@ -1,3 +1,4 @@
 import Welcome from './Welcome'
-import Text101 from './text'
-export { Welcome,Text101 }
+import UserManage from './UserManage/index'
+
+export { Welcome, UserManage }
