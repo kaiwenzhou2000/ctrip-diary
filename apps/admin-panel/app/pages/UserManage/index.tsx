@@ -3,10 +3,10 @@ import type { ActionType, ProColumns } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
 import { Button, Space, Tag, Popconfirm } from 'antd'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { delPCUser } from '@/app/api/systemUser'
 import request from 'umi-request'
-// import UserForm from './userForm'
+import UserForm from './userForm'
 type UserPersonalInfo = {
   url?: string
   _id: string
@@ -24,7 +24,7 @@ const status: { [key: string]: JSX.Element } = {
 
 export default () => {
   const actionRef = useRef<ActionType>()
-  // const [openUserDialog, setOpenUserDialog] = useState(false)
+  const [openUserDialog, setOpenUserDialog] = useState(false)
   // const [userList, setUserList] = useState<UserItem[]>([])
   // useEffect(() => {
   //   const getSystemUserList = async () => {
@@ -35,7 +35,7 @@ export default () => {
   // }, [userList])
 
   const handleEditOrAddUser = (id: string) => {
-    // setOpenUserDialog(true)
+    setOpenUserDialog(true)
     console.log(id)
   }
   const deleteUser = async (id: string) => {
