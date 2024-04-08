@@ -37,7 +37,11 @@ import { useAuth } from '@/components/authContext'
 import { router, useLocalSearchParams } from 'expo-router'
 import { loginUser } from '../api/user'
 
-export default function Login() {
+interface LoginProps {
+  type: string
+}
+
+export default function Login({ type }: LoginProps) {
   const toast = useToast()
   const { setIsLoggedIn, setUserId } = useAuth()
   const [disabledLogin, setDisabledLogin] = useState(false)
@@ -73,7 +77,6 @@ export default function Login() {
 
     if (selectedAvatar) {
       const localUri = selectedAvatar.localUri
-      console.log(localUri)
       const filename = localUri.split('/').pop()
       // const match = /\.(\w+)$/.exec(filename)
       // const type = match ? `image/${match[1]}` : `image`
@@ -105,7 +108,11 @@ export default function Login() {
         setIsLoggedIn(true)
         const { _id } = data
         setUserId(_id)
-        router.push('/tabs/(tabs)/tab1')
+        if (type === 'tab2') {
+          router.push('/tabs/(tabs)/tab2')
+        } else {
+          router.push('/tabs/(tabs)/tab1')
+        }
       } else if (message === 'error') {
         // 用户名、密码正确，数据库无,则未注册
         toast.show({

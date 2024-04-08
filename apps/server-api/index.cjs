@@ -110,7 +110,7 @@ app.post('/login', upload.single('avatar'), async (req, res) => {
 
     return res.status(200).send({ message: 'success', data: user })
   } catch (error) {
-    console.error('Error logging in:', error)
+    console.error('Error logging in:', error, 111)
     res.status(500).json({ error: 'Error logging in' })
   }
 })
@@ -131,29 +131,41 @@ app.get('/getUserInfo/:userId', async (req, res) => {
   }
 })
 
-app.post('/publish', upload.single('file'), async (req, res) => {
-  try {
-    const { title, description } = req.body
-    const releaseNote = new ReleaseNote({
-      title,
-      description,
-    })
+app.post(
+  '/publish/:userId',
+  upload.fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'video', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const userId = req.params.userId
+      const { title, description } = req.body
+      const releaseNote = new ReleaseNote({
+        userId,
+        title,
+        description,
+        images: [],
+      })
 
-    if (req.file) {
-      if (req.file.mimetype.startsWith('image/')) {
-        releaseNote.images.push(req.file.path)
-      } else if (req.file.mimetype.startsWith('video/')) {
-        releaseNote.video = req.file.path
+      // 支持多张图片
+      if (req.files['images']) {
+        req.files['images'].forEach((file) => {
+          releaseNote.images.push(file.path)
+        })
       }
-    }
-    console.log(releaseNote)
-    await releaseNote.save()
+      // 处理视频，仅支持一个视频
+      if (req.files['video']) {
+        releaseNote.video = req.files['video'][0].path
+      }
+      await releaseNote.save()
 
-    return res.status(200).send({ message: 'success', data: releaseNote })
-  } catch (e) {
-    console.log(e)
+      return res.status(200).send({ message: 'success', data: releaseNote })
+    } catch (e) {
+      console.log(e)
+    }
   }
-})
+)
 
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   console.log('连接数据库成功!!!')

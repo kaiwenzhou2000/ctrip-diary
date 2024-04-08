@@ -1,5 +1,11 @@
 import { request } from '@/app/utils/request'
 
+interface Response<T> {
+  code?: number
+  message: string
+  data: T
+}
+
 type User = {
   username: string
   password: string
@@ -7,6 +13,7 @@ type User = {
 }
 
 type PublishItem = {
+  userId: string
   title: string
   description: string
   [key: string]: string
@@ -20,7 +27,7 @@ export const registerUser = (data: User) => {
   })
 }
 
-export const loginUser = (data: User) => {
+export const loginUser = (data: User): Promise<Response<User>> => {
   return request({
     url: '/login',
     method: 'POST',
@@ -35,9 +42,9 @@ export const getUserItem = (userId: string) => {
   })
 }
 
-export const publishTourItem = (data: PublishItem) => {
+export const publishTourItem = (userId: string, data: PublishItem) => {
   return request({
-    url: '/publish',
+    url: `/publish/${userId}`,
     method: 'POST',
     data,
   })
