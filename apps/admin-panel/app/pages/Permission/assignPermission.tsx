@@ -1,4 +1,4 @@
-import { PlusOutlined, EditOutlined } from '@ant-design/icons'
+import { EditOutlined } from '@ant-design/icons'
 import {
   ActionType,
   ModalForm,
@@ -10,6 +10,7 @@ import { Button } from 'antd'
 import { useEffect, useState } from 'react'
 import { updatePcUser } from '@/app/api/systemUser'
 import { usePermit } from '@/app/components/permit'
+
 interface Props {
   status: string
   userInfo?: UserItem
@@ -24,6 +25,7 @@ interface UserItem {
 }
 export default ({ status, userInfo, actionRef }: Props) => {
   const { hasPermission } = usePermit()
+
   const [modalVisit, setModalVisit] = useState(false)
   const [initialValues, setInitialValues] = useState({
     _id: '',
@@ -53,26 +55,14 @@ export default ({ status, userInfo, actionRef }: Props) => {
     <>
       <div style={{ margin: 10 }}>
         <ModalForm
-          title={status === 'new' ? '新建用户' : '编辑用户'}
+          title="分配权限"
           trigger={
-            status === 'new' ? (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                disabled={hasPermission('new')}
-                onClick={() => setModalVisit(true)}
-              >
-                新建用户
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                shape="circle"
-                icon={<EditOutlined />}
-                disabled={hasPermission('userEdit')}
-                onClick={() => setModalVisit(true)}
-              />
-            )
+            <Button
+              type="primary"
+              disabled={hasPermission('permit')}
+              icon={<EditOutlined />}
+              onClick={() => setModalVisit(true)}
+            />
           }
           initialValues={initialValues}
           onFinish={async (values: UserItem) => {

@@ -6,6 +6,8 @@ import { useRef } from 'react'
 import { delPCUser } from '@/app/api/systemUser'
 import request from 'umi-request'
 import UserForm from './userForm'
+import { usePermit } from '@/app/components/permit'
+
 type UserPersonalInfo = {
   url?: string
   _id: string
@@ -24,6 +26,7 @@ const status: { [key: string]: JSX.Element } = {
 
 export default () => {
   const actionRef = useRef<ActionType>()
+  const { hasPermission } = usePermit()
 
   const deleteUser = async (id: string) => {
     await delPCUser(id)
@@ -93,14 +96,20 @@ export default () => {
       render: (_text, record) => {
         return (
           <Space size="middle">
-            <UserForm key="edit" status={'edit'} userInfo={record} actionRef={actionRef} />
+            <UserForm key="edit" status={'userEdit'} userInfo={record} actionRef={actionRef} />
             <Popconfirm
               title="确认删除该用户吗?"
               onConfirm={() => deleteUser(record._id)}
               okText="确认"
               cancelText="取消"
             >
-              <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} />
+              <Button
+                type="primary"
+                disabled={hasPermission('userDelete')}
+                danger
+                shape="circle"
+                icon={<DeleteOutlined />}
+              />
             </Popconfirm>
           </Space>
         )

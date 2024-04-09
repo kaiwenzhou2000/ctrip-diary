@@ -28,7 +28,7 @@ export default {
           },
           {
             path: '/admin/sub-page2',
-            name: '权限管理',
+            name: '菜单管理',
             icon: <CrownFilled />,
             component: <Permission />,
           },

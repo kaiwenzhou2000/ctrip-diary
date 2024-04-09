@@ -5,6 +5,7 @@ const PCUserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   identity: { type: String, required: true },
   created_at: { type: String },
+  permission: [{ type: String }],
 })
 const PCUser = mongoose.model('PCUser', PCUserSchema)
 

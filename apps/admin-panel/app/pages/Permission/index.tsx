@@ -1,9 +1,10 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
-import { Button, Space, Tag, Popconfirm } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
+import { Tag } from 'antd'
+import AssignPermission from './assignPermission'
 import { useRef } from 'react'
 import request from 'umi-request'
+
 type UserPersonalInfo = {
   url?: string
   _id: string
@@ -22,6 +23,7 @@ const status: { [key: string]: JSX.Element } = {
 
 export default () => {
   const actionRef = useRef<ActionType>()
+  // const { identity, hasPermission } = usePermit()
 
   // const deleteUser = async (id: string) => {
   //   await delPCUser(id)
@@ -68,17 +70,7 @@ export default () => {
       valueType: 'option',
       render: (_text, record) => {
         return (
-          <Space size="middle">
-            {/* <UserForm key="edit" status={'edit'} userInfo={record} actionRef={actionRef} /> */}
-            <Popconfirm
-              title="确认删除该用户吗?"
-              // onConfirm={() => deleteUser(record._id)}
-              okText="确认"
-              cancelText="取消"
-            >
-              <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Space>
+          <AssignPermission key="edit" status={'edit'} userInfo={record} actionRef={actionRef} />
         )
       },
     },
@@ -131,8 +123,7 @@ export default () => {
           pageSize: 5,
         }}
         dateFormatter="string"
-        headerTitle="用户管理"
-        // toolBarRender={() => [<UserForm key="btn" status={'new'} actionRef={actionRef} />]}
+        headerTitle="菜单管理"
       />
     </>
   )
