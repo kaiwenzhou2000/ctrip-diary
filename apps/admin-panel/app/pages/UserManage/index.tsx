@@ -1,9 +1,8 @@
-import { PlusOutlined } from '@ant-design/icons'
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
 import { Button, Space, Tag, Popconfirm } from 'antd'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
-import { useRef, useState } from 'react'
+import { DeleteOutlined } from '@ant-design/icons'
+import { useRef } from 'react'
 import { delPCUser } from '@/app/api/systemUser'
 import request from 'umi-request'
 import UserForm from './userForm'
@@ -11,6 +10,7 @@ type UserPersonalInfo = {
   url?: string
   _id: string
   username: string
+  password: string
   identity: string
   created_at?: string
   updated_at?: string
@@ -24,20 +24,7 @@ const status: { [key: string]: JSX.Element } = {
 
 export default () => {
   const actionRef = useRef<ActionType>()
-  const [openUserDialog, setOpenUserDialog] = useState(false)
-  // const [userList, setUserList] = useState<UserItem[]>([])
-  // useEffect(() => {
-  //   const getSystemUserList = async () => {
-  //     const res = await getPCUserList()
-  //     setUserList(res.data.userList)
-  //   }
-  //   getSystemUserList()
-  // }, [userList])
 
-  const handleEditOrAddUser = (id: string) => {
-    setOpenUserDialog(true)
-    console.log(id)
-  }
   const deleteUser = async (id: string) => {
     await delPCUser(id)
   }
@@ -106,12 +93,7 @@ export default () => {
       render: (_text, record) => {
         return (
           <Space size="middle">
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              onClick={() => handleEditOrAddUser(record._id)}
-            />
+            <UserForm key="edit" status={'edit'} userInfo={record} actionRef={actionRef} />
             <Popconfirm
               title="确认删除该项任务吗?"
               onConfirm={() => deleteUser(record._id)}
@@ -123,32 +105,11 @@ export default () => {
           </Space>
         )
       },
-      // [
-      // <a
-      //   key="editable"
-      //   // onClick={() => {
-      //   //   action?.startEditable?.(record.id)
-      //   // }}
-      // >
-      //   编辑
-      // </a>,
-      // <a key="view">查看</a>,
-      // <a key="delete" onClick={() => deleteUser(record._id)}>
-      //   删除
-      // </a>,
-      // <a href={record.url} target="_blank" rel="noopener noreferrer" key="view">
-      //   查看
-      // </a>,
-      // <a href={record.url} target="_blank" key="delete">
-      //   删除
-      // </a>,
-      // ],
     },
   ]
 
   return (
     <>
-      {/* <UserForm visible={openUserDialog} /> */}
       <ProTable<UserPersonalInfo>
         columns={columns}
         actionRef={actionRef}
@@ -195,19 +156,7 @@ export default () => {
         }}
         dateFormatter="string"
         headerTitle="用户管理"
-        toolBarRender={() => [
-          <Button
-            key="button"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              // actionRef.current?.reload()
-              handleEditOrAddUser('')
-            }}
-            type="primary"
-          >
-            新建
-          </Button>,
-        ]}
+        toolBarRender={() => [<UserForm key="btn" status={'new'} actionRef={actionRef} />]}
       />
     </>
   )

@@ -1,129 +1,122 @@
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined } from '@ant-design/icons'
 import {
-  LoginForm,
+  ActionType,
   ModalForm,
   ProForm,
-  ProFormDateRangePicker,
-  ProFormRadio,
   ProFormSelect,
   ProFormText,
 } from '@ant-design/pro-components'
-import { Button, message } from 'antd'
-import { useState } from 'react'
-
-const waitTime = (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true)
-    }, time)
-  })
+import { Button } from 'antd'
+import { useEffect, useState } from 'react'
+import { updatePcUser } from '@/app/api/systemUser'
+interface Props {
+  status: string
+  userInfo?: UserItem
+  actionRef: React.MutableRefObject<ActionType | undefined>
 }
 
-export default () => {
-  const Components = {
-    ProForm,
-    ModalForm,
-    LoginForm,
-  }
-  const [type, setType] = useState<keyof typeof Components>('ProForm')
+interface UserItem {
+  _id: string
+  username: string
+  password: string
+  identity: string
+}
+export default ({ status, userInfo, actionRef }: Props) => {
+  const [modalVisit, setModalVisit] = useState(false)
+  const [initialValues, setInitialValues] = useState({
+    _id: '',
+    username: '',
+    password: '',
+    identity: '',
+  })
 
-  const FormComponents = Components[type]
-
+  useEffect(() => {
+    if (status === 'edit' && userInfo) {
+      setInitialValues({
+        _id: userInfo._id,
+        username: userInfo.username,
+        password: userInfo.password,
+        identity: userInfo.identity,
+      })
+    } else {
+      setInitialValues({
+        _id: '',
+        username: '',
+        password: '',
+        identity: '',
+      })
+    }
+  }, [status, userInfo])
   return (
     <>
-      <ProFormRadio.Group
-        style={{
-          margin: 16,
-        }}
-        radioType="button"
-        fieldProps={{
-          value: type,
-          onChange: (e) => setType(e.target.value),
-        }}
-        options={['ProForm', 'ModalForm']}
-      />
-      <div
-        style={{
-          margin: 24,
-        }}
-      >
-        <FormComponents
-          // @ts-ignore
-          labelWidth="auto"
+      <div style={{ margin: 10 }}>
+        <ModalForm
+          title={status === 'new' ? '新建用户' : '编辑用户'}
           trigger={
-            <Button type="primary">
-              <PlusOutlined />
-              新建表单
-            </Button>
+            status === 'new' ? (
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalVisit(true)}>
+                新建用户
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                shape="circle"
+                icon={<EditOutlined />}
+                onClick={() => setModalVisit(true)}
+              />
+            )
           }
-          onFinish={async (values: any) => {
-            await waitTime(2000)
-            console.log(values)
-            message.success('提交成功')
+          initialValues={initialValues}
+          onFinish={async (values: UserItem) => {
+            await updatePcUser(initialValues._id, values)
+            actionRef.current?.reload()
+            return true
           }}
-          initialValues={{
-            name: '蚂蚁设计有限公司',
-            useMode: 'chapter',
+          open={modalVisit}
+          onOpenChange={setModalVisit}
+          modalProps={{
+            width: 400,
           }}
         >
           <ProForm.Group>
             <ProFormText
+              key="username"
               width="md"
-              name="name"
-              label="签约客户名称"
+              name="username"
+              label="用户名"
               tooltip="最长为 24 位"
               placeholder="请输入名称"
             />
-            <ProFormText width="md" name="company" label="我方公司名称" placeholder="请输入名称" />
-          </ProForm.Group>
-          <ProForm.Group>
-            <ProFormText
-              name={['contract', 'name']}
+            <ProFormText.Password
+              key="userPassword"
               width="md"
-              label="合同名称"
-              placeholder="请输入名称"
-            />
-            <ProFormDateRangePicker
-              width="md"
-              name={['contract', 'createTime']}
-              label="合同生效时间"
-            />
-          </ProForm.Group>
-          <ProForm.Group>
-            <ProFormSelect
-              options={[
-                {
-                  value: 'chapter',
-                  label: '盖章后生效',
-                },
-              ]}
-              readonly
-              width="xs"
-              name="useMode"
-              label="合同约定生效方式"
+              name="password"
+              label="密码"
+              tooltip="最长为 24 位"
+              placeholder="请输入密码"
             />
             <ProFormSelect
-              width="xs"
+              key="identity"
+              width="md"
               options={[
                 {
-                  value: 'time',
-                  label: '履行完终止',
+                  value: 'superadmin',
+                  label: '超级管理员',
+                },
+                {
+                  value: 'publishGroup',
+                  label: '发布群组用户',
+                },
+                {
+                  value: 'monitorGroup',
+                  label: '监听群组用户',
                 },
               ]}
-              name="unusedMode"
-              label="合同约定失效效方式"
+              name="identity"
+              label="身份"
             />
           </ProForm.Group>
-          <ProFormText width="sm" name="id" label="主合同编号" />
-          <ProFormText
-            name="project"
-            width="md"
-            disabled
-            label="项目名称"
-            initialValue="xxxx项目"
-          />
-          <ProFormText width="xs" name="mangerName" disabled label="商务经理" initialValue="启途" />
-        </FormComponents>
+        </ModalForm>
       </div>
     </>
   )

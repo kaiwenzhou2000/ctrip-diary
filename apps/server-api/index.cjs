@@ -197,6 +197,22 @@ app.get('/getPCUserList', async (req, res) => {
   }
 })
 
+// 修改用户信息
+app.put('/updatePCUser/:userId', async (req, res) => {
+  try {
+    const pcUserId = req.params.userId
+    const pcUserInfo = req.body
+    const updatedPcUser = await PCUser.findByIdAndUpdate(pcUserId, pcUserInfo, { new: true })
+
+    if (!updatedPcUser) {
+      return res.status(404).send({ message: '用户不存在' })
+    }
+
+    return res.status(200).send({ message: '更新成功', data: updatedPcUser })
+  } catch (error) {
+    res.status(500).send({ message: '更新用户信息异常, 请重新尝试' })
+  }
+})
 // 删除用户
 app.delete('/deletePCUser/:userId', async (req, res) => {
   try {
@@ -208,7 +224,7 @@ app.delete('/deletePCUser/:userId', async (req, res) => {
     return res.status(200).send({ status: 0, msg: '用户已成功删除' })
   } catch (error) {
     console.error('删除用户异常', error)
-    res.status(500).send({ status: 1, msg: '删除用户异常，请重新尝试' })
+    res.status(500).send({ success: false, message: 'Server error' })
   }
 })
 

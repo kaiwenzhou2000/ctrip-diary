@@ -28,6 +28,15 @@ export const getPCUserList = (): Promise<Response<UserList>> => {
   })
 }
 
+// 更新用户信息
+export const updatePcUser = (userId: string, data: UserItem) => {
+  return request({
+    url: `/updatePCUser/${userId}`,
+    method: 'PUT',
+    data,
+  })
+}
+
 // 删除用户
 export const delPCUser = (userId: string) => {
   return request({
