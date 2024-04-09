@@ -16,7 +16,11 @@ const storage = multer.diskStorage({
       uploadFolder += 'avatar/'
     } else {
       if (file.mimetype.startsWith('image/')) {
-        uploadFolder += 'images/'
+        if (file.fieldname === 'cover') {
+          uploadFolder += 'covers/'
+        } else {
+          uploadFolder += 'images/'
+        }
       } else if (file.mimetype.startsWith('video/')) {
         uploadFolder += 'videos/'
       }
@@ -131,11 +135,13 @@ app.get('/getUserInfo/:userId', async (req, res) => {
   }
 })
 
+// 发布游记
 app.post(
   '/publish/:userId',
   upload.fields([
     { name: 'images', maxCount: 10 },
     { name: 'video', maxCount: 1 },
+    { name: 'cover', maxCount: 1 },
   ]),
   async (req, res) => {
     try {
@@ -148,6 +154,7 @@ app.post(
         images: [],
       })
 
+      console.log(req.files)
       // 支持多张图片
       if (req.files['images']) {
         req.files['images'].forEach((file) => {
@@ -158,6 +165,11 @@ app.post(
       if (req.files['video']) {
         releaseNote.video = req.files['video'][0].path
       }
+      // 封面
+      if (req.files['cover']) {
+        releaseNote.cover = req.files['cover'][0].path
+      }
+
       await releaseNote.save()
 
       return res.status(200).send({ message: 'success', data: releaseNote })

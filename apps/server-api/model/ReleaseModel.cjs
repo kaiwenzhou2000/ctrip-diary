@@ -6,6 +6,8 @@ const ReleaseSchema = new mongoose.Schema({
   description: { type: String, required: true },
   images: { type: Array },
   video: { type: String },
+  cover: { type: String },
+  create_at: { type: String },
 })
 const ReleaseNote = mongoose.model('ReleaseNote', ReleaseSchema)
 

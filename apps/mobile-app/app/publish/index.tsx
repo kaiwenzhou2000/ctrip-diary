@@ -16,6 +16,10 @@ import {
   FormControlError,
   FormControlErrorIcon,
   FormControlErrorText,
+  Toast,
+  ToastTitle,
+  useToast,
+  VStack,
 } from '@gluestack-ui/themed'
 import { TouchableOpacity, StyleSheet, ScrollView, Dimensions, Pressable } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
@@ -28,6 +32,7 @@ import { useAuth } from '@/components/authContext'
 
 export default function Publish() {
   const { userId } = useAuth()
+  const toast = useToast()
 
   const [titleValid, setTitleValid] = useState(false)
   const [title, setTitle] = useState('')
@@ -72,7 +77,11 @@ export default function Publish() {
     uri: '',
     type: '',
     fileName: '',
+    cover: '',
   })
+
+  const [imgCover, setImgCover] = useState<{ uri: string } | null>(null)
+  const [videoCover, setVideoCover] = useState<{ uri: string } | null>(null)
 
   // 上传图片或视频
   const handleSelectImgOrVideo = async () => {
@@ -82,13 +91,15 @@ export default function Publish() {
 
       // 过滤图片
       const selectedImages = medias.filter((media) => media.mimeType?.startsWith('image'))
-      console.log(selectedImages, imageList)
       if (selectedImages.length > 0) {
-        setImageList((prevImages) => [
-          ...prevImages.filter((img) => img.uri), // 过滤掉空uri元素
-          ...selectedImages,
-        ])
+        const newImageList = [...imageList.filter((img) => img.uri), ...selectedImages]
+        setImageList(newImageList)
+        // setImageList((prevImages) => [
+        //   ...prevImages.filter((img) => img.uri), // 过滤掉空uri元素
+        //   ...selectedImages,
+        // ])
         setHasImages(true)
+        setImgCover({ uri: newImageList[0].uri })
       }
 
       // 过滤视频
@@ -98,6 +109,7 @@ export default function Publish() {
         setSelectedVideo(selectedVideo)
         setSelectedVideoUri({ localUri: selectedVideo.uri })
         setHasVideo(true)
+        setVideoCover({ uri: selectedVideo.cover })
       }
     }
   }
@@ -112,7 +124,21 @@ export default function Publish() {
       setDescriptionValid(true)
       return
     }
-
+    if (imageList.length === 0 && !selectedVideoUri?.localUri) {
+      toast.show({
+        placement: 'top',
+        render: () => {
+          return (
+            <Toast variant="solid" action="error">
+              <VStack space="xs">
+                <ToastTitle>请至少上传图片</ToastTitle>
+              </VStack>
+            </Toast>
+          )
+        },
+      })
+      return
+    }
     const formData = new FormData()
     formData.append('title', title)
     formData.append('description', description)
@@ -133,6 +159,16 @@ export default function Publish() {
           type: img.type,
         }
         formData.append('images', imgData)
+      })
+    }
+    if (imgCover || videoCover) {
+      console.log(imgCover, videoCover, 1631111)
+      const coverUri = imgCover ? imgCover : videoCover
+      const filename = coverUri.uri.split('/').pop()
+      formData.append('cover', {
+        uri: coverUri.uri,
+        name: filename,
+        type: 'image',
       })
     }
     try {

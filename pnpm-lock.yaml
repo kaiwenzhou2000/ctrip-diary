@@ -120,6 +120,9 @@ importers:
       expo-image:
         specifier: ^1.10.6
         version: 1.10.6(expo@50.0.14)
+      expo-image-manipulator:
+        specifier: ^11.8.0
+        version: 11.8.0(expo@50.0.14)
       expo-image-picker:
         specifier: ^14.7.1
         version: 14.7.1(expo@50.0.14)
@@ -138,6 +141,9 @@ importers:
       expo-system-ui:
         specifier: ~2.9.3
         version: 2.9.3(expo@50.0.14)
+      expo-video-thumbnails:
+        specifier: ^7.9.0
+        version: 7.9.0(expo@50.0.14)
       expo-web-browser:
         specifier: ~12.8.1
         version: 12.8.2(expo@50.0.14)
@@ -153,6 +159,9 @@ importers:
       react-native:
         specifier: 0.73.2
         version: 0.73.2(@babel/core@7.24.3)(@babel/preset-env@7.24.3)(react@18.2.0)
+      react-native-ffmpeg:
+        specifier: ^0.5.2
+        version: 0.5.2(react-native@0.73.2)(react@18.2.0)
       react-native-keyboard-aware-scroll-view:
         specifier: ^0.9.5
         version: 0.9.5(react-native@0.73.2)
@@ -8523,6 +8532,15 @@ packages:
       expo: 50.0.14(@babel/core@7.24.3)(@react-native/babel-preset@0.73.21)
     dev: false
 
+  /expo-image-manipulator@11.8.0(expo@50.0.14):
+    resolution: {integrity: sha512-ZWVrHnYmwJq6h7auk+ropsxcNi+LyZcPFKQc8oy+JA0SaJosfShvkCm7RADWAunHmfPCmjHrhwPGEu/rs7WG/A==}
+    peerDependencies:
+      expo: '*'
+    dependencies:
+      expo: 50.0.14(@babel/core@7.24.3)(@react-native/babel-preset@0.73.21)
+      expo-image-loader: 4.6.0(expo@50.0.14)
+    dev: false
+
   /expo-image-picker@14.7.1(expo@50.0.14):
     resolution: {integrity: sha512-ILQVOJgI3aEzrDmCFGDPtpAepYkn8mot8G7vfQ51BfFdQbzL6N3Wm1fS/ofdWlAZJl/qT2DwaIh5xYmf3SyGZA==}
     peerDependencies:
@@ -8652,6 +8670,14 @@ packages:
       expo: 50.0.14(@babel/core@7.24.3)(@react-native/babel-preset@0.73.21)
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /expo-video-thumbnails@7.9.0(expo@50.0.14):
+    resolution: {integrity: sha512-KP7ZlIu83xXXIFx24bzjScwLns6b93f3eHPDUOnT5UtOScbIV3guXA6P9pRBnyxJe0K5+NhR11wX1wf+QCk9+g==}
+    peerDependencies:
+      expo: '*'
+    dependencies:
+      expo: 50.0.14(@babel/core@7.24.3)(@react-native/babel-preset@0.73.21)
     dev: false
 
   /expo-web-browser@12.8.2(expo@50.0.14):
@@ -13040,6 +13066,17 @@ packages:
 
   /react-lifecycles-compat@3.0.4:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
+    dev: false
+
+  /react-native-ffmpeg@0.5.2(react-native@0.73.2)(react@18.2.0):
+    resolution: {integrity: sha512-YxKWI9kPo4nDtAzNO+MIMIu56rfaixJrviQBKvdvmFD09oWH0GhKurJ+uJOvTbN3T7eEYCE0kUzK1puPDsniAA==}
+    deprecated: Not maintained. Superseded by ffmpeg-kit-react-native
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+    dependencies:
+      react: 18.2.0
+      react-native: 0.73.2(@babel/core@7.24.3)(@babel/preset-env@7.24.3)(react@18.2.0)
     dev: false
 
   /react-native-gesture-handler@2.16.0(react-native@0.73.2)(react@18.2.0):

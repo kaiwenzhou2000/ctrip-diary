@@ -1,4 +1,7 @@
 import * as ImagePicker from 'expo-image-picker'
+import * as ImageManipulator from 'expo-image-manipulator'
+import * as VideoThumbnails from 'expo-video-thumbnails'
+
 /**
  * 异步函数，用于从设备的媒体库中选择图片或视频。
  * @param {Object} options - 选择媒体的选项。
@@ -39,6 +42,43 @@ export const UploadMedia = async ({
   if (result.canceled) {
     return []
   }
-  // return allowsMultipleSelection && result.assets ? result.assets : [result]
-  return result.assets
+
+  // 上传完处理压缩
+  const extraProcessAssets = await Promise.all(
+    result.assets.map(async (asset) => {
+      // 如果是图片，使用ImageManipulator进行压缩
+      if (asset.type === 'image') {
+        const compressedImage = await ImageManipulator.manipulateAsync(
+          asset.uri,
+          [],
+          { compress: 0.5 } // 压缩率
+        )
+        return { ...asset, uri: compressedImage.uri }
+      }
+
+      // 视频压缩（暂无）
+      if (asset.type === 'video') {
+        const firstFrameUri = await getVideoFirstFrame(asset.uri)
+        return { ...asset, cover: firstFrameUri }
+        // return asset
+      }
+    })
+  )
+  // console.log(extraProcessAssets)
+  return extraProcessAssets
+  // return result.assets
+}
+
+// 获取视频的第一帧
+const getVideoFirstFrame = async (videoUri: string) => {
+  console.log(videoUri)
+  try {
+    const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
+      time: 1,
+    })
+    return uri
+  } catch (e) {
+    console.error(e)
+    return null
+  }
 }
