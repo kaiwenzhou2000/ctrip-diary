@@ -3,9 +3,7 @@ import { ProTable } from '@ant-design/pro-components'
 import { Button, Space, Tag, Popconfirm } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import { useRef } from 'react'
-import { delPCUser } from '@/app/api/systemUser'
 import request from 'umi-request'
-import UserForm from './userForm'
 type UserPersonalInfo = {
   url?: string
   _id: string
@@ -25,9 +23,9 @@ const status: { [key: string]: JSX.Element } = {
 export default () => {
   const actionRef = useRef<ActionType>()
 
-  const deleteUser = async (id: string) => {
-    await delPCUser(id)
-  }
+  // const deleteUser = async (id: string) => {
+  //   await delPCUser(id)
+  // }
 
   const columns: ProColumns<UserPersonalInfo>[] = [
     {
@@ -65,38 +63,16 @@ export default () => {
       render: (_, record) => status[record.identity],
     },
     {
-      title: '创建时间',
-      key: 'showTime',
-      dataIndex: 'created_at',
-      valueType: 'date',
-      sorter: true,
-      hideInSearch: true,
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'created_at',
-      valueType: 'dateRange',
-      hideInTable: true,
-      search: {
-        transform: (value) => {
-          return {
-            startTime: value[0],
-            endTime: value[1],
-          }
-        },
-      },
-    },
-    {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
       render: (_text, record) => {
         return (
           <Space size="middle">
-            <UserForm key="edit" status={'edit'} userInfo={record} actionRef={actionRef} />
+            {/* <UserForm key="edit" status={'edit'} userInfo={record} actionRef={actionRef} /> */}
             <Popconfirm
               title="确认删除该用户吗?"
-              onConfirm={() => deleteUser(record._id)}
+              // onConfirm={() => deleteUser(record._id)}
               okText="确认"
               cancelText="取消"
             >
@@ -156,7 +132,7 @@ export default () => {
         }}
         dateFormatter="string"
         headerTitle="用户管理"
-        toolBarRender={() => [<UserForm key="btn" status={'new'} actionRef={actionRef} />]}
+        // toolBarRender={() => [<UserForm key="btn" status={'new'} actionRef={actionRef} />]}
       />
     </>
   )

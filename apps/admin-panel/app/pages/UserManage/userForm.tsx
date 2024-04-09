@@ -105,11 +105,11 @@ export default ({ status, userInfo, actionRef }: Props) => {
                 },
                 {
                   value: 'publishGroup',
-                  label: '发布群组用户',
+                  label: '发布群组管理员',
                 },
                 {
                   value: 'monitorGroup',
-                  label: '监听群组用户',
+                  label: '监听群组管理员',
                 },
               ]}
               name="identity"

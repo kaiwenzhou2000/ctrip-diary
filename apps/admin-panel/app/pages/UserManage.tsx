@@ -18,8 +18,8 @@ type UserPersonalInfo = {
 
 const status: { [key: string]: JSX.Element } = {
   superadmin: <Tag color="red">超级管理员</Tag>,
-  publishGroup: <Tag color="gold">发布群组用户</Tag>,
-  monitorGroup: <Tag color="cyan">监听群组用户</Tag>,
+  publishGroup: <Tag color="gold">发布群组管理员</Tag>,
+  monitorGroup: <Tag color="cyan">监听群组管理员</Tag>,
 }
 
 export default () => {
@@ -64,8 +64,8 @@ export default () => {
       dataIndex: 'identity',
       valueEnum: {
         superadmin: { text: '超级管理员', status: 'superadmin' },
-        publishGroup: { text: '发布群组用户', status: 'publishGroup' },
-        monitorGroup: { text: '监听群组用户', status: 'monitorGroup' },
+        publishGroup: { text: '发布群组管理员', status: 'publishGroup' },
+        monitorGroup: { text: '监听群组管理员', status: 'monitorGroup' },
       },
       renderFormItem: (_, { defaultRender }) => {
         return defaultRender(_)

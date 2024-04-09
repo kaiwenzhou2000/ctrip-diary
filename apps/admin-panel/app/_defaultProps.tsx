@@ -1,6 +1,6 @@
 import { ChromeFilled, CrownFilled, SmileFilled, TabletFilled } from '@ant-design/icons'
 
-import { Welcome, UserManage, UserForm } from './pages'
+import { Welcome, UserManage, UserForm, Permission } from './pages'
 
 export default {
   route: {
@@ -30,7 +30,7 @@ export default {
             path: '/admin/sub-page2',
             name: '权限管理',
             icon: <CrownFilled />,
-            component: <UserForm />,
+            component: <Permission />,
           },
         ],
       },
