@@ -4,9 +4,9 @@ import { Welcome, UserManage, Permission } from './pages'
 interface Route {
   path: string
   name: string
-  icon: React.ReactNode
-  access?: string
-  component?: React.ReactNode
+  icon: React.ReactElement
+  access: string
+  component: React.ReactElement
   routes?: Route[]
 }
 
@@ -45,6 +45,7 @@ function getRouteConfig(permissions: string[]) {
           name: '管理页',
           icon: <CrownFilled />,
           access: 'manage',
+          component: <Welcome />,
           routes: [
             {
               path: '/manage/userManage',
