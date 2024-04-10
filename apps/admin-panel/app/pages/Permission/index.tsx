@@ -146,6 +146,7 @@ export default () => {
         permitList={permitList}
         permitVisible={permitVisible}
         closePermit={closePermit}
+        actionRef={actionRef}
       />
     </>
   )
