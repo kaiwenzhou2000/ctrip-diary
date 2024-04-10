@@ -179,6 +179,75 @@ app.post(
   }
 )
 
+// 获取游记信息
+app.get('/getPublishNote/:publishId', async (req, res) => {
+  try {
+    const publishId = req.params.publishId
+    const publishItem = await ReleaseNote.findById(publishId)
+    const videoUrl = req.protocol + '://' + req.get('host') + '/' + publishItem.video
+    const imgUrls = publishItem.images.map((img) => {
+      return req.protocol + '://' + req.get('host') + '/' + img
+    })
+    const newPublishItem = {
+      ...publishItem.toObject(),
+      imgUrls,
+      videoUrl,
+    }
+
+    res.status(200).send({ message: 'success', data: newPublishItem })
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+// 更新游记信息
+app.put(
+  '/updatePublishNote/:publishId',
+  upload.fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'video', maxCount: 1 },
+    { name: 'cover', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const publishId = req.params.publishId
+      const { title, description } = req.body
+
+      const releaseNote = await ReleaseNote.findById(publishId)
+
+      // if (!releaseNote) {
+      //   return res.status(404).send({ message: '游记未找到' })
+      // }
+
+      // 更新标题和描述
+      releaseNote.title = title || releaseNote.title
+      releaseNote.description = description || releaseNote.description
+
+      // 更新图片
+      if (req.files['images']) {
+        // 此处你可能想要替换整个图片数组，或者添加新的图片到数组
+        releaseNote.images = req.files['images'].map((file) => file.path)
+      }
+
+      // 更新视频
+      if (req.files['video']) {
+        releaseNote.video = req.files['video'][0].path
+      }
+
+      // 处理封面更新
+      if (req.files['cover']) {
+        releaseNote.cover = req.files['cover'][0].path
+      }
+      await releaseNote.save()
+
+      return res.status(200).send({ message: 'success', data: releaseNote })
+    } catch (e) {
+      console.log(e)
+      res.status(500).send({ message: '更新游记信息异常, 请重新尝试' })
+    }
+  }
+)
+
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   console.log('连接数据库成功!!!')
   // 监听 3000 端口

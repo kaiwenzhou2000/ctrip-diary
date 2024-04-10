@@ -159,9 +159,6 @@ importers:
       react-native:
         specifier: 0.73.2
         version: 0.73.2(@babel/core@7.24.3)(@babel/preset-env@7.24.3)(react@18.2.0)
-      react-native-ffmpeg:
-        specifier: ^0.5.2
-        version: 0.5.2(react-native@0.73.2)(react@18.2.0)
       react-native-keyboard-aware-scroll-view:
         specifier: ^0.9.5
         version: 0.9.5(react-native@0.73.2)
@@ -13066,17 +13063,6 @@ packages:
 
   /react-lifecycles-compat@3.0.4:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
-    dev: false
-
-  /react-native-ffmpeg@0.5.2(react-native@0.73.2)(react@18.2.0):
-    resolution: {integrity: sha512-YxKWI9kPo4nDtAzNO+MIMIu56rfaixJrviQBKvdvmFD09oWH0GhKurJ+uJOvTbN3T7eEYCE0kUzK1puPDsniAA==}
-    deprecated: Not maintained. Superseded by ffmpeg-kit-react-native
-    peerDependencies:
-      react: '*'
-      react-native: '*'
-    dependencies:
-      react: 18.2.0
-      react-native: 0.73.2(@babel/core@7.24.3)(@babel/preset-env@7.24.3)(react@18.2.0)
     dev: false
 
   /react-native-gesture-handler@2.16.0(react-native@0.73.2)(react@18.2.0):

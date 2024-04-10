@@ -49,3 +49,20 @@ export const publishTourItem = (userId: string, data: PublishItem) => {
     data,
   })
 }
+
+// 获取游记信息
+export const getTourItem = (publishId: string) => {
+  return request({
+    url: `/getPublishNote/${publishId}`,
+    method: 'GET',
+  })
+}
+
+// 更新游记信息
+export const updateTourItem = (publishId: string, data: PublishItem) => {
+  return request({
+    url: `/updatePublishNote/${publishId}`,
+    method: 'PUT',
+    data,
+  })
+}
