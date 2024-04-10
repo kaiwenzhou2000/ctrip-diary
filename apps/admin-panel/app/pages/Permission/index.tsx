@@ -5,6 +5,7 @@ import { Tag, Button } from 'antd'
 import AssignPermission from './assignPermission'
 import { useRef, useState } from 'react'
 import request from 'umi-request'
+import { usePermit } from '@/app/components/permit'
 
 type UserPersonalInfo = {
   url?: string
@@ -25,6 +26,7 @@ const status: { [key: string]: JSX.Element } = {
 
 export default () => {
   const actionRef = useRef<ActionType>()
+  const { hasPermission } = usePermit()
 
   const [assignId, setAssignId] = useState('')
   const [permitList, setPermitList] = useState([])
@@ -83,7 +85,12 @@ export default () => {
       render: (_text, record) => {
         return (
           <>
-            <Button type="primary" icon={<EditOutlined />} onClick={() => assignPermission(record)}>
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => assignPermission(record)}
+              disabled={hasPermission('permit')}
+            >
               设置权限
             </Button>
           </>

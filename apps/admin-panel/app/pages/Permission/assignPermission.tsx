@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { updateUserPermission } from '@/app/api/systemUser'
 import type { TreeProps } from 'antd'
 import { ActionType } from '@ant-design/pro-components'
-
 interface PermitProps {
   assignId: string
   permitList: string[]
@@ -46,10 +45,6 @@ const AssignPermission = ({
   }, [assignId, permitList])
 
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([])
-
-  // const onCheck = (checkedKeysValue: string[]) => {
-  //   setCheckedKeys(checkedKeysValue)
-  // }
 
   const onCheck: TreeProps['onCheck'] = (checkedKeysValue) => {
     setCheckedKeys(checkedKeysValue as React.Key[])
