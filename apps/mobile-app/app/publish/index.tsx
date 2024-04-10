@@ -85,7 +85,7 @@ export default function Publish() {
 
   interface ImageState {
     uri: string
-    mimeType?: string
+    mimeType: string
     type?: string
     fileName?: string
   }
@@ -110,31 +110,35 @@ export default function Publish() {
 
   // 上传图片或视频
   const handleSelectImgOrVideo = async () => {
-    const medias = await UploadMedia({ allowsMultipleSelection: true, mediaTypes: 'All' })
+    const medias = await UploadMedia({
+      allowsMultipleSelection: true,
+      mediaTypes: 'All',
+      aspect: [3, 4],
+    })
     if (medias.length > 0) {
       setHasMedia(true)
 
       // 过滤图片
-      const selectedImages = medias.filter((media) => media.mimeType?.startsWith('image'))
+      const selectedImages = medias.filter((media) => media?.mimeType?.startsWith('image'))
       if (selectedImages.length > 0) {
         const newImageList = [...imageList.filter((img) => img.uri), ...selectedImages]
         setImageList(newImageList)
-        // setImageList((prevImages) => [
-        //   ...prevImages.filter((img) => img.uri), // 过滤掉空uri元素
-        //   ...selectedImages,
-        // ])
         setHasImages(true)
-        setImgCover({ uri: newImageList[0].uri })
+        if (newImageList[0]) {
+          setImgCover({ uri: newImageList[0].uri })
+        }
       }
 
       // 过滤视频
-      const selectedVideos = medias.filter((media) => media.mimeType?.startsWith('video'))
+      const selectedVideos = medias.filter((media) => media?.mimeType?.startsWith('video'))
       if (selectedVideos.length > 0) {
         const selectedVideo = selectedVideos[0]
-        setSelectedVideo(selectedVideo)
-        setSelectedVideoUri({ localUri: selectedVideo.uri })
-        setHasVideo(true)
-        setVideoCover({ uri: selectedVideo.cover })
+        if (selectedVideo) {
+          setSelectedVideo(selectedVideo)
+          setSelectedVideoUri({ localUri: selectedVideo.uri })
+          setHasVideo(true)
+          setVideoCover({ uri: selectedVideo.cover })
+        }
       }
     }
   }
@@ -188,9 +192,9 @@ export default function Publish() {
     }
     if (imgCover || videoCover) {
       const coverUri = imgCover ? imgCover : videoCover
-      const filename = coverUri.uri.split('/').pop()
+      const filename = coverUri?.uri.split('/').pop()
       formData.append('cover', {
-        uri: coverUri.uri,
+        uri: coverUri?.uri,
         name: filename,
         type: 'image',
       })
@@ -351,7 +355,7 @@ const styles = StyleSheet.create({
   },
   upload: {
     width: 120,
-    height: 120,
+    height: 150,
     borderRadius: 10,
     // borderStyle: 'solid',
     borderWidth: 1,
@@ -365,7 +369,7 @@ const styles = StyleSheet.create({
   },
   uploadVideo: {
     width: 120,
-    height: 120,
+    height: 150,
     borderRadius: 10,
     borderStyle: 'solid',
     borderWidth: 1,

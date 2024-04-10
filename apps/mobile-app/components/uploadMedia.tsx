@@ -7,11 +7,13 @@ import * as VideoThumbnails from 'expo-video-thumbnails'
  * @param {Object} options - 选择媒体的选项。
  * @param {boolean} options.allowsMultipleSelection - 是否允许选择多个媒体文件。
  * @param {string} options.mediaTypes - 要选择的媒体类型，'Images'、'Videos' 或 'All'。
+ * @param {[number,number]} options.aspect - 指定裁剪比例
  */
 export const UploadMedia = async ({
   allowsMultipleSelection = false,
   mediaTypes = 'All',
   // allowEditing = false,
+  aspect = [3, 4] as [number, number],
 }) => {
   // 请求媒体库访问权限
   const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -35,7 +37,7 @@ export const UploadMedia = async ({
     allowsMultipleSelection: allowsMultipleSelection, // 支持多选
     base64: false,
     allowsEditing: mediaTypes === 'Images', // 允许编辑仅对图片有效
-    aspect: [4, 3], // 指定裁剪宽高比
+    aspect: aspect, // 指定裁剪宽高比
     quality: 1, // 图片质量
   })
 
@@ -69,14 +71,14 @@ export const UploadMedia = async ({
 
 // 获取视频的第一帧
 const getVideoFirstFrame = async (videoUri: string) => {
-  console.log(videoUri)
   try {
     const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
       time: 1,
     })
+    console.log(uri)
     return uri
   } catch (e) {
-    console.error(e)
+    console.error(e, '???')
     return null
   }
 }

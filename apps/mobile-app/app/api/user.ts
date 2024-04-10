@@ -7,6 +7,7 @@ interface Response<T> {
 }
 
 type User = {
+  _id: string
   username: string
   password: string
   avatar?: string
