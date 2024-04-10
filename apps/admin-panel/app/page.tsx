@@ -118,7 +118,7 @@ export default () => {
     const routes = routeConfig.route.routes
     for (const route of routes) {
       if (route.path === pathname) {
-        if (!route.component) {
+        if (!route.component && route.routes && route.routes.length > 0) {
           return route.routes[0].component
         } else {
           return route.component
