@@ -1,0 +1,16 @@
+#!/bin/sh
+
+
+current_branch=$(git symbolic-ref --short HEAD)
+# echo "Current branch is $current_branch"
+
+protected_branch="main"
+
+# echo "Protected branch is $protected_branch"
+
+if [ "$protected_branch" = "$current_branch" ]; then
+  echo "You cannot push directly to the protected branch."
+  exit 1
+fi
+
+exit 0
