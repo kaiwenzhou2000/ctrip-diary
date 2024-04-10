@@ -12,6 +12,8 @@ function generateMockData(count: number) {
   return mockData
 }
 
+const fetchMoreData = () => generateMockData(10)
+
 const DATA = generateMockData(20)
 console.log(DATA)
 
@@ -24,15 +26,26 @@ const Item = ({ title }: ItemProps) => (
 )
 
 const WaterFall = () => {
+  const [data, setData] = React.useState(DATA) // Assume DATA is your initial data
+
+  const loadMoreData = () => {
+    // Fetch more data here and append it to the existing data
+    // For example:
+    const moreData = fetchMoreData() // Replace this with your actual data fetching logic
+    setData([...data, ...moreData])
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         style={styles.list}
         contentContainerStyle={{ display: 'flex', justifyContent: 'center' }}
-        data={DATA}
+        data={data}
         renderItem={({ item }) => <Item title={item.title} />}
         keyExtractor={(item) => item.id}
         numColumns={2}
+        onEndReached={loadMoreData} // Load more data when the list reaches the end
+        onEndReachedThreshold={0.5} // Trigger the onEndReached callback when the end of the content is within half the visible length of the list. This value is a ratio, not pixel.
       />
     </SafeAreaView>
   )
