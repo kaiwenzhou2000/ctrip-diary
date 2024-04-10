@@ -12,13 +12,6 @@ type User = {
   avatar?: string
 }
 
-type PublishItem = {
-  userId: string
-  title: string
-  description: string
-  [key: string]: string
-}
-
 export const registerUser = (data: User) => {
   return request({
     url: '/register',
@@ -39,30 +32,5 @@ export const getUserItem = (userId: string) => {
   return request({
     url: `/getUserInfo/${userId}`,
     method: 'GET',
-  })
-}
-
-export const publishTourItem = (userId: string, data: PublishItem) => {
-  return request({
-    url: `/publish/${userId}`,
-    method: 'POST',
-    data,
-  })
-}
-
-// 获取游记信息
-export const getTourItem = (publishId: string) => {
-  return request({
-    url: `/getPublishNote/${publishId}`,
-    method: 'GET',
-  })
-}
-
-// 更新游记信息
-export const updateTourItem = (publishId: string, data: PublishItem) => {
-  return request({
-    url: `/updatePublishNote/${publishId}`,
-    method: 'PUT',
-    data,
   })
 }

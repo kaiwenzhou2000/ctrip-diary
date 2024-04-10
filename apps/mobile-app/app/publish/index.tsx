@@ -27,8 +27,8 @@ import { UploadMedia } from '@/components/uploadMedia'
 import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
-import { publishTourItem } from '../api/user'
-// import { updateTourItem, getTourItem } from '../api/user'
+import { publishTourItem } from '../api/tour'
+// import { updateTourItem, getTourItem } from '../api/tour'
 import { useAuth } from '@/components/authContext'
 
 export default function Publish() {

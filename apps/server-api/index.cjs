@@ -152,9 +152,9 @@ app.post(
         title,
         description,
         images: [],
+        status: 'notPublished',
       })
 
-      console.log(req.files)
       // 支持多张图片
       if (req.files['images']) {
         req.files['images'].forEach((file) => {
@@ -179,7 +179,57 @@ app.post(
   }
 )
 
-// 获取游记信息
+// 获取当前用户游记列表
+app.get('/getCurUserTourList/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const curUserList = await ReleaseNote.find({ userId: userId })
+    const modifiedList = curUserList.map((item) => {
+      const imgUrls = item.images.map((img) => {
+        return req.protocol + '://' + req.get('host') + '/' + img
+      })
+      const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
+      const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+      return {
+        ...item.toObject(),
+        imgUrls,
+        videoUrl,
+        coverUrl,
+      }
+    })
+
+    return res.status(200).send({ data: modifiedList, success: true })
+  } catch (e) {
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
+  }
+})
+
+// 获取所有游记列表
+app.get('/getAllUserTourList', async (req, res) => {
+  try {
+    const allUserList = await ReleaseNote.find()
+    const modifiedList = allUserList.map((item) => {
+      const imgUrls = item.images.map((img) => {
+        return req.protocol + '://' + req.get('host') + '/' + img
+      })
+      const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
+      const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+      return {
+        ...item.toObject(),
+        imgUrls,
+        videoUrl,
+        coverUrl,
+      }
+    })
+
+    return res.status(200).send({ data: modifiedList, success: true })
+  } catch (e) {
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
+  }
+})
+// 获取游记具体信息
 app.get('/getPublishNote/:publishId', async (req, res) => {
   try {
     const publishId = req.params.publishId
@@ -225,7 +275,6 @@ app.put(
 
       // 更新图片
       if (req.files['images']) {
-        // 此处你可能想要替换整个图片数组，或者添加新的图片到数组
         releaseNote.images = req.files['images'].map((file) => file.path)
       }
 
@@ -234,7 +283,7 @@ app.put(
         releaseNote.video = req.files['video'][0].path
       }
 
-      // 处理封面更新
+      // 更新封面
       if (req.files['cover']) {
         releaseNote.cover = req.files['cover'][0].path
       }
