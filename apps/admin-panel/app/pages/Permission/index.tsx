@@ -1,8 +1,9 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
+import { EditOutlined } from '@ant-design/icons'
 import { ProTable } from '@ant-design/pro-components'
-import { Tag } from 'antd'
+import { Tag, Button } from 'antd'
 import AssignPermission from './assignPermission'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import request from 'umi-request'
 
 type UserPersonalInfo = {
@@ -13,6 +14,7 @@ type UserPersonalInfo = {
   identity: string
   created_at?: string
   updated_at?: string
+  permission: []
 }
 
 const status: { [key: string]: JSX.Element } = {
@@ -23,11 +25,21 @@ const status: { [key: string]: JSX.Element } = {
 
 export default () => {
   const actionRef = useRef<ActionType>()
-  // const { identity, hasPermission } = usePermit()
 
-  // const deleteUser = async (id: string) => {
-  //   await delPCUser(id)
-  // }
+  const [assignId, setAssignId] = useState('')
+  const [permitList, setPermitList] = useState([])
+  const [permitVisible, setPermitVisible] = useState(false)
+
+  const assignPermission = (userInfo: { _id: string; permission: [] }) => {
+    const { _id, permission } = userInfo
+    setPermitVisible(true)
+    setAssignId(_id)
+    setPermitList(permission)
+  }
+
+  const closePermit = () => {
+    setPermitVisible(false)
+  }
 
   const columns: ProColumns<UserPersonalInfo>[] = [
     {
@@ -70,7 +82,11 @@ export default () => {
       valueType: 'option',
       render: (_text, record) => {
         return (
-          <AssignPermission key="edit" status={'edit'} userInfo={record} actionRef={actionRef} />
+          <>
+            <Button type="primary" icon={<EditOutlined />} onClick={() => assignPermission(record)}>
+              设置权限
+            </Button>
+          </>
         )
       },
     },
@@ -124,6 +140,12 @@ export default () => {
         }}
         dateFormatter="string"
         headerTitle="菜单管理"
+      />
+      <AssignPermission
+        assignId={assignId}
+        permitList={permitList}
+        permitVisible={permitVisible}
+        closePermit={closePermit}
       />
     </>
   )

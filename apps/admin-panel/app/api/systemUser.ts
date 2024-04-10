@@ -9,7 +9,7 @@ interface Response<T> {
 type UserItem = {
   _id: string
   username: string
-  password: string
+  password?: string
   identity?: string
 }
 
@@ -34,6 +34,25 @@ export const updatePcUser = (userId: string, data: UserItem) => {
     url: `/updatePCUser/${userId}`,
     method: 'PUT',
     data,
+  })
+}
+
+// 设置权限
+export const updateUserPermission = (userId: string, permission: string[]) => {
+  return request({
+    url: `/setPermission/${userId}`,
+    method: 'POST',
+    data: {
+      permission,
+    },
+  })
+}
+
+// 获取用户信息
+export const getUserInfo = (userId: string) => {
+  return request({
+    url: `/getPCUserInfo/${userId}`,
+    method: 'GET',
   })
 }
 

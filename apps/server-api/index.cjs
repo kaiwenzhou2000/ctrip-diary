@@ -213,6 +213,35 @@ app.put('/updatePCUser/:userId', async (req, res) => {
     res.status(500).send({ message: '更新用户信息异常, 请重新尝试' })
   }
 })
+
+// 获取用户信息
+app.get('/getPCUserInfo/:userId', async (req, res) => {
+  try {
+    const pcUserId = req.params.userId
+    const pcUser = await PCUser.findById(pcUserId)
+    return res.status(200).send({ message: 'success', data: pcUser })
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+// 设置权限
+app.post('/setPermission/:userId', async (req, res) => {
+  try {
+    const pcUserId = req.params.userId
+    const { permission } = req.body
+    const updatedPcUser = await PCUser.findByIdAndUpdate(
+      pcUserId,
+      { $set: { permission } },
+      { new: true }
+    )
+
+    return res.status(200).send({ message: '权限设置成功', data: updatedPcUser })
+  } catch (e) {
+    res.status(500).send({ message: '更新用户权限异常, 请重新尝试' })
+  }
+})
+
 // 删除用户
 app.delete('/deletePCUser/:userId', async (req, res) => {
   try {
@@ -244,36 +273,42 @@ const insertSampleUser = async () => {
         password: 'test111',
         identity: 'superadmin',
         created_at: '2024-04-10T10:51:47Z',
+        permission: ['welcome', 'manage', 'userManage', 'menuManage', 'check', 'checkList'],
       },
       {
         username: 'aaa',
         password: 'aaa111',
         identity: 'publishGroup',
         created_at: '2024-04-01T19:01:47Z',
+        permission: ['welcome'],
       },
       {
         username: 'uuu',
         password: 'uuu111',
         identity: 'monitorGroup',
         created_at: '2024-04-03T14:13:47Z',
+        permission: ['welcome'],
       },
       {
         username: '要删掉的',
         password: 'uuu111',
         identity: 'monitorGroup',
         created_at: '2024-03-31T18:34:47Z',
+        permission: ['welcome'],
       },
       {
         username: 'fegdgdr',
         password: 'grgeher',
         identity: 'publishGroup',
         created_at: '2024-04-03T14:13:47Z',
+        permission: ['welcome'],
       },
       {
         username: '5geg6j',
         password: 'vsniodvnis',
         identity: 'monitorGroup',
         created_at: '2024-03-31T18:34:47Z',
+        permission: ['welcome'],
       },
     ])
     console.log('Sample user inserted successfully')
