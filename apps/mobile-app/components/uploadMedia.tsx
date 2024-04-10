@@ -64,9 +64,7 @@ export const UploadMedia = async ({
       }
     })
   )
-  // console.log(extraProcessAssets)
   return extraProcessAssets
-  // return result.assets
 }
 
 // 获取视频的第一帧

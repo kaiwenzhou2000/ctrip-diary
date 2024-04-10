@@ -5,7 +5,6 @@ const cors = require('cors')
 const bcrypt = require('bcrypt')
 const multer = require('multer')
 const fs = require('fs')
-// const upload = multer({ dest: 'uploads/' }) // 存储到`uploads`目录
 
 // 配置Multer存储
 const storage = multer.diskStorage({
@@ -51,10 +50,6 @@ app.use('/uploads', express.static('uploads'))
 
 const User = require('./model/UserModel.cjs')
 const ReleaseNote = require('./model/ReleaseModel.cjs')
-
-app.get('/', function (req, res) {
-  res.send('hello world')
-})
 
 // 用户注册
 app.post('/register', async (req, res) => {
@@ -229,6 +224,7 @@ app.get('/getAllUserTourList', async (req, res) => {
     res.status(500).send({ success: false, message: 'Server error' })
   }
 })
+
 // 获取游记具体信息
 app.get('/getPublishNote/:publishId', async (req, res) => {
   try {

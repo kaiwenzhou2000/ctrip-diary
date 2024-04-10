@@ -43,15 +43,16 @@ export default function Admin() {
             <Box flexDirection="row" justifyContent="flex-start" alignItems="center">
               <Avatar mr="$4" bgColor="$indigo600">
                 <AvatarFallbackText fontFamily="$heading">RC</AvatarFallbackText>
-                {userInfo.avatarUrl !== null && (
+                {userInfo.avatarUrl ? (
                   <AvatarImage
                     alt=""
                     source={{
                       uri: userInfo.avatarUrl,
                     }}
                   />
-                )}
+                ) : null}
               </Avatar>
+
               <VStack>
                 <Heading size="md" fontFamily="$heading" mb="$1">
                   {userInfo.username}
