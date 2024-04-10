@@ -448,7 +448,7 @@ export default () => {
               // ]}
               // subTitle="简单的描述"
               // footer={[
-              //   <Button key="3">重置</Button>,
+              //   <Button key="3"></Button>,
               //   <Button key="2" type="primary">
               //     提交
               //   </Button>,

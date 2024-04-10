@@ -35,3 +35,11 @@ export const delPCUser = (userId: string) => {
     method: 'DELETE',
   })
 }
+
+//获取用户游记
+export const getPCUserWork = (): Promise<Response<UserList>> => {
+  return request({
+    url: '/getDiaryEntries',
+    method: 'GET',
+  })
+}
