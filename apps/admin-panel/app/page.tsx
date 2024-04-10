@@ -17,8 +17,8 @@ import {
   SettingDrawer,
 } from '@ant-design/pro-components'
 import { ConfigProvider, Divider, Dropdown, Input, theme } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { getUserInfo } from './api/systemUser'
+import React, { useState } from 'react'
+// import { getUserInfo } from './api/systemUser'
 import getRouteConfig from './_defaultProps'
 
 const MenuCard = () => {
@@ -94,16 +94,24 @@ export default () => {
     return <div />
   }
 
-  const [permission, setPermsission] = useState([])
-  useEffect(() => {
-    const getUserPermit = async () => {
-      // const res = await getUserInfo('66156bb3a2870a73ac3cd53e')
-      const res = await getUserInfo('66156bb3a2870a73ac3cd53a')
-      const { permission } = res.data
-      setPermsission(permission)
-    }
-    getUserPermit()
-  }, [])
+  const [permission] = useState([
+    'welcome',
+    'manage',
+    'userManage',
+    'menuManage',
+    'check',
+    'checkList',
+  ])
+  // useEffect(() => {
+  // const getUserPermit = async () => {
+  //   // 替换为实际id
+  //   // const res = await getUserInfo('66156bb3a2870a73ac3cd53e')
+  //   const res = await getUserInfo('66156bb3a2870a73ac3cd53a')
+  //   const { permission } = res.data
+  //   setPermsission(permission)
+  // }
+  // getUserPermit()
+  // }, [])
   const routeConfig = getRouteConfig(permission)
 
   const getCurrentComponent = (pathname: string) => {
