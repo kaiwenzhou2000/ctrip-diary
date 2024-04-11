@@ -8,6 +8,7 @@ import { GluestackUIProvider } from '@gluestack-ui/themed'
 import { config } from '@gluestack-ui/config'
 import { useColorScheme } from '@/components/useColorScheme'
 import { Slot } from 'expo-router'
+import { AuthProvider } from '@/components/authContext'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,10 +47,12 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme()
 
   return (
-    <GluestackUIProvider config={config}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Slot />
-      </ThemeProvider>
-    </GluestackUIProvider>
+    <AuthProvider>
+      <GluestackUIProvider config={config}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Slot />
+        </ThemeProvider>
+      </GluestackUIProvider>
+    </AuthProvider>
   )
 }

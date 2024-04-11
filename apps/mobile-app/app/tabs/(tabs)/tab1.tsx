@@ -1,16 +1,33 @@
 import React from 'react'
-import EditScreenInfo from '@/components/EditScreenInfo'
-import { Heading, Center, Divider, Text } from '@gluestack-ui/themed'
+import { Pressable, StyleSheet } from 'react-native'
+import { Text, Center } from '@gluestack-ui/themed'
+import { useAuth } from '@/components/authContext'
+import Publish from '@/app/publish'
+import { Link } from 'expo-router'
 
-export default function Tab2() {
+export default function Tabs1() {
+  const { isLoggedIn } = useAuth()
   return (
-    <Center flex={1}>
-      <Heading bold size="2xl">
-        Expo V3 - Tab 1
-      </Heading>
-      <Divider marginVertical={30} width="80%" />
-      <Text p="$4">Example below to use gluestack-ui components.</Text>
-      <EditScreenInfo path="app/(app)/(tabs)/tab1.tsx" />
-    </Center>
+    <>
+      {isLoggedIn ? (
+        <Publish />
+      ) : (
+        <Center flex={1}>
+          <Link href="/login/" asChild>
+            <Pressable>
+              <Text style={styles.loginBtn}>请先登录</Text>
+            </Pressable>
+          </Link>
+        </Center>
+      )}
+    </>
   )
 }
+
+const styles = StyleSheet.create({
+  loginBtn: {
+    textAlign: 'center',
+    fontSize: 20,
+    color: '#06C',
+  },
+})
