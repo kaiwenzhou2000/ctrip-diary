@@ -1,9 +1,21 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
-import { Space, Input, Form, Modal, Select, message, Row, Col, Carousel, Popconfirm } from 'antd'
+import {
+  Space,
+  Input,
+  Form,
+  Modal,
+  Select,
+  message,
+  Row,
+  Col,
+  Carousel,
+  Popconfirm,
+  Button,
+} from 'antd'
 import { useState, useRef } from 'react'
-
 import request from 'umi-request'
+import { usePermit } from '../components/permit'
 
 type DiaryEntryItem = {
   _id: string
@@ -17,6 +29,8 @@ type DiaryEntryItem = {
 }
 
 export default () => {
+  const { hasPermission } = usePermit()
+
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isViewModalVisible, setIsViewModalVisible] = useState(false) // 新增状态控制查看详情的模态框
   const [currentRecord] = useState<DiaryEntryItem | null>(null) // 保存当前查看的记录
@@ -125,32 +139,13 @@ export default () => {
       sorter: true,
       editable: false,
     },
-    // {
-    //   title: '操作',
-    //   valueType: 'option',
-    //   render: (text, record, _, action) => [
-    //     <a key="view" onClick={() => handleView(record)}>
-    //       查看
-    //     </a>,
-    //     <a
-    //       key="editable"
-    //       onClick={() => {
-    //         action?.startEditable?.(record._id)
-    //         console.log(action)
-    //         console.log(record)
-    //       }}
-    //     >
-    //       编辑
-    //     </a>,
-    //   ],
-    // },
     {
       title: '操作',
       valueType: 'option',
-      render: (text, record, _, action) => [
-        <a key="view" onClick={() => console.log('查看', record)}>
+      render: (_text, record, _, action) => [
+        <Button key="view" type="link" onClick={() => setIsViewModalVisible(true)}>
           查看
-        </a>,
+        </Button>,
         <a key="edit" onClick={() => action?.startEditable(record._id)}>
           编辑
         </a>,
@@ -161,7 +156,9 @@ export default () => {
           okText="是"
           cancelText="否"
         >
-          <a key="delete">删除</a>
+          <Button type="link" disabled={hasPermission('checkDelete')} key="delete">
+            删除
+          </Button>
         </Popconfirm>,
       ],
     },
@@ -242,19 +239,9 @@ export default () => {
         editable={{
           type: 'multiple',
           onSave: handleSave, // 使用更新后的 handleSave 函数
-          actionRender: (row, _, dom) => [
+          actionRender: (_row, _, dom) => [
             dom.save, // 使用保存按钮
             dom.cancel, // 使用取消按钮
-            // 自定义删除按钮
-            <Popconfirm
-              key="del"
-              title="确定删除吗?"
-              onConfirm={() => handleDelete(row._id)}
-              okText="是"
-              cancelText="否"
-            >
-              <a href="#">删除</a>
-            </Popconfirm>,
           ],
         }}
         columnsState={{
@@ -311,7 +298,7 @@ export default () => {
 
       <Modal
         title="详情"
-        visible={isViewModalVisible}
+        open={isViewModalVisible}
         onOk={() => setIsViewModalVisible(false)}
         onCancel={() => setIsViewModalVisible(false)}
         width={800} // 调整模态框的宽度以适应内容
