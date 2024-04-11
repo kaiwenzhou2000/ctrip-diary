@@ -468,8 +468,6 @@ app.delete('/deleteDiaryEntries/:userId:', async (req, res) => {
   }
 })
 
-app.use('/uploads', express.static('uploads'))
-
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   await insertSampleUser()
   await insertSampleDiaryEntries()

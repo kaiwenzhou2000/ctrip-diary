@@ -1,5 +1,5 @@
 import { CrownFilled, SmileFilled, TabletFilled, TeamOutlined } from '@ant-design/icons'
-import { Welcome, UserManage, Permission } from './pages'
+import { Welcome, CheckList, UserManage, Permission } from './pages'
 
 interface Route {
   path: string
@@ -68,14 +68,14 @@ function getRouteConfig(permissions: string[]) {
           name: '审核页',
           icon: <TabletFilled />,
           access: 'check',
-          component: <Welcome />,
+          component: <CheckList />,
           routes: [
             {
               path: '/check/checkList',
               name: '审核列表',
               icon: <CrownFilled />,
               access: 'checkList',
-              component: <Welcome />,
+              component: <CheckList />,
             },
             {
               path: '/list/sub-page2',
