@@ -28,10 +28,12 @@ import {
   Avatar,
   AvatarFallbackText,
   Text,
+  AvatarImage,
 } from '@gluestack-ui/themed'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity, Pressable } from 'react-native'
 import { router } from 'expo-router'
 import { registerUser } from '../api/user'
+import { UploadMedia } from '@/components/uploadMedia'
 
 export default function Register() {
   const toast = useToast()
@@ -51,11 +53,15 @@ export default function Register() {
           setAgreement(true)
           return
         }
-        const userInfo = {
-          username,
-          password,
+        const formData = new FormData()
+        formData.append('username', username)
+        formData.append('password', password)
+        if (selectedAvatar) {
+          const localUri = selectedAvatar.localUri
+          const filename = localUri.split('/').pop()
+          formData.append('avatar', { uri: localUri, name: filename, type: selectedImage.mimeType })
         }
-        await registerUser(userInfo)
+        await registerUser(formData)
         toast.show({
           placement: 'top',
           render: () => {
@@ -99,6 +105,35 @@ export default function Register() {
     }
   }
 
+  const [selectedAvatar, setSelectedAvatar] = useState<{ localUri: string } | null>(null)
+  const [selectedImage, setSelectedImage] = useState({
+    uri: '',
+    mimeType: '',
+    fileName: '',
+  })
+  const handleSelectedAvatar = async () => {
+    const image = await UploadMedia({ mediaTypes: 'Images', aspect: [1, 1] })
+    if (image.length > 0) {
+      setSelectedImage(image[0])
+      // 图片为数组，包含许多信息(名称,uri,width)
+      const { uri } = image[0]
+      setSelectedAvatar({ localUri: uri })
+    } else {
+      toast.show({
+        placement: 'top',
+        render: () => {
+          return (
+            <Toast variant="solid" action="error">
+              <VStack space="xs">
+                <ToastTitle>授权失败</ToastTitle>
+              </VStack>
+            </Toast>
+          )
+        },
+      })
+    }
+  }
+
   return (
     <Center flex={1}>
       <Heading size="3xl" color="$indigo600">
@@ -114,9 +149,19 @@ export default function Register() {
       >
         <VStack space="xs" pb="$4" w="$80" alignItems="center">
           <Heading lineHeight={30}>注册</Heading>
-          <Avatar bgColor="$amber600" size="lg" borderRadius="$full">
-            <AvatarFallbackText>Rinna Chen</AvatarFallbackText>
-          </Avatar>
+          <Pressable onPress={handleSelectedAvatar}>
+            <Avatar bgColor="$amber600" size="lg" borderRadius="$full">
+              <AvatarFallbackText>Rinna Chen</AvatarFallbackText>
+              {selectedAvatar !== null && (
+                <AvatarImage
+                  alt=""
+                  source={{
+                    uri: selectedAvatar.localUri,
+                  }}
+                ></AvatarImage>
+              )}
+            </Avatar>
+          </Pressable>
         </VStack>
         <VStack space="xl" py="$2">
           <FormControl isInvalid={usernameValid} isRequired={true}>

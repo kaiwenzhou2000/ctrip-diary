@@ -205,7 +205,16 @@ export default function Publish() {
       // await updateTourItem(publishId, formData)
       // } else {
       await publishTourItem(userId, username, formData)
-      // }
+      setTitle('')
+      setDescription('')
+      setImageList([])
+      setSelectedVideo({
+        uri: '',
+        type: '',
+        fileName: '',
+        cover: '',
+      })
+      setSelectedVideoUri(null)
       router.push('/tabs/(tabs)/tab2')
     } catch (e) {
       console.log(e)

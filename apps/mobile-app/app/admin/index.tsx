@@ -13,12 +13,17 @@ import {
 import { useAuth } from '@/components/authContext'
 import { getUserItem } from '@/app/api/user'
 import { AntDesign } from '@expo/vector-icons'
+import WaterFall from '../../components/WaterFall'
+import { getCurUserTourList } from '../api/tour'
+
 export default function Admin() {
   const { userId, setUserId, setIsLoggedIn } = useAuth()
   const [userInfo, setUserInfo] = useState({
     username: '',
     avatarUrl: '',
   })
+  const [data, setData] = useState([])
+
   useEffect(() => {
     const getUserInfo = async () => {
       const res = await getUserItem(userId)
@@ -27,6 +32,21 @@ export default function Admin() {
     if (userId) {
       getUserInfo()
     }
+
+    getCurUserTourList(userId).then(({ data }) => {
+      setData(() => {
+        return data.map((item) => {
+          return {
+            id: item._id,
+            title: item.title,
+            avatar: item.avatarUrl,
+            username: item.username,
+            cover: item.coverUrl,
+            state: item.state,
+          }
+        })
+      })
+    })
   }, [userId])
 
   // 退出登录
@@ -135,7 +155,7 @@ export default function Admin() {
           </Box>
         </Card>
         <Card p="$6" borderRadius="$lg" mx="$3">
-          <Text>发布的游记内容？</Text>
+          {/* <Text>发布的游记内容？</Text> */}
           <Box
             mb="$5"
             sx={{
@@ -146,55 +166,12 @@ export default function Admin() {
               },
             }}
           >
-            {/* <Image
-              mb="$3"
-              $xs-borderRadius="$md"
-              sx={{
-                width: '$full',
-                height: 200,
-                '@sm': {
-                  mb: '$0',
-                  mr: '$3',
-                  width: 150,
-                  height: 154,
-                },
-              }}
-              source={{
-                uri: 'https://images.unsplash.com/photo-1592089416462-2b0cb7da8379?q=80&w=2865&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-              }}
-              alt=""
-            />
-            <Image
-              mb="$3"
-              alt=""
-              $xs-borderRadius="$md"
-              sx={{
-                width: '$full',
-                height: 200,
-                '@sm': {
-                  width: 150,
-                  height: 154,
-                },
-              }}
-              source={{
-                uri: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?q=80&w=2425&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+            <WaterFall
+              data={data}
+              onPress={(data) => {
+                console.log(data)
               }}
             />
-            <Image
-              alt=""
-              $xs-borderRadius="$md"
-              sx={{
-                width: '$full',
-                height: 200,
-                '@sm': {
-                  width: 150,
-                  height: 154,
-                },
-              }}
-              source={{
-                uri: 'https://images.unsplash.com/photo-1484406566174-9da000fda645?q=80&w=2425&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-              }}
-            /> */}
           </Box>
         </Card>
       </ScrollView>
