@@ -1,18 +1,6 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
-import {
-  Input,
-  Form,
-  Modal,
-  Select,
-  message,
-  Row,
-  Col,
-  Carousel,
-  Popconfirm,
-  Button,
-  Image,
-} from 'antd'
+import { Input, Form, Modal, Select, message, Row, Col, Popconfirm, Button, Image } from 'antd'
 import { useState, useRef } from 'react'
 import request from 'umi-request'
 import { usePermit } from '../components/permit'
@@ -28,6 +16,7 @@ type DiaryEntryItem = {
   time: string
   state: string
   reasons: string[]
+  create_at: string[]
 }
 
 export default () => {
@@ -57,19 +46,6 @@ export default () => {
   // }
 
   const columns: ProColumns<DiaryEntryItem>[] = [
-    // {
-    //   title: '图片',
-    //   dataIndex: 'images',
-    //   search: false,
-    //   render: (_, record) => (
-    //     <Space>
-    //       {record.images.map((image, index) => (
-    //         <img key={index} src={image} alt={`img-${index}`} style={{ width: 50, height: 50 }} />
-    //       ))}
-    //     </Space>
-    //   ),
-    //   editable: false,
-    // },
     {
       title: '图片',
       dataIndex: 'images',
@@ -149,7 +125,7 @@ export default () => {
     },
     {
       title: '创建时间',
-      dataIndex: 'time',
+      dataIndex: 'create_at',
       valueType: 'dateTime',
       sorter: true,
       editable: false,
@@ -308,38 +284,34 @@ export default () => {
 
       <Modal
         title="详情"
-        open={isViewModalVisible}
+        visible={isViewModalVisible}
         onOk={() => setIsViewModalVisible(false)}
         onCancel={() => setIsViewModalVisible(false)}
         width={800} // 调整模态框的宽度以适应内容
       >
         <Row gutter={16}>
           <Col span={8}>
-            {/* 如果有图片，使用 Carousel 组件展示图片轮播 */}
-            {currentRecord?.images?.length > 0 && (
-              <Carousel autoplay>
-                {currentRecord.images.map((img, index) => (
-                  <div key={index}>
-                    <img
-                      src={img}
-                      alt={`img-${index}`}
-                      style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }}
-                    />
-                  </div>
-                ))}
-              </Carousel>
-            )}
+            {currentRecord?.imgUrls?.map((imgUrls, index) => (
+              <div key={index}>
+                <Image
+                  src={imgUrls}
+                  alt={`Image-${index}`}
+                  style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} // 调整为您需要的尺寸
+                />
+              </div>
+            ))}
+
             {/* 如果有视频，下方展示视频 */}
             {currentRecord?.video && (
               <video style={{ width: '100%', marginTop: '10px' }} controls>
-                <source src={currentRecord.video} type="video/mp4" />
+                <source src={currentRecord.videoUrl} type="video/mp4" />
                 您的浏览器不支持视频标签。
               </video>
             )}
           </Col>
           <Col span={16}>
             <p>
-              <strong>作者:</strong> {currentRecord?.userId}
+              <strong>作者:</strong> {currentRecord?.username}
             </p>
             <p>
               <strong>标题:</strong> {currentRecord?.title}
@@ -348,7 +320,7 @@ export default () => {
               <strong>正文:</strong> {currentRecord?.description}
             </p>
             <p>
-              <strong>时间:</strong> {currentRecord?.time}
+              <strong>时间:</strong> {currentRecord?.create_at}
             </p>
             <p>
               <strong>状态:</strong> {statusEnum[currentRecord?.state ?? 'Pending review']}
