@@ -6,7 +6,7 @@ function generateMockData(count: number) {
   for (let i = 0; i < count; i++) {
     mockData.push({
       id: `${i + 1}`,
-      title: `Mock Item ${i + 1}`,
+      title: `123123123123123123123123123123123123122313Mock Item ${i + 1}`,
     })
   }
   return mockData
@@ -22,14 +22,22 @@ type ItemProps = { title: string }
 const Item = ({ title }: ItemProps) => (
   <View style={styles.item}>
     <Image
-      style={styles.tinyLogo}
+      style={styles.cover}
       source={require('../assets/images/1040g0k0310r1ajkl6g005pg0d4b1hiaa1v8r550!nc_n_webp_mw_1.webp')}
       resizeMode="cover"
     />
-    <Text style={styles.title}>{title}</Text>
+    <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+      {title}
+    </Text>
     <div style={styles.userContainer}>
-      <div style={styles.userAvator}></div>
-      <div style={styles.username}></div>
+      <div style={styles.userAvator}>
+        <Image
+          style={styles.userAvatorLogo}
+          source={require('../assets/images/1040g0k0310r1ajkl6g005pg0d4b1hiaa1v8r550!nc_n_webp_mw_1.webp')}
+          // resizeMode="cover"
+        />
+      </div>
+      <div style={styles.username}>meredith</div>
       <div style={styles.star}></div>
     </div>
   </View>
@@ -82,23 +90,44 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   item: {
-    backgroundColor: '#f9c2ff',
+    backgroundColor: 'white',
     margin: stylesConstant.itemSpacing,
     width: '45%',
-    height: 200,
+    height: 220,
+    display: 'flex',
+    borderRadius: 5,
   },
   userContainer: {
     display: 'flex',
+    alignItems: 'center',
+    height: 30,
+    marginLeft: 5,
+    marginRight: 5,
   },
-  userAvator: {},
-  username: {},
+  userAvator: {
+    height: 20,
+    width: 20,
+  },
+  userAvatorLogo: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 50,
+  },
+  username: {
+    marginLeft: 5,
+    color: '#BAB8B9',
+    fontSize: 12,
+  },
   star: {},
-  tinyLogo: {
+  cover: {
     height: 150,
     width: '100%',
   },
   title: {
     fontSize: 14,
+    height: 35,
+    marginLeft: 5,
+    marginRight: 5,
   },
 })
 
