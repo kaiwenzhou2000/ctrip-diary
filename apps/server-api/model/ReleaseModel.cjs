@@ -10,6 +10,7 @@ const ReleaseSchema = new mongoose.Schema({
   create_at: { type: String },
   state: { type: String, required: true, default: 'Pending review' },
   isDeleted: { type: Boolean, default: false },
+  reasons: { type: String, default: '' },
 })
 
 const ReleaseNote = mongoose.model('ReleaseNote', ReleaseSchema)

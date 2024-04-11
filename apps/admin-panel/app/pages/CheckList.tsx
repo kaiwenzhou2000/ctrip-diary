@@ -16,16 +16,18 @@ import {
 import { useState, useRef } from 'react'
 import request from 'umi-request'
 import { usePermit } from '../components/permit'
+import { updatediaryEntries, deletediaryEntries, diaryEntries } from '../api/systemUser'
 
 type DiaryEntryItem = {
   _id: string
-  username: string
+  userId: string
   title: string
   description: string
   images: string[]
   video: string
   time: string
   state: string
+  reasons: string[]
 }
 
 export default () => {
@@ -33,16 +35,16 @@ export default () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isViewModalVisible, setIsViewModalVisible] = useState(false) // 新增状态控制查看详情的模态框
-  const [currentRecord] = useState<DiaryEntryItem | null>(null) // 保存当前查看的记录
-  const [editingRecord] = useState<DiaryEntryItem | null>(null)
+  const [currentRecord, setCurrentRecord] = useState<DiaryEntryItem | null>(null) // 保存当前查看的记录
+  // const [setEditingRecord] = useState<DiaryEntryItem | null>(null)
   const actionRef = useRef<ActionType>()
   const [modalForm] = Form.useForm()
   const [form] = Form.useForm()
 
-  // const handleView = (record: DiaryEntryItem) => {
-  //   setCurrentRecord(record) // 设置当前选中的记录
-  //   setIsViewModalVisible(true) // 显示模态框
-  // }
+  const handleView = (record: DiaryEntryItem) => {
+    setCurrentRecord(record) // 设置当前选中的记录
+    setIsViewModalVisible(true) // 显示模态框
+  }
 
   // const handleEdit = (record: DiaryEntryItem) => {
   //   setEditingRecord(record)
@@ -76,7 +78,7 @@ export default () => {
 
     {
       title: '发布者',
-      dataIndex: 'username',
+      dataIndex: 'userId',
       copyable: true,
       ellipsis: true,
       width: '10%',
@@ -141,12 +143,15 @@ export default () => {
       title: '操作',
       valueType: 'option',
       render: (_text, record, _, action) => [
-        <Button key="view" type="link" onClick={() => setIsViewModalVisible(true)}>
+        <Button key="view" type="link" onClick={() => handleView(record)}>
           查看
         </Button>,
-        <a key="edit" onClick={() => action?.startEditable(record._id)}>
+        // <a key="edit" onClick={() => action?.startEditable(record._id)}>
+        //   编辑
+        // </a>,
+        <Button key="editable" type="link" onClick={() => action?.startEditable(record._id)}>
           编辑
-        </a>,
+        </Button>,
         <Popconfirm
           key="delete"
           title="确定删除吗?"
@@ -162,9 +167,11 @@ export default () => {
     },
   ]
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string): Promise<void> => {
     try {
-      await request.delete(`/diaryEntries/${id}`)
+      // const { _id } = record
+      console.log(id)
+      await deletediaryEntries(id, true)
       message.success('删除成功')
       actionRef.current?.reload()
     } catch (error) {
@@ -172,12 +179,17 @@ export default () => {
       message.error('删除异常')
     }
   }
+
   const handleSave = async (key: React.Key, record: DiaryEntryItem): Promise<void> => {
     try {
-      const id = String(key)
-      await request.post(`/diaryEntries/${id}`, {
-        data: record,
-      })
+      // const id = String(record)
+      const { _id, state } = record
+      console.log(state)
+      // console.log(_id)
+      await updatediaryEntries(_id, state)
+      if (state === 'Rejected') {
+        setIsModalVisible(true)
+      }
       message.success('保存成功')
       actionRef.current?.reload()
     } catch (error) {
@@ -186,26 +198,24 @@ export default () => {
     }
   }
 
-  const handleOk = async () => {
+  const handleOk = async (key: React.Key, record: DiaryEntryItem): Promise<void> => {
     try {
-      const values = await modalForm.validateFields()
-      console.log('Modal Form Values:', values)
+      // const values = await modalForm.validateFields()
+      // console.log('Modal Form Values:', values)
+      //console.log(record)
+      const { _id, reasons } = record // 从表单值中提取原因
+      console.log(reasons)
+      // 发送请求到后端API，更新状态
+      await diaryEntries(_id, reasons)
 
-      if (editingRecord) {
-        // 发送请求到后端API，更新状态
-        const response = await request.post(`/diaryEntries/${editingRecord._id}`, {
-          state: values.state, // 假设表单中有一个名为state的字段
-        })
-
-        if (response.success) {
-          // 如果更新成功，关闭模态框并刷新表格数据
-          message.success('状态更新成功')
-          setIsModalVisible(false)
-          modalForm.resetFields() // 重置表单
-          actionRef.current?.reload() // 刷新表格
-        } else {
-          message.error('状态更新失败')
-        }
+      if (response.success) {
+        // 如果更新成功，关闭模态框并刷新表格数据
+        message.success('状态更新成功')
+        setIsModalVisible(false)
+        modalForm.resetFields() // 重置表单
+        actionRef.current?.reload() // 刷新表格
+      } else {
+        message.error('状态更新失败')
       }
     } catch (errorInfo) {
       console.error('Failed:', errorInfo)
@@ -280,12 +290,12 @@ export default () => {
       />
       <Modal
         title="审核说明"
-        visible={isModalVisible}
-        onOk={handleOk}
+        open={isModalVisible}
+        onFinish={handleOk}
         onCancel={() => setIsModalVisible(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="reason" label="审核情况">
+          <Form.Item name="reasons" label="审核情况">
             <Input.TextArea rows={4} placeholder="请输入未通过的原因" />
           </Form.Item>
         </Form>
@@ -324,7 +334,7 @@ export default () => {
           </Col>
           <Col span={16}>
             <p>
-              <strong>作者:</strong> {currentRecord?.username}
+              <strong>作者:</strong> {currentRecord?.userId}
             </p>
             <p>
               <strong>标题:</strong> {currentRecord?.title}

@@ -71,3 +71,35 @@ export const getPCUserWork = (): Promise<Response<UserList>> => {
     method: 'GET',
   })
 }
+
+//更新用户状态
+export const updatediaryEntries = (id: string, state: string) => {
+  return request({
+    url: `/updatediaryEntries/${id}`,
+    method: 'put',
+    data: {
+      state,
+    },
+  })
+}
+
+//逻辑删除
+export const deletediaryEntries = (id: string, isDeleted: boolean) => {
+  return request({
+    url: `/deletediaryEntries/${id}`,
+    method: 'put',
+    data: {
+      isDeleted,
+    },
+  })
+}
+//更新原因
+export const diaryEntries = (id: string, reasons: string) => {
+  return request({
+    url: `/diaryEntries/${id}`,
+    method: 'put',
+    data: {
+      reasons,
+    },
+  })
+}
