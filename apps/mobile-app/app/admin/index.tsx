@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/components/authContext'
 import { getUserItem } from '@/app/api/user'
 import { AntDesign } from '@expo/vector-icons'
+import { getAllUserTourList } from '../api/tour'
 export default function Admin() {
   const { userId, setUserId, setIsLoggedIn } = useAuth()
   const [userInfo, setUserInfo] = useState({
@@ -24,6 +25,12 @@ export default function Admin() {
       const res = await getUserItem(userId)
       setUserInfo(res.data)
     }
+    const getTest = async () => {
+      const res = await getAllUserTourList()
+      console.log(res.data)
+    }
+    getTest()
+
     if (userId) {
       getUserInfo()
     }
@@ -43,15 +50,16 @@ export default function Admin() {
             <Box flexDirection="row" justifyContent="flex-start" alignItems="center">
               <Avatar mr="$4" bgColor="$indigo600">
                 <AvatarFallbackText fontFamily="$heading">RC</AvatarFallbackText>
-                {userInfo.avatarUrl !== null && (
+                {userInfo.avatarUrl ? (
                   <AvatarImage
                     alt=""
                     source={{
                       uri: userInfo.avatarUrl,
                     }}
                   />
-                )}
+                ) : null}
               </Avatar>
+
               <VStack>
                 <Heading size="md" fontFamily="$heading" mb="$1">
                   {userInfo.username}

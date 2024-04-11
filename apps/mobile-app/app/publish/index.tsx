@@ -16,6 +16,10 @@ import {
   FormControlError,
   FormControlErrorIcon,
   FormControlErrorText,
+  Toast,
+  ToastTitle,
+  useToast,
+  VStack,
 } from '@gluestack-ui/themed'
 import { TouchableOpacity, StyleSheet, ScrollView, Dimensions, Pressable } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
@@ -23,11 +27,37 @@ import { UploadMedia } from '@/components/uploadMedia'
 import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
-import { publishTourItem } from '../api/user'
+import { publishTourItem } from '../api/tour'
+// import { updateTourItem, getTourItem } from '../api/tour'
 import { useAuth } from '@/components/authContext'
 
 export default function Publish() {
   const { userId } = useAuth()
+  const toast = useToast()
+
+  // useEffect(() => {
+  //   // 重新编辑游记，回填数据
+  //   const getReleaseNote = async () => {
+  //     const res = await getTourItem('6616075f4404239f23d61489')
+  //     const { title, description, imgUrls, videoUrl } = res.data
+  //     const imgList = imgUrls.map((imgUrl) => ({ uri: imgUrl }))
+  //     setTitle(title)
+  //     setDescription(description)
+  //     setHasMedia(true)
+  //     if (imgUrls) {
+  //       setHasImages(true)
+  //       setImageList(imgList)
+  //     }
+  //     if (videoUrl) {
+  //       setHasVideo(true)
+  //       setSelectedVideoUri({ localUri: videoUrl })
+  //     }
+  //   }
+  //   // 替换为实际publishId
+  //   if (publishId) {
+  //     getReleaseNote()
+  //   }
+  // }, [])
 
   const [titleValid, setTitleValid] = useState(false)
   const [title, setTitle] = useState('')
@@ -55,7 +85,7 @@ export default function Publish() {
 
   interface ImageState {
     uri: string
-    mimeType?: string
+    mimeType: string
     type?: string
     fileName?: string
   }
@@ -72,32 +102,42 @@ export default function Publish() {
     uri: '',
     type: '',
     fileName: '',
+    cover: '',
   })
+
+  const [imgCover, setImgCover] = useState<{ uri: string } | null>(null)
+  const [videoCover, setVideoCover] = useState<{ uri: string } | null>(null)
 
   // 上传图片或视频
   const handleSelectImgOrVideo = async () => {
-    const medias = await UploadMedia({ allowsMultipleSelection: true, mediaTypes: 'All' })
+    const medias = await UploadMedia({
+      allowsMultipleSelection: true,
+      mediaTypes: 'All',
+    })
     if (medias.length > 0) {
       setHasMedia(true)
 
       // 过滤图片
-      const selectedImages = medias.filter((media) => media.mimeType?.startsWith('image'))
-      console.log(selectedImages, imageList)
+      const selectedImages = medias.filter((media) => media?.mimeType?.startsWith('image'))
       if (selectedImages.length > 0) {
-        setImageList((prevImages) => [
-          ...prevImages.filter((img) => img.uri), // 过滤掉空uri元素
-          ...selectedImages,
-        ])
+        const newImageList = [...imageList.filter((img) => img.uri), ...selectedImages]
+        setImageList(newImageList)
         setHasImages(true)
+        if (newImageList[0]) {
+          setImgCover({ uri: newImageList[0].uri })
+        }
       }
 
       // 过滤视频
-      const selectedVideos = medias.filter((media) => media.mimeType?.startsWith('video'))
+      const selectedVideos = medias.filter((media) => media?.mimeType?.startsWith('video'))
       if (selectedVideos.length > 0) {
         const selectedVideo = selectedVideos[0]
-        setSelectedVideo(selectedVideo)
-        setSelectedVideoUri({ localUri: selectedVideo.uri })
-        setHasVideo(true)
+        if (selectedVideo) {
+          setSelectedVideo(selectedVideo)
+          setSelectedVideoUri({ localUri: selectedVideo.uri })
+          setHasVideo(true)
+          setVideoCover({ uri: selectedVideo.cover })
+        }
       }
     }
   }
@@ -112,7 +152,21 @@ export default function Publish() {
       setDescriptionValid(true)
       return
     }
-
+    if (imageList.length === 0 && !selectedVideoUri?.localUri) {
+      toast.show({
+        placement: 'top',
+        render: () => {
+          return (
+            <Toast variant="solid" action="error">
+              <VStack space="xs">
+                <ToastTitle>请至少上传图片</ToastTitle>
+              </VStack>
+            </Toast>
+          )
+        },
+      })
+      return
+    }
     const formData = new FormData()
     formData.append('title', title)
     formData.append('description', description)
@@ -135,8 +189,23 @@ export default function Publish() {
         formData.append('images', imgData)
       })
     }
+    if (imgCover || videoCover) {
+      const coverUri = imgCover ? imgCover : videoCover
+      const filename = coverUri?.uri.split('/').pop()
+      formData.append('cover', {
+        uri: coverUri?.uri,
+        name: filename,
+        type: 'image',
+      })
+    }
     try {
+      // 替换为实际publishId
+      // const publishId = '6616075f4404239f23d61489'
+      // if (publishId) {
+      // await updateTourItem(publishId, formData)
+      // } else {
       await publishTourItem(userId, formData)
+      // }
       router.push('/tabs/(tabs)/tab2')
     } catch (e) {
       console.log(e)
@@ -285,7 +354,7 @@ const styles = StyleSheet.create({
   },
   upload: {
     width: 120,
-    height: 120,
+    height: 150,
     borderRadius: 10,
     // borderStyle: 'solid',
     borderWidth: 1,
@@ -299,7 +368,7 @@ const styles = StyleSheet.create({
   },
   uploadVideo: {
     width: 120,
-    height: 120,
+    height: 150,
     borderRadius: 10,
     borderStyle: 'solid',
     borderWidth: 1,

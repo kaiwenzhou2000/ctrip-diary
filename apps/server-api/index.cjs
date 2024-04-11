@@ -5,7 +5,6 @@ const cors = require('cors')
 const bcrypt = require('bcrypt')
 const multer = require('multer')
 const fs = require('fs')
-// const upload = multer({ dest: 'uploads/' }) // 存储到`uploads`目录
 
 // 配置Multer存储
 const storage = multer.diskStorage({
@@ -16,7 +15,11 @@ const storage = multer.diskStorage({
       uploadFolder += 'avatar/'
     } else {
       if (file.mimetype.startsWith('image/')) {
-        uploadFolder += 'images/'
+        if (file.fieldname === 'cover') {
+          uploadFolder += 'covers/'
+        } else {
+          uploadFolder += 'images/'
+        }
       } else if (file.mimetype.startsWith('video/')) {
         uploadFolder += 'videos/'
       }
@@ -46,13 +49,12 @@ app.use(cookieParser())
 app.use('/uploads', express.static('uploads'))
 
 const User = require('./model/UserModel.cjs')
+const PCUser = require('./model/PCUserModel.cjs')
+const UserDetail = require('./model/UserDetail.cjs')
+// 需要合并和删除集合
 const ReleaseNote = require('./model/ReleaseModel.cjs')
 const PCUser = require('./model/PCUserModel.cjs')
 const DiaryEntry = require('./model/diaryEntries.cjs')
-
-app.get('/', function (req, res) {
-  res.send('hello world')
-})
 
 // 用户注册
 app.post('/register', async (req, res) => {
@@ -134,30 +136,212 @@ app.get('/getUserInfo/:userId', async (req, res) => {
 })
 
 // 发布游记（当前用户）
-app.post('/publish/:userId', upload.single('file'), async (req, res) => {
-  try {
-    const userId = req.params.userId
-    const { title, description } = req.body
-    const releaseNote = new ReleaseNote({
-      userId,
-      title,
-      description,
-    })
+app.post(
+  '/publish/:userId',
+  upload.fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'video', maxCount: 1 },
+    { name: 'cover', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const userId = req.params.userId
+      const { title, description } = req.body
+      const releaseNote = new ReleaseNote({
+        userId,
+        title,
+        description,
+        images: [],
+        status: 'notPublished',
+      })
 
-    if (req.file) {
-      if (req.file.mimetype.startsWith('image/')) {
-        releaseNote.images.push(req.file.path)
-      } else if (req.file.mimetype.startsWith('video/')) {
-        releaseNote.video = req.file.path
+      // 支持多张图片
+      if (req.files['images']) {
+        req.files['images'].forEach((file) => {
+          releaseNote.images.push(file.path)
+        })
       }
-    }
-    await releaseNote.save()
+      // 处理视频，仅支持一个视频
+      if (req.files['video']) {
+        releaseNote.video = req.files['video'][0].path
+      }
+      // 封面
+      if (req.files['cover']) {
+        releaseNote.cover = req.files['cover'][0].path
+      }
+
+      await releaseNote.save()
 
     return res.status(200).send({ message: 'success', data: releaseNote })
   } catch (e) {
     console.log(e)
   }
 })
+
+// 获取当前用户游记列表
+app.get('/getCurUserTourList/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const curUserList = await ReleaseNote.find({ userId: userId })
+    const userItem = await User.findById(userId)
+    const modifiedList = curUserList.map((item) => {
+      const imgUrls = item.images.map((img) => {
+        return req.protocol + '://' + req.get('host') + '/' + img
+      })
+      const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
+      const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+      const avatarUrl = req.protocol + '://' + req.get('host') + '/' + userItem.avatar
+      return {
+        ...item.toObject(),
+        imgUrls,
+        videoUrl,
+        coverUrl,
+        avatarUrl,
+      }
+    })
+
+    return res.status(200).send({ data: modifiedList, success: true })
+  } catch (e) {
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
+  }
+})
+
+// 获取所有游记列表
+// app.get('/getAllUserTourList', async (req, res) => {
+//   try {
+//     const allUserList = await ReleaseNote.find()
+//     const modifiedList = allUserList.map((item) => {
+//       const imgUrls = item.images.map((img) => {
+//         return req.protocol + '://' + req.get('host') + '/' + img
+//       })
+//       const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
+//       const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+//       return {
+//         ...item.toObject(),
+//         imgUrls,
+//         videoUrl,
+//         coverUrl,
+//       }
+//     })
+
+//     return res.status(200).send({ data: modifiedList, success: true })
+//   } catch (e) {
+//     console.error(e)
+//     res.status(500).send({ success: false, message: 'Server error' })
+//   }
+// })
+app.get('/getAllUserTourList', async (req, res) => {
+  try {
+    const allUsers = await User.find()
+
+    const userDetailsPromises = allUsers.map(async (user) => {
+      const userTours = await ReleaseNote.find({ userId: user._id.toString() })
+
+      const tours = userTours.map((tour) => {
+        const imgUrls = tour.images.map((img) => `${req.protocol}://${req.get('host')}/${img}`)
+        const videoUrl = `${req.protocol}://${req.get('host')}/${tour.video}`
+        const coverUrl = `${req.protocol}://${req.get('host')}/${tour.cover}`
+
+        return {
+          ...tour.toObject(),
+          imgUrls,
+          videoUrl,
+          coverUrl,
+        }
+      })
+
+      // 更新或创建UserDetail文档
+      return UserDetail.findOneAndUpdate(
+        { userId: user._id.toString() },
+        {
+          userId: user._id.toString(),
+          userAvatar: user.avatar,
+          tours,
+        },
+        { upsert: true, new: true, returnOriginal: false }
+      )
+    })
+
+    // 等待所有UserDetail文档的更新操作完成
+    const updatedUserDetails = await Promise.all(userDetailsPromises)
+
+    // 返回更新后的UserDetail数据
+    res.status(200).send({ success: true, data: updatedUserDetails })
+  } catch (e) {
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
+  }
+})
+
+// 获取游记具体信息
+app.get('/getPublishNote/:publishId', async (req, res) => {
+  try {
+    const publishId = req.params.publishId
+    const publishItem = await ReleaseNote.findById(publishId)
+    const videoUrl = req.protocol + '://' + req.get('host') + '/' + publishItem.video
+    const imgUrls = publishItem.images.map((img) => {
+      return req.protocol + '://' + req.get('host') + '/' + img
+    })
+    const newPublishItem = {
+      ...publishItem.toObject(),
+      imgUrls,
+      videoUrl,
+    }
+
+    res.status(200).send({ message: 'success', data: newPublishItem })
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+// 更新游记信息
+app.put(
+  '/updatePublishNote/:publishId',
+  upload.fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'video', maxCount: 1 },
+    { name: 'cover', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const publishId = req.params.publishId
+      const { title, description } = req.body
+
+      const releaseNote = await ReleaseNote.findById(publishId)
+
+      // if (!releaseNote) {
+      //   return res.status(404).send({ message: '游记未找到' })
+      // }
+
+      // 更新标题和描述
+      releaseNote.title = title || releaseNote.title
+      releaseNote.description = description || releaseNote.description
+
+      // 更新图片
+      if (req.files['images']) {
+        releaseNote.images = req.files['images'].map((file) => file.path)
+      }
+
+      // 更新视频
+      if (req.files['video']) {
+        releaseNote.video = req.files['video'][0].path
+      }
+
+      // 更新封面
+      if (req.files['cover']) {
+        releaseNote.cover = req.files['cover'][0].path
+      }
+      await releaseNote.save()
+
+      return res.status(200).send({ message: 'success', data: releaseNote })
+    } catch (e) {
+      console.log(e)
+      res.status(500).send({ message: '更新游记信息异常, 请重新尝试' })
+    }
+  }
+)
+
 
 // PC端接口
 
@@ -258,72 +442,6 @@ app.delete('/deletePCUser/:userId', async (req, res) => {
   }
 })
 
-const insertSampleUser = async () => {
-  try {
-    // 检查是否已有用户数据
-    const existingUsers = await PCUser.find()
-    if (existingUsers.length > 0) {
-      console.log('已存在用户数据，无需插入示例数据')
-      return
-    }
-
-    // 插入新的用户数据，后续删除
-    await PCUser.insertMany([
-      {
-        username: 'test',
-        password: 'test111',
-        identity: 'superadmin',
-        created_at: '2024-04-10T10:51:47Z',
-        permission: ['welcome', 'manage', 'userManage', 'menuManage', 'check', 'checkList'],
-      },
-      {
-        username: 'aaa',
-        password: 'aaa111',
-        identity: 'publishGroup',
-        created_at: '2024-04-01T19:01:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: 'uuu',
-        password: 'uuu111',
-        identity: 'monitorGroup',
-        created_at: '2024-04-03T14:13:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: '要删掉的',
-        password: 'uuu111',
-        identity: 'monitorGroup',
-        created_at: '2024-03-31T18:34:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: 'fegdgdr',
-        password: 'grgeher',
-        identity: 'publishGroup',
-        created_at: '2024-04-03T14:13:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: '5geg6j',
-        password: 'vsniodvnis',
-        identity: 'monitorGroup',
-        created_at: '2024-03-31T18:34:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: 'aaaa',
-        password: 'nnnnnn',
-        identity: 'monitorGroup',
-        created_at: '2024-03-31T18:34:47Z',
-      },
-    ])
-    console.log('Sample user inserted successfully')
-  } catch (error) {
-    console.error('Error inserting sample user:', error)
-  }
-}
-
 // 审核数据
 //查询
 app.get('/getDiaryEntries', async (req, res) => {
@@ -397,11 +515,92 @@ app.post('/diaryEntries/:id', async (req, res) => {
   }
 })
 
+//逻辑删除
+app.delete('/deleteDiaryEntries/:userId:', async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const result = await PCUser.findByIdAndUpdate(userId, { isDeleted: true }, { new: true })
+    if (!result) {
+      return res.status(404).send({ status: 1, msg: '未找到要删除的用户' })
+    }
+    return res.status(200).send({ status: 0, msg: '用户已成功删除（逻辑删除）' })
+  } catch (error) {
+    console.error('逻辑删除用户异常', error)
+    res.status(500).send({ status: 1, msg: '逻辑删除用户异常，请重新尝试' })
+  }
+})
+
+// 要删除的mock数据
+const insertSampleUser = async () => {
+  try {
+    // 检查是否已有用户数据
+    const existingUsers = await PCUser.find()
+    if (existingUsers.length > 0) {
+      console.log('已存在用户数据，无需插入示例数据')
+      return
+    }
+
+    // 插入新的用户数据，后续删除
+    await PCUser.insertMany([
+      {
+        username: 'test',
+        password: 'test111',
+        identity: 'superadmin',
+        created_at: '2024-04-10T10:51:47Z',
+        permission: ['welcome', 'manage', 'userManage', 'menuManage', 'check', 'checkList'],
+      },
+      {
+        username: 'aaa',
+        password: 'aaa111',
+        identity: 'publishGroup',
+        created_at: '2024-04-01T19:01:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: 'uuu',
+        password: 'uuu111',
+        identity: 'monitorGroup',
+        created_at: '2024-04-03T14:13:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: '要删掉的',
+        password: 'uuu111',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: 'fegdgdr',
+        password: 'grgeher',
+        identity: 'publishGroup',
+        created_at: '2024-04-03T14:13:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: '5geg6j',
+        password: 'vsniodvnis',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: 'aaaa',
+        password: 'nnnnnn',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+      },
+    ])
+    console.log('Sample user inserted successfully')
+  } catch (error) {
+    console.error('Error inserting sample user:', error)
+  }
+}
+
 const insertSampleDiaryEntries = async () => {
   try {
     // 检查是否已有日记条目数据
     const existingEntries = await DiaryEntry.find()
-    console.log('existing entries')
     if (existingEntries.length > 0) {
       console.log('已存在日记条目数据，无需插入示例数据')
       return
@@ -452,22 +651,6 @@ const insertSampleDiaryEntries = async () => {
     console.error('插入样本日记条目时发生错误:', error)
   }
 }
-
-//逻辑删除
-app.delete('/deleteDiaryEntries/:userId:', async (req, res) => {
-  try {
-    const userId = req.params.userId
-    const result = await PCUser.findByIdAndUpdate(userId, { isDeleted: true }, { new: true })
-    if (!result) {
-      return res.status(404).send({ status: 1, msg: '未找到要删除的用户' })
-    }
-    return res.status(200).send({ status: 0, msg: '用户已成功删除（逻辑删除）' })
-  } catch (error) {
-    console.error('逻辑删除用户异常', error)
-    res.status(500).send({ status: 1, msg: '逻辑删除用户异常，请重新尝试' })
-  }
-})
-
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   await insertSampleUser()
   await insertSampleDiaryEntries()

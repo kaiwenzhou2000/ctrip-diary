@@ -175,7 +175,7 @@ export default function Login({ type }: LoginProps) {
     fileName: '',
   })
   const handleSelectedAvatar = async () => {
-    const image = await UploadMedia({ mediaTypes: 'Images' })
+    const image = await UploadMedia({ mediaTypes: 'Images', aspect: [1, 1] })
     if (image.length > 0) {
       setSelectedImage(image[0])
       // 图片为数组，包含许多信息(名称,uri,width)

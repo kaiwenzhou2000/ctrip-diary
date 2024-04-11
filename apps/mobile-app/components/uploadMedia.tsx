@@ -1,14 +1,19 @@
 import * as ImagePicker from 'expo-image-picker'
+import * as ImageManipulator from 'expo-image-manipulator'
+import * as VideoThumbnails from 'expo-video-thumbnails'
+
 /**
  * 异步函数，用于从设备的媒体库中选择图片或视频。
  * @param {Object} options - 选择媒体的选项。
  * @param {boolean} options.allowsMultipleSelection - 是否允许选择多个媒体文件。
  * @param {string} options.mediaTypes - 要选择的媒体类型，'Images'、'Videos' 或 'All'。
+ * @param {[number,number]} options.aspect - 指定裁剪比例
  */
 export const UploadMedia = async ({
   allowsMultipleSelection = false,
   mediaTypes = 'All',
   // allowEditing = false,
+  aspect = [3, 4] as [number, number],
 }) => {
   // 请求媒体库访问权限
   const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -32,13 +37,47 @@ export const UploadMedia = async ({
     allowsMultipleSelection: allowsMultipleSelection,
     base64: false,
     allowsEditing: mediaTypes === 'Images', // 允许编辑仅对图片有效
-    aspect: [4, 3], // 指定裁剪宽高比
+    aspect: aspect, // 指定裁剪宽高比
     quality: 1, // 图片质量
+    videoExportPreset: ImagePicker.VideoExportPreset.MediumQuality, // 设置视频导出预设为中等质量
   })
 
   if (result.canceled) {
     return []
   }
-  // return allowsMultipleSelection && result.assets ? result.assets : [result]
-  return result.assets
+
+  // 上传完处理压缩
+  const extraProcessAssets = await Promise.all(
+    result.assets.map(async (asset) => {
+      // 如果是图片，使用ImageManipulator进行压缩
+      if (asset.type === 'image') {
+        const compressedImage = await ImageManipulator.manipulateAsync(
+          asset.uri,
+          [],
+          { compress: 0.5 } // 压缩率
+        )
+        return { ...asset, uri: compressedImage.uri }
+      }
+
+      // 视频压缩VideoExportPreset
+      if (asset.type === 'video') {
+        const firstFrameUri = await getVideoFirstFrame(asset.uri)
+        return { ...asset, cover: firstFrameUri }
+        // return asset
+      }
+    })
+  )
+  return extraProcessAssets
+}
+
+// 获取视频的第一帧
+const getVideoFirstFrame = async (videoUri: string) => {
+  try {
+    const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
+      time: 1,
+    })
+    return uri
+  } catch (e) {
+    return null
+  }
 }
