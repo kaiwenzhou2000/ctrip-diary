@@ -13,7 +13,6 @@ import {
 import { useAuth } from '@/components/authContext'
 import { getUserItem } from '@/app/api/user'
 import { AntDesign } from '@expo/vector-icons'
-import { getAllUserTourList } from '../api/tour'
 export default function Admin() {
   const { userId, setUserId, setIsLoggedIn } = useAuth()
   const [userInfo, setUserInfo] = useState({
@@ -25,12 +24,6 @@ export default function Admin() {
       const res = await getUserItem(userId)
       setUserInfo(res.data)
     }
-    const getTest = async () => {
-      const res = await getAllUserTourList()
-      console.log(res.data)
-    }
-    getTest()
-
     if (userId) {
       getUserInfo()
     }

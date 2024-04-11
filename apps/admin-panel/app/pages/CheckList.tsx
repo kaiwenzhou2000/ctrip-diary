@@ -55,7 +55,6 @@ export default () => {
   // }
 
   const columns: ProColumns<DiaryEntryItem>[] = [
-    // 列定义...
     {
       title: '图片',
       dataIndex: 'images',
@@ -63,7 +62,6 @@ export default () => {
       render: (_, record) => (
         <Space>
           {record.images.map((image, index) => (
-            // 假设您的服务器静态资源路径已经正确配置，可以直接通过URL访问图片
             <img key={index} src={image} alt={`img-${index}`} style={{ width: 50, height: 50 }} />
           ))}
         </Space>
@@ -174,12 +172,9 @@ export default () => {
       message.error('删除异常')
     }
   }
-  const handleSave = async (
-    key: React.Key, // 使用 React.Key 类型
-    record: DiaryEntryItem // 处理可选的 newLineConfig 参数
-  ): Promise<void> => {
+  const handleSave = async (key: React.Key, record: DiaryEntryItem): Promise<void> => {
     try {
-      const id = String(key) // 类型断言，假定 key 总是可以被转换为 string
+      const id = String(key)
       await request.post(`/diaryEntries/${id}`, {
         data: record,
       })
@@ -238,7 +233,7 @@ export default () => {
         }}
         editable={{
           type: 'multiple',
-          onSave: handleSave, // 使用更新后的 handleSave 函数
+          onSave: handleSave,
           actionRender: (_row, _, dom) => [
             dom.save, // 使用保存按钮
             dom.cancel, // 使用取消按钮

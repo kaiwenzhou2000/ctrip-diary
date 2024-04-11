@@ -151,7 +151,6 @@ app.post(
         title,
         description,
         images: [],
-        status: 'notPublished',
       })
 
       // 支持多张图片
