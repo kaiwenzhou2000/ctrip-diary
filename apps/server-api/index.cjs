@@ -53,7 +53,6 @@ const PCUser = require('./model/PCUserModel.cjs')
 const UserDetail = require('./model/UserDetail.cjs')
 // 需要合并和删除集合
 const ReleaseNote = require('./model/ReleaseModel.cjs')
-const PCUser = require('./model/PCUserModel.cjs')
 const DiaryEntry = require('./model/diaryEntries.cjs')
 
 // 用户注册
@@ -172,11 +171,12 @@ app.post(
 
       await releaseNote.save()
 
-    return res.status(200).send({ message: 'success', data: releaseNote })
-  } catch (e) {
-    console.log(e)
+      return res.status(200).send({ message: 'success', data: releaseNote })
+    } catch (e) {
+      console.log(e)
+    }
   }
-})
+)
 
 // 获取当前用户游记列表
 app.get('/getCurUserTourList/:userId', async (req, res) => {
@@ -341,7 +341,6 @@ app.put(
     }
   }
 )
-
 
 // PC端接口
 

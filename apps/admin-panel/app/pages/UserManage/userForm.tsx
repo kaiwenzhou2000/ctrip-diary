@@ -33,7 +33,7 @@ export default ({ status, userInfo, actionRef }: Props) => {
   })
 
   useEffect(() => {
-    if (status === 'edit' && userInfo) {
+    if (status === 'userEdit' && userInfo) {
       setInitialValues({
         _id: userInfo._id,
         username: userInfo.username,
