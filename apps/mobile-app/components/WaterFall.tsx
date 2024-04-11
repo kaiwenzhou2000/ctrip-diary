@@ -27,13 +27,13 @@ const Item = ({
         <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
           {title}
         </Text>
-        <div style={styles.userContainer}>
-          <div style={styles.userAvator}>
+        <View style={styles.userContainer}>
+          <View style={styles.userAvator}>
             <Image style={styles.userAvatorLogo} source={{ uri: cover }} />
-          </div>
-          <div style={styles.username}>{username}</div>
-          <div style={styles.star}></div>
-        </div>
+          </View>
+          <Text style={styles.username}>{username}</Text>
+          <View style={styles.star}></View>
+        </View>
       </View>
     </TouchableOpacity>
   )

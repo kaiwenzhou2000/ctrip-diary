@@ -2,8 +2,12 @@ import React, { useState } from 'react'
 import { Center } from '@gluestack-ui/themed'
 import { WaterFall } from '../../../components'
 import { WaterFallItem } from '../../../types'
+// import { useNavigation } from '@react-navigation/native'
+// import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 export default function Home() {
+  // const Stack = createNativeStackNavigator()
+  // const navigation = useNavigation()
   const [data, setData] = useState<WaterFallItem[]>(() => {
     return generateMockData(10)
   })
@@ -30,10 +34,28 @@ export default function Home() {
   }
 
   const onPress = (id: string) => {
-    console.log('onPress', id)
+    console.log(id)
+    // navigation.navigate('detail')
   }
 
+  // const Detail = () => {
+  //   return <div>123</div>
+  // }
+
+  console.log(123123)
+
   return (
+    // <Stack.Navigator>
+    //   <Stack.Screen
+    //     name="waterfall"
+    //     component={() => (
+    //       <Center style={{ backgroundColor: '#F6F6F6' }} flex={1}>
+    //         <WaterFall data={data} onEndReached={loadMoreData} onPress={onPress} />
+    //       </Center>
+    //     )}
+    //   />
+    //   <Stack.Screen name="detail" component={Detail} />
+    // </Stack.Navigator>
     <Center style={{ backgroundColor: '#F6F6F6' }} flex={1}>
       <WaterFall data={data} onEndReached={loadMoreData} onPress={onPress} />
     </Center>
