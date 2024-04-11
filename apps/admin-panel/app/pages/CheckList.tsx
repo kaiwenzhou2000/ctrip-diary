@@ -100,7 +100,7 @@ export default () => {
           status: 'Error',
         },
       },
-      renderFormItem: (_, { _, _, ...rest }) => {
+      renderFormItem: (_, { ...rest }) => {
         return (
           <Select {...rest}>
             <Select.Option value="Pending review">待审核</Select.Option>
@@ -195,11 +195,6 @@ export default () => {
   }
 
   const handleOk = async () => {
-    // const values = await modalForm.validateFields()
-    // console.log('Modal Form Values:', values)
-    // setIsModalVisible(false)
-    // modalForm.resetFields()
-    // 在这里处理状态变更逻辑，比如发送请求到后端...
     try {
       const values = await modalForm.validateFields()
       console.log('Modal Form Values:', values)
