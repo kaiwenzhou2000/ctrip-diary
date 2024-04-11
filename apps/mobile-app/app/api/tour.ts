@@ -42,9 +42,15 @@ export const getCurUserTourList = (userId: string) => {
 }
 
 // 获取所有用户的游记列表(首页渲染)
-export const getAllUserTourList = () => {
+export const getAllUserTourList = ({
+  current,
+  pageSize,
+}: {
+  current: number
+  pageSize: number
+}) => {
   return request({
-    url: `/getAllUserTourList`,
+    url: `/getAllDiaries?current=${current}&pageSize=${pageSize}`,
     method: 'GET',
   })
 }

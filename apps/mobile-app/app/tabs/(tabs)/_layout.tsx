@@ -2,6 +2,7 @@ import React from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { Tabs } from 'expo-router'
 import { useClientOnlyValue } from '@/components/useClientOnlyValue'
+// import { NavigationContainer } from '@react-navigation/native'
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name']
