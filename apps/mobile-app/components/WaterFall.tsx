@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   item: {
-    backgroundColor: 'white',
+    backgroundColor: '#FCFCFC',
     margin: stylesConstant.itemSpacing,
     width: '45%',
     height: 220,
