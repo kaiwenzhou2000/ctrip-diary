@@ -4,7 +4,7 @@ import { Alert } from 'react-native'
 // import { router } from 'expo-router'
 
 const request = axios.create({
-  baseURL: 'http://192.168.1.104:3000',
+  baseURL: 'http://172.20.10.10:3000',
   timeout: 10000,
 })
 

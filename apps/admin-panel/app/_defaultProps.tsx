@@ -34,7 +34,7 @@ function getRouteConfig(permissions: string[]) {
       path: '/',
       routes: [
         {
-          path: '/welcome',
+          path: '/Welcome',
           name: '欢迎',
           icon: <SmileFilled />,
           access: 'welcome',
@@ -45,7 +45,7 @@ function getRouteConfig(permissions: string[]) {
           name: '管理页',
           icon: <CrownFilled />,
           access: 'manage',
-          component: <Welcome />,
+          component: <CheckList />,
           routes: [
             {
               path: '/manage/userManage',
@@ -82,7 +82,7 @@ function getRouteConfig(permissions: string[]) {
               name: '二级列表页面',
               icon: <CrownFilled />,
               access: 'subPage2',
-              component: <Welcome />,
+              component: <CheckList />,
             },
           ],
         },
