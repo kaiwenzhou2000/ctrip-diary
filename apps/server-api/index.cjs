@@ -330,7 +330,7 @@ app.get('/getAllDiaries', async (req, res) => {
     const page = parseInt(req.query.current) || 1
     const pageSize = parseInt(req.query.pageSize) || 5
     // 筛选
-    let findParams = {}
+    let findParams = { isDeleted: false }
 
     if (req.query.username) {
       findParams.username = req.query.username
@@ -345,6 +345,7 @@ app.get('/getAllDiaries', async (req, res) => {
       }
     }
     const skip = (page - 1) * pageSize
+    const allUserItem = await User.find()
     const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
     const totalCount = await ReleaseNote.countDocuments(findParams)
     const modifiedUserList = userList.map((item) => {
@@ -353,9 +354,14 @@ app.get('/getAllDiaries', async (req, res) => {
       })
       const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
       const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+
+      const user = allUserItem.find((user) => item.userId.toString() === user._id.toString())
+      const avatarUrl = user ? `${req.protocol}://${req.get('host')}/${user.avatar}` : ''
+
       return {
         ...item.toObject(),
         imgUrls,
+        avatarUrl,
         videoUrl,
         coverUrl,
       }
@@ -564,7 +570,7 @@ app.put('/diaryEntries/:id', async (req, res) => {
 
 // 逻辑删除
 app.put('/deletediaryEntries/:id', async (req, res) => {
-  console.log('Received ID:', req.params.id)
+  // console.log('Received ID:', req.params.id)
   const { id } = req.params
   try {
     const updatedEntry = await ReleaseNote.findByIdAndUpdate(
