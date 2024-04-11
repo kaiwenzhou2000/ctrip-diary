@@ -1,48 +1,48 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import { Center } from '@gluestack-ui/themed'
-import { WaterFall } from '../../../components'
-import { WaterFallItem } from '../../../types'
+// import { WaterFall } from '../../../components'
+// import { WaterFallItem } from '../../../types'
+import { getAllUserTourList } from '../../api/tour'
+// import { Stack } from 'expo-router'
+// import { View } from 'react-native'
+import Detail from '../../detail/detail'
 // import { useNavigation } from '@react-navigation/native'
 // import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 export default function Home() {
   // const Stack = createNativeStackNavigator()
   // const navigation = useNavigation()
-  const [data, setData] = useState<WaterFallItem[]>(() => {
-    return generateMockData(10)
-  })
+  // const [data, setData] = useState<WaterFallItem[]>(() => {
+  //   return []
+  // })
 
-  function generateMockData(count: number): WaterFallItem[] {
-    const mockData = []
-    for (let i = 0; i < count; i++) {
-      mockData.push({
-        id: `${i + 1}`,
-        title: `123123123123123123123123123123123123122313Mock Item ${i + 1}`,
-        avatar: '../assets/images/1040g0k0310r1ajkl6g005pg0d4b1hiaa1v8r550!nc_n_webp_mw_1.webp',
-        username: 'meredith',
-        cover: '../assets/images/1040g0k0310r1ajkl6g005pg0d4b1hiaa1v8r550!nc_n_webp_mw_1.webp',
-      })
-    }
-    return mockData
-  }
-
-  const loadMoreData = () => {
-    setTimeout(() => {
-      const moreData = generateMockData(10)
-      setData([...data, ...moreData])
-    }, 1000)
-  }
-
-  const onPress = (id: string) => {
-    console.log(id)
-    // navigation.navigate('detail')
-  }
-
-  // const Detail = () => {
-  //   return <div>123</div>
+  // const loadMoreData = () => {
+  //   // setTimeout(() => {
+  //   //   const moreData = generateMockData(10)
+  //   //   setData([...data, ...moreData])
+  //   // }, 1000)
   // }
 
-  console.log(123123)
+  // const onPress = (id: string) => {
+  //   console.log(id)
+  //   // navigation.navigate('detail')
+  // }
+
+  useEffect(() => {
+    getAllUserTourList({ pageSize: 10, current: 1 }).then(({ data }) => {
+      const res = data.map((item) => {
+        return {
+          id: item._id,
+          cover: item.coverUrl,
+          // item.avatar = item.avatar
+          username: item.username,
+          title: item.title,
+        }
+      })
+      setData(res)
+    })
+    // console.log(res)
+  }, [])
 
   return (
     // <Stack.Navigator>
@@ -56,8 +56,13 @@ export default function Home() {
     //   />
     //   <Stack.Screen name="detail" component={Detail} />
     // </Stack.Navigator>
-    <Center style={{ backgroundColor: '#F6F6F6' }} flex={1}>
-      <WaterFall data={data} onEndReached={loadMoreData} onPress={onPress} />
+    // <View>
+    //   <Stack.Screen name="detail" />
+    // </View>
+
+    <Center style={{ backgroundColor: '#F6F6F6' }}>
+      {/* <WaterFall data={data} onEndReached={loadMoreData} onPress={onPress} /> */}
+      <Detail />
     </Center>
   )
 }

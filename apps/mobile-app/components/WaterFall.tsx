@@ -23,13 +23,13 @@ const Item = ({
   return (
     <TouchableOpacity style={styles.item} onPress={() => onPress(id)}>
       <View>
-        <Image style={styles.cover} source={{ uri: avatar }} resizeMode="cover" />
+        <Image style={styles.cover} source={{ uri: cover }} resizeMode="cover" />
         <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
           {title}
         </Text>
         <View style={styles.userContainer}>
           <View style={styles.userAvator}>
-            <Image style={styles.userAvatorLogo} source={{ uri: cover }} />
+            <Image style={styles.userAvatorLogo} source={{ uri: avatar }} />
           </View>
           <Text style={styles.username}>{username}</Text>
           <View style={styles.star}></View>
