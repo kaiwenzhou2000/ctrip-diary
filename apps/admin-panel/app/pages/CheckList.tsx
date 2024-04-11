@@ -218,7 +218,7 @@ export default () => {
         request={async (params) => {
           return request<{
             data: DiaryEntryItem[]
-          }>('http://localhost:3000/getAllDiaries', {
+          }>('http://localhost:3000/getPCAllDiaries', {
             params,
           })
         }}

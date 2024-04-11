@@ -210,49 +210,61 @@ app.get('/getCurUserTourList/:userId', async (req, res) => {
 })
 
 // 获取所有游记列表
-// app.get('/getAllUserTourList', async (req, res) => {
-//   try {
-//     const allUsers = await User.find()
+app.get('/getAllDiaries', async (req, res) => {
+  try {
+    // 分页
+    const page = parseInt(req.query.current) || 1
+    const pageSize = parseInt(req.query.pageSize) || 5
+    // 筛选
+    let findParams = { isDeleted: false }
 
-//     const userDetailsPromises = allUsers.map(async (user) => {
-//       const userTours = await ReleaseNote.find({ userId: user._id.toString() })
+    if (req.query.username) {
+      findParams.username = req.query.username
+    }
+    if (req.query.state) {
+      findParams.state = req.query.state
+    }
+    if (req.query.startTime && req.query.endTime) {
+      findParams.created_at = {
+        $gte: req.query.startTime,
+        $lte: req.query.endTime,
+      }
+    }
+    const skip = (page - 1) * pageSize
+    const allUserItem = await User.find()
+    const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
+    const totalCount = await ReleaseNote.countDocuments(findParams)
+    const modifiedUserList = userList.map((item) => {
+      if (item.state !== 'Approved') return
+      const imgUrls = item.images.map((img) => {
+        return req.protocol + '://' + req.get('host') + '/' + img
+      })
+      const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
+      const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
 
-//       const tours = userTours.map((tour) => {
-//         const imgUrls = tour.images.map((img) => `${req.protocol}://${req.get('host')}/${img}`)
-//         const videoUrl = `${req.protocol}://${req.get('host')}/${tour.video}`
-//         const coverUrl = `${req.protocol}://${req.get('host')}/${tour.cover}`
+      const user = allUserItem.find((user) => item.userId.toString() === user._id.toString())
+      const avatarUrl = user ? `${req.protocol}://${req.get('host')}/${user.avatar}` : ''
 
-//         return {
-//           ...tour.toObject(),
-//           imgUrls,
-//           videoUrl,
-//           coverUrl,
-//         }
-//       })
+      return {
+        ...item.toObject(),
+        imgUrls,
+        avatarUrl,
+        videoUrl,
+        coverUrl,
+      }
+    })
 
-//       // 更新或创建UserDetail文档
-//       return UserDetail.findOneAndUpdate(
-//         { userId: user._id.toString() },
-//         {
-//           userId: user._id.toString(),
-//           username: user.username,
-//           userAvatar: user.avatar,
-//           tours,
-//         },
-//         { upsert: true, new: true, returnOriginal: false }
-//       )
-//     })
-
-//     // 等待所有UserDetail文档的更新操作完成
-//     const updatedUserDetails = await Promise.all(userDetailsPromises)
-
-//     // 返回更新后的UserDetail数据
-//     res.status(200).send({ success: true, data: updatedUserDetails })
-//   } catch (e) {
-//     console.error(e)
-//     res.status(500).send({ success: false, message: 'Server error' })
-//   }
-// })
+    return res.status(200).send({
+      data: modifiedUserList,
+      page,
+      success: true,
+      total: totalCount,
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
+  }
+})
 
 // 获取游记具体信息
 app.get('/getPublishNote/:publishId', async (req, res) => {
@@ -325,7 +337,7 @@ app.put(
 // PC端接口
 
 // 获取游记信息
-app.get('/getAllDiaries', async (req, res) => {
+app.get('/getPCAllDiaries', async (req, res) => {
   try {
     // 分页
     const page = parseInt(req.query.current) || 1
