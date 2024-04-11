@@ -44,7 +44,7 @@ interface LoginProps {
 
 export default function Login({ type, opacity }: LoginProps) {
   const toast = useToast()
-  const { setIsLoggedIn, setUserId } = useAuth()
+  const { setIsLoggedIn, setUserId, setDataUsername } = useAuth()
   const [disabledLogin, setDisabledLogin] = useState(false)
   // 获取不到
   const { name } = useLocalSearchParams<{ name: string }>()
@@ -110,6 +110,7 @@ export default function Login({ type, opacity }: LoginProps) {
         const { _id } = data
         if (_id) {
           setUserId(_id)
+          setDataUsername(username)
         }
         if (type === 'tab2') {
           router.push('/tabs/(tabs)/tab2')

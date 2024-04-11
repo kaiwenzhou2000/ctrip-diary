@@ -136,7 +136,7 @@ app.get('/getUserInfo/:userId', async (req, res) => {
 
 // 发布游记（当前用户）
 app.post(
-  '/publish/:userId',
+  '/publish/:userId/:username',
   upload.fields([
     { name: 'images', maxCount: 10 },
     { name: 'video', maxCount: 1 },
@@ -144,10 +144,11 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      const userId = req.params.userId
+      const { userId, username } = req.params
       const { title, description } = req.body
       const releaseNote = new ReleaseNote({
         userId,
+        username,
         title,
         description,
         images: [],
@@ -208,29 +209,6 @@ app.get('/getCurUserTourList/:userId', async (req, res) => {
 })
 
 // 获取所有游记列表
-// app.get('/getAllUserTourList', async (req, res) => {
-//   try {
-//     const allUserList = await ReleaseNote.find()
-//     const modifiedList = allUserList.map((item) => {
-//       const imgUrls = item.images.map((img) => {
-//         return req.protocol + '://' + req.get('host') + '/' + img
-//       })
-//       const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
-//       const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
-//       return {
-//         ...item.toObject(),
-//         imgUrls,
-//         videoUrl,
-//         coverUrl,
-//       }
-//     })
-
-//     return res.status(200).send({ data: modifiedList, success: true })
-//   } catch (e) {
-//     console.error(e)
-//     res.status(500).send({ success: false, message: 'Server error' })
-//   }
-// })
 app.get('/getAllUserTourList', async (req, res) => {
   try {
     const allUsers = await User.find()
@@ -344,6 +322,43 @@ app.put(
 )
 
 // PC端接口
+
+// 获取游记信息
+app.get('/getAllDiaries', async (req, res) => {
+  try {
+    // 分页
+    const page = parseInt(req.query.current) || 1
+    const pageSize = parseInt(req.query.pageSize) || 5
+    // 筛选
+    let findParams = {}
+
+    if (req.query.username) {
+      findParams.username = req.query.username
+    }
+    if (req.query.identity) {
+      findParams.identity = req.query.identity
+    }
+    if (req.query.startTime && req.query.endTime) {
+      findParams.created_at = {
+        $gte: req.query.startTime,
+        $lte: req.query.endTime,
+      }
+    }
+    const skip = (page - 1) * pageSize
+    const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
+    const totalCount = await ReleaseNote.countDocuments(findParams)
+
+    return res.status(200).send({
+      data: userList,
+      page,
+      success: true,
+      total: totalCount,
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
+  }
+})
 
 // 获取客户端用户列表(包含筛选和分页)
 app.get('/getPCUserList', async (req, res) => {
@@ -682,8 +697,6 @@ const insertSampleDiaryEntries = async () => {
     console.error('插入样本日记条目时发生错误:', error)
   }
 }
-
-app.use('/uploads', express.static('uploads'))
 
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   await insertSampleUser()

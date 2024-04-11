@@ -93,6 +93,7 @@ export const deletediaryEntries = (id: string, isDeleted: boolean) => {
     },
   })
 }
+
 //更新原因
 export const diaryEntries = (id: string, reasons: string) => {
   return request({

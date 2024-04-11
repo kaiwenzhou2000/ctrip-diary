@@ -32,7 +32,7 @@ import { publishTourItem } from '../api/tour'
 import { useAuth } from '@/components/authContext'
 
 export default function Publish() {
-  const { userId } = useAuth()
+  const { userId, username } = useAuth()
   const toast = useToast()
 
   // useEffect(() => {
@@ -204,7 +204,7 @@ export default function Publish() {
       // if (publishId) {
       // await updateTourItem(publishId, formData)
       // } else {
-      await publishTourItem(userId, formData)
+      await publishTourItem(userId, username, formData)
       // }
       router.push('/tabs/(tabs)/tab2')
     } catch (e) {

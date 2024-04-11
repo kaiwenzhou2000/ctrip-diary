@@ -8,9 +8,9 @@ type PublishItem = {
 }
 
 // 发布游记
-export const publishTourItem = (userId: string, data: PublishItem) => {
+export const publishTourItem = (userId: string, username: string, data: PublishItem) => {
   return request({
-    url: `/publish/${userId}`,
+    url: `/publish/${userId}/${username}`,
     method: 'POST',
     data,
   })
