@@ -50,10 +50,8 @@ app.use('/uploads', express.static('uploads'))
 
 const User = require('./model/UserModel.cjs')
 const PCUser = require('./model/PCUserModel.cjs')
-const UserDetail = require('./model/UserDetail.cjs')
-// 需要合并和删除集合
+// const UserDetail = require('./model/UserDetail.cjs')
 const ReleaseNote = require('./model/ReleaseModel.cjs')
-// const DiaryEntry = require('./model/diaryEntries.cjs')
 
 // 用户注册
 app.post('/register', async (req, res) => {
@@ -209,49 +207,49 @@ app.get('/getCurUserTourList/:userId', async (req, res) => {
 })
 
 // 获取所有游记列表
-app.get('/getAllUserTourList', async (req, res) => {
-  try {
-    const allUsers = await User.find()
+// app.get('/getAllUserTourList', async (req, res) => {
+//   try {
+//     const allUsers = await User.find()
 
-    const userDetailsPromises = allUsers.map(async (user) => {
-      const userTours = await ReleaseNote.find({ userId: user._id.toString() })
+//     const userDetailsPromises = allUsers.map(async (user) => {
+//       const userTours = await ReleaseNote.find({ userId: user._id.toString() })
 
-      const tours = userTours.map((tour) => {
-        const imgUrls = tour.images.map((img) => `${req.protocol}://${req.get('host')}/${img}`)
-        const videoUrl = `${req.protocol}://${req.get('host')}/${tour.video}`
-        const coverUrl = `${req.protocol}://${req.get('host')}/${tour.cover}`
+//       const tours = userTours.map((tour) => {
+//         const imgUrls = tour.images.map((img) => `${req.protocol}://${req.get('host')}/${img}`)
+//         const videoUrl = `${req.protocol}://${req.get('host')}/${tour.video}`
+//         const coverUrl = `${req.protocol}://${req.get('host')}/${tour.cover}`
 
-        return {
-          ...tour.toObject(),
-          imgUrls,
-          videoUrl,
-          coverUrl,
-        }
-      })
+//         return {
+//           ...tour.toObject(),
+//           imgUrls,
+//           videoUrl,
+//           coverUrl,
+//         }
+//       })
 
-      // 更新或创建UserDetail文档
-      return UserDetail.findOneAndUpdate(
-        { userId: user._id.toString() },
-        {
-          userId: user._id.toString(),
-          username: user.username,
-          userAvatar: user.avatar,
-          tours,
-        },
-        { upsert: true, new: true, returnOriginal: false }
-      )
-    })
+//       // 更新或创建UserDetail文档
+//       return UserDetail.findOneAndUpdate(
+//         { userId: user._id.toString() },
+//         {
+//           userId: user._id.toString(),
+//           username: user.username,
+//           userAvatar: user.avatar,
+//           tours,
+//         },
+//         { upsert: true, new: true, returnOriginal: false }
+//       )
+//     })
 
-    // 等待所有UserDetail文档的更新操作完成
-    const updatedUserDetails = await Promise.all(userDetailsPromises)
+//     // 等待所有UserDetail文档的更新操作完成
+//     const updatedUserDetails = await Promise.all(userDetailsPromises)
 
-    // 返回更新后的UserDetail数据
-    res.status(200).send({ success: true, data: updatedUserDetails })
-  } catch (e) {
-    console.error(e)
-    res.status(500).send({ success: false, message: 'Server error' })
-  }
-})
+//     // 返回更新后的UserDetail数据
+//     res.status(200).send({ success: true, data: updatedUserDetails })
+//   } catch (e) {
+//     console.error(e)
+//     res.status(500).send({ success: false, message: 'Server error' })
+//   }
+// })
 
 // 获取游记具体信息
 app.get('/getPublishNote/:publishId', async (req, res) => {
@@ -588,138 +586,7 @@ app.put('/deletediaryEntries/:id', async (req, res) => {
   }
 })
 
-// 要删除的mock数据
-const insertSampleUser = async () => {
-  try {
-    // 检查是否已有用户数据
-    const existingUsers = await PCUser.find()
-    if (existingUsers.length > 0) {
-      console.log('已存在用户数据，无需插入示例数据')
-      return
-    }
-
-    // 插入新的用户数据，后续删除
-    await PCUser.insertMany([
-      {
-        username: 'test',
-        password: 'test111',
-        identity: 'superadmin',
-        created_at: '2024-04-10T10:51:47Z',
-        permission: ['welcome', 'manage', 'userManage', 'menuManage', 'check', 'checkList'],
-      },
-      {
-        username: 'aaa',
-        password: 'aaa111',
-        identity: 'publishGroup',
-        created_at: '2024-04-01T19:01:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: 'uuu',
-        password: 'uuu111',
-        identity: 'monitorGroup',
-        created_at: '2024-04-03T14:13:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: '要删掉的',
-        password: 'uuu111',
-        identity: 'monitorGroup',
-        created_at: '2024-03-31T18:34:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: 'fegdgdr',
-        password: 'grgeher',
-        identity: 'publishGroup',
-        created_at: '2024-04-03T14:13:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: '5geg6j',
-        password: 'vsniodvnis',
-        identity: 'monitorGroup',
-        created_at: '2024-03-31T18:34:47Z',
-        permission: ['welcome'],
-      },
-      {
-        username: 'aaaa',
-        password: 'nnnnnn',
-        identity: 'monitorGroup',
-        created_at: '2024-03-31T18:34:47Z',
-      },
-    ])
-    console.log('Sample user inserted successfully')
-  } catch (error) {
-    console.error('Error inserting sample user:', error)
-  }
-}
-
-const insertSampleDiaryEntries = async () => {
-  try {
-    // 检查是否已有日记条目数据
-    const existingEntries = await ReleaseNote.find()
-    if (existingEntries.length > 0) {
-      console.log('已存在日记条目数据，无需插入示例数据')
-      return
-    }
-
-    // 插入新的日记条目数据
-    await ReleaseNote.insertMany([
-      {
-        userId: 'test1',
-        title: '我的第一篇日记',
-        description: '这是我使用日记应用写的第一篇日记。',
-        images: ['./uploads/images/sample1.jpg'], // 假设图片存储在这个路径
-        time: '2024-04-10T10:51:47Z',
-        state: 'Pending review',
-        isDeleted: false,
-        delete_flag: 0,
-        reasons: [],
-      },
-      {
-        userId: 'test2',
-        title: '美好的一天',
-        description: '今天天气非常好，我去公园玩了一整天。',
-        images: ['./uploads/images/sample2.jpg'], // 假设图片存储在这个路径
-        time: '2024-04-11T15:30:00Z',
-        state: 'Approved',
-        isDeleted: false,
-        delete_flag: 0,
-        reasons: [],
-      },
-      {
-        userId: 'test2',
-        title: '学习编程',
-        description: '最近开始学习JavaScript，感觉非常有趣。',
-        images: ['./uploads/images/sample3.jpg'], // 假设图片存储在这个路径
-        time: '2024-04-12T09:20:47Z',
-        state: 'Pending review',
-        isDeleted: false,
-        delete_flag: 0,
-        reasons: {},
-      },
-      {
-        userId: 'test111',
-        title: '学习编程python',
-        description: '最近开始学习python，感觉非常有趣。',
-        images: ['./uploads/images/sample4.jpg'], // 假设图片存储在这个路径
-        time: '2024-04-12T09:20:47Z',
-        state: 'Pending review',
-        isDeleted: false,
-        reasons: [],
-      },
-      // 可以继续添加更多样本数据...
-    ])
-    console.log('样本日记条目插入成功')
-  } catch (error) {
-    console.error('插入样本日记条目时发生错误:', error)
-  }
-}
-
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
-  await insertSampleUser()
-  await insertSampleDiaryEntries()
   console.log('连接数据库成功!!!')
   // 监听 3000 端口
   app.listen(3000, function () {
