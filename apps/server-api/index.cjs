@@ -54,7 +54,7 @@ const PCUser = require('./model/PCUserModel.cjs')
 const ReleaseNote = require('./model/ReleaseModel.cjs')
 
 // 用户注册
-app.post('/register', async (req, res) => {
+app.post('/register', upload.single('avatar'), async (req, res) => {
   try {
     const { username, password } = req.body
     if (!username || !password) {
@@ -75,6 +75,9 @@ app.post('/register', async (req, res) => {
       username,
       password: hashedPassword,
     })
+    if (req.file) {
+      user.avatar = req.file.path
+    }
     await user.save()
 
     res.status(200).send({ code: 0, message: 'User registered successfully.', data: user })
@@ -100,10 +103,10 @@ app.post('/login', upload.single('avatar'), async (req, res) => {
       return res.status(401).send({ message: '密码错误' })
     }
     // 保存上传的头像路径到用户记录
-    if (req.file) {
-      user.avatar = req.file.path
-      await user.save()
-    }
+    // if (req.file) {
+    //   user.avatar = req.file.path
+    //   await user.save()
+    // }
 
     // 如果用户名和密码都有效，发送成功消息
     // const token = jwt.sign({ userId: user._id }, 'qweasdzxciopjklbnm', { expiresIn: '1h' })
