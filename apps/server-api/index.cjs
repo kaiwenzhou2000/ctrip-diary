@@ -48,6 +48,7 @@ app.use('/uploads', express.static('uploads'))
 const User = require('./model/UserModel.cjs')
 const ReleaseNote = require('./model/ReleaseModel.cjs')
 const PCUser = require('./model/PCUserModel.cjs')
+const DiaryEntry = require('./model/diaryEntries.cjs')
 
 app.get('/', function (req, res) {
   res.send('hello world')
@@ -310,6 +311,12 @@ const insertSampleUser = async () => {
         created_at: '2024-03-31T18:34:47Z',
         permission: ['welcome'],
       },
+      {
+        username: 'aaaa',
+        password: 'nnnnnn',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+      },
     ])
     console.log('Sample user inserted successfully')
   } catch (error) {
@@ -317,8 +324,155 @@ const insertSampleUser = async () => {
   }
 }
 
+// 审核数据
+//查询
+app.get('/getDiaryEntries', async (req, res) => {
+  try {
+    // 分页参数
+    const page = parseInt(req.query.current) || 1
+    const pageSize = parseInt(req.query.pageSize) || 10 // 默认页面大小调整为10，根据需要修改
+
+    // 筛选条件
+    let findParams = { isDeleted: false }
+
+    // 标题筛选
+    if (req.query.title) {
+      findParams.title = new RegExp(req.query.title, 'i') // 使用正则表达式进行不区分大小写的搜索
+    }
+
+    // 状态筛选
+    if (req.query.state) {
+      findParams.state = req.query.state
+    }
+
+    // 创建时间筛选
+    if (req.query.startTime && req.query.endTime) {
+      findParams.time = {
+        $gte: req.query.startTime,
+        $lte: req.query.endTime,
+      }
+    }
+
+    const skip = (page - 1) * pageSize
+
+    // 查询满足条件的日记条目，并应用分页
+    const diaryEntries = await DiaryEntry.find(findParams).skip(skip).limit(pageSize)
+
+    // 计算满足条件的日记条目总数，用于分页
+    const totalCount = await DiaryEntry.countDocuments(findParams)
+
+    // 返回查询结果
+    return res.status(200).send({
+      data: diaryEntries,
+      current: page,
+      pageSize,
+      success: true,
+      total: totalCount,
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(500).send({ success: false, message: 'Server error' })
+  }
+})
+
+// 更新state状态
+app.post('/diaryEntries/:id', async (req, res) => {
+  const { id } = req.params
+  const { state } = req.body
+  console.log(state)
+  console.log(id)
+  if (!state) {
+    return res.status(400).send({ message: 'State is required.' })
+  }
+
+  try {
+    const entry = await DiaryEntry.findByIdAndUpdate(id, { state }, { new: true })
+    if (!entry) {
+      return res.status(404).send({ message: 'Diary entry not found.' })
+    }
+    res.json(entry)
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ message: 'Error updating diary entry.' })
+  }
+})
+
+const insertSampleDiaryEntries = async () => {
+  try {
+    // 检查是否已有日记条目数据
+    const existingEntries = await DiaryEntry.find()
+    console.log('existing entries')
+    if (existingEntries.length > 0) {
+      console.log('已存在日记条目数据，无需插入示例数据')
+      return
+    }
+
+    // 插入新的日记条目数据
+    await DiaryEntry.insertMany([
+      {
+        username: 'test1',
+        title: '我的第一篇日记',
+        description: '这是我使用日记应用写的第一篇日记。',
+        images: ['./uploads/images/sample1.jpg'], // 假设图片存储在这个路径
+        time: '2024-04-10T10:51:47Z',
+        state: 'Pending review',
+        isDeleted: false,
+      },
+      {
+        username: 'test2',
+        title: '美好的一天',
+        description: '今天天气非常好，我去公园玩了一整天。',
+        images: ['./uploads/images/sample2.jpg'], // 假设图片存储在这个路径
+        time: '2024-04-11T15:30:00Z',
+        state: 'Approved',
+        isDeleted: false,
+      },
+      {
+        username: 'test2',
+        title: '学习编程',
+        description: '最近开始学习JavaScript，感觉非常有趣。',
+        images: ['./uploads/images/sample3.jpg'], // 假设图片存储在这个路径
+        time: '2024-04-12T09:20:47Z',
+        state: 'Rejected',
+        isDeleted: false,
+      },
+      {
+        username: 'test111',
+        title: '学习编程python',
+        description: '最近开始学习python，感觉非常有趣。',
+        images: ['./uploads/images/sample4.jpg'], // 假设图片存储在这个路径
+        time: '2024-04-12T09:20:47Z',
+        state: 'Rejected',
+        isDeleted: false,
+      },
+      // 可以继续添加更多样本数据...
+    ])
+    console.log('样本日记条目插入成功')
+  } catch (error) {
+    console.error('插入样本日记条目时发生错误:', error)
+  }
+}
+
+//逻辑删除
+app.delete('/deleteDiaryEntries/:userId:', async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const result = await PCUser.findByIdAndUpdate(userId, { isDeleted: true }, { new: true })
+    if (!result) {
+      return res.status(404).send({ status: 1, msg: '未找到要删除的用户' })
+    }
+    return res.status(200).send({ status: 0, msg: '用户已成功删除（逻辑删除）' })
+  } catch (error) {
+    console.error('逻辑删除用户异常', error)
+    res.status(500).send({ status: 1, msg: '逻辑删除用户异常，请重新尝试' })
+  }
+})
+
+app.use('/uploads', express.static('uploads'))
+
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   await insertSampleUser()
+  await insertSampleDiaryEntries()
   console.log('连接数据库成功!!!')
   // 监听 3000 端口
   app.listen(3000, function () {
