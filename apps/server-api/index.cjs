@@ -50,6 +50,7 @@ app.use('/uploads', express.static('uploads'))
 
 const User = require('./model/UserModel.cjs')
 const ReleaseNote = require('./model/ReleaseModel.cjs')
+const UserDetail = require('./model/UserDetail.cjs')
 
 // 用户注册
 app.post('/register', async (req, res) => {
@@ -179,17 +180,20 @@ app.get('/getCurUserTourList/:userId', async (req, res) => {
   try {
     const userId = req.params.userId
     const curUserList = await ReleaseNote.find({ userId: userId })
+    const userItem = await User.findById(userId)
     const modifiedList = curUserList.map((item) => {
       const imgUrls = item.images.map((img) => {
         return req.protocol + '://' + req.get('host') + '/' + img
       })
       const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
       const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+      const avatarUrl = req.protocol + '://' + req.get('host') + '/' + userItem.avatar
       return {
         ...item.toObject(),
         imgUrls,
         videoUrl,
         coverUrl,
+        avatarUrl,
       }
     })
 
@@ -201,24 +205,67 @@ app.get('/getCurUserTourList/:userId', async (req, res) => {
 })
 
 // 获取所有游记列表
+// app.get('/getAllUserTourList', async (req, res) => {
+//   try {
+//     const allUserList = await ReleaseNote.find()
+//     const modifiedList = allUserList.map((item) => {
+//       const imgUrls = item.images.map((img) => {
+//         return req.protocol + '://' + req.get('host') + '/' + img
+//       })
+//       const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
+//       const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+//       return {
+//         ...item.toObject(),
+//         imgUrls,
+//         videoUrl,
+//         coverUrl,
+//       }
+//     })
+
+//     return res.status(200).send({ data: modifiedList, success: true })
+//   } catch (e) {
+//     console.error(e)
+//     res.status(500).send({ success: false, message: 'Server error' })
+//   }
+// })
+
 app.get('/getAllUserTourList', async (req, res) => {
   try {
-    const allUserList = await ReleaseNote.find()
-    const modifiedList = allUserList.map((item) => {
-      const imgUrls = item.images.map((img) => {
-        return req.protocol + '://' + req.get('host') + '/' + img
+    const allUsers = await User.find()
+
+    const userDetailsPromises = allUsers.map(async (user) => {
+      const userTours = await ReleaseNote.find({ userId: user._id.toString() })
+
+      const tours = userTours.map((tour) => {
+        const imgUrls = tour.images.map((img) => `${req.protocol}://${req.get('host')}/${img}`)
+        const videoUrl = `${req.protocol}://${req.get('host')}/${tour.video}`
+        const coverUrl = `${req.protocol}://${req.get('host')}/${tour.cover}`
+
+        return {
+          ...tour.toObject(),
+          imgUrls,
+          videoUrl,
+          coverUrl,
+        }
       })
-      const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
-      const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
-      return {
-        ...item.toObject(),
-        imgUrls,
-        videoUrl,
-        coverUrl,
-      }
+
+      // 更新或创建UserDetail文档
+      return UserDetail.findOneAndUpdate(
+        { userId: user._id.toString() },
+        {
+          userId: user._id.toString(),
+          userAvatar: user.avatar,
+          tours,
+        },
+        { upsert: true, new: true, returnOriginal: false }
+      )
     })
 
-    return res.status(200).send({ data: modifiedList, success: true })
+    // 等待所有UserDetail文档的更新操作完成
+    const updatedUserDetails = await Promise.all(userDetailsPromises)
+
+    // 返回更新后的UserDetail数据
+    res.status(200).send({ success: true, data: updatedUserDetails })
   } catch (e) {
     console.error(e)
     res.status(500).send({ success: false, message: 'Server error' })

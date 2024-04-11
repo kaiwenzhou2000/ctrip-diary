@@ -39,6 +39,7 @@ export const UploadMedia = async ({
     allowsEditing: mediaTypes === 'Images', // 允许编辑仅对图片有效
     aspect: aspect, // 指定裁剪宽高比
     quality: 1, // 图片质量
+    videoExportPreset: ImagePicker.VideoExportPreset.MediumQuality, // 设置视频导出预设为中等质量
   })
 
   if (result.canceled) {
@@ -58,7 +59,7 @@ export const UploadMedia = async ({
         return { ...asset, uri: compressedImage.uri }
       }
 
-      // 视频压缩（暂无）
+      // 视频压缩VideoExportPreset
       if (asset.type === 'video') {
         const firstFrameUri = await getVideoFirstFrame(asset.uri)
         return { ...asset, cover: firstFrameUri }
@@ -75,10 +76,8 @@ const getVideoFirstFrame = async (videoUri: string) => {
     const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
       time: 1,
     })
-    console.log(uri)
     return uri
   } catch (e) {
-    console.error(e, '???')
     return null
   }
 }

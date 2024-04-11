@@ -113,7 +113,6 @@ export default function Publish() {
     const medias = await UploadMedia({
       allowsMultipleSelection: true,
       mediaTypes: 'All',
-      aspect: [3, 4],
     })
     if (medias.length > 0) {
       setHasMedia(true)
