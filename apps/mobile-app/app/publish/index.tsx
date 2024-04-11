@@ -213,11 +213,11 @@ export default function Publish() {
   }
 
   return (
-    <ScrollView style={styles.scrollview} contentContainerStyle={styles.container}>
-      <View>
-        <View style={styles.topBanner}>
-          <Text>发文方向tips:旅行、探亲、见家人、美食...</Text>
-        </View>
+    <>
+      <View style={styles.topBanner}>
+        <Text>发文方向tips:旅行、探亲、见家人、美食...</Text>
+      </View>
+      <View style={[styles.scrollview, styles.container]}>
         <Card>
           <View>
             <HStack style={styles.uploadContainer}>
@@ -327,7 +327,7 @@ export default function Publish() {
           </Pressable>
         </HStack>
       </View>
-    </ScrollView>
+    </>
   )
 }
 
@@ -354,9 +354,8 @@ const styles = StyleSheet.create({
   },
   upload: {
     width: 120,
-    height: 150,
+    height: 120,
     borderRadius: 10,
-    // borderStyle: 'solid',
     borderWidth: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
@@ -364,11 +363,10 @@ const styles = StyleSheet.create({
   },
   uploadBtn: {
     marginRight: 10,
-    // borderColor: '#EOEOEO',
   },
   uploadVideo: {
     width: 120,
-    height: 150,
+    height: 120,
     borderRadius: 10,
     borderStyle: 'solid',
     borderWidth: 1,
@@ -378,7 +376,6 @@ const styles = StyleSheet.create({
   },
   publishContainer: {
     width: '100%',
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     margin: 10,
