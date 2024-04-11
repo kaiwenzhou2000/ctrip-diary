@@ -347,9 +347,22 @@ app.get('/getAllDiaries', async (req, res) => {
     const skip = (page - 1) * pageSize
     const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
     const totalCount = await ReleaseNote.countDocuments(findParams)
+    const modifiedUserList = userList.map((item) => {
+      const imgUrls = item.images.map((img) => {
+        return req.protocol + '://' + req.get('host') + '/' + img
+      })
+      const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
+      const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+      return {
+        ...item.toObject(),
+        imgUrls,
+        videoUrl,
+        coverUrl,
+      }
+    })
 
     return res.status(200).send({
-      data: userList,
+      data: modifiedUserList,
       page,
       success: true,
       total: totalCount,
