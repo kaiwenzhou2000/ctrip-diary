@@ -12,8 +12,8 @@ export default function Home() {
   const [data, setData] = useState<WaterFallItem[]>([])
   const [current, setCurrent] = useState(1)
 
-  const onPress = (id: string) => {
-    console.log(id)
+  const onPress = (data) => {
+    console.log(data)
   }
 
   const fetchData = () => {

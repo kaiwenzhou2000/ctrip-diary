@@ -4,4 +4,5 @@ export type WaterFallItem = {
   avatar: string
   username: string
   cover: string
+  state: 'Pending review' | 'Approved' | 'Rejected'
 }
