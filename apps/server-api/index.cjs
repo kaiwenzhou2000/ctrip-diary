@@ -330,7 +330,7 @@ app.get('/getAllDiaries', async (req, res) => {
     const page = parseInt(req.query.current) || 1
     const pageSize = parseInt(req.query.pageSize) || 5
     // 筛选
-    let findParams = {}
+    let findParams = { isDeleted: false }
 
     if (req.query.username) {
       findParams.username = req.query.username
@@ -564,7 +564,7 @@ app.put('/diaryEntries/:id', async (req, res) => {
 
 // 逻辑删除
 app.put('/deletediaryEntries/:id', async (req, res) => {
-  console.log('Received ID:', req.params.id)
+  // console.log('Received ID:', req.params.id)
   const { id } = req.params
   try {
     const updatedEntry = await ReleaseNote.findByIdAndUpdate(

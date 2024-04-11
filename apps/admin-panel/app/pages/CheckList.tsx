@@ -1,7 +1,6 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
 import {
-  Space,
   Input,
   Form,
   Modal,
@@ -12,6 +11,7 @@ import {
   Carousel,
   Popconfirm,
   Button,
+  Image,
 } from 'antd'
 import { useState, useRef } from 'react'
 import request from 'umi-request'
@@ -57,18 +57,36 @@ export default () => {
   // }
 
   const columns: ProColumns<DiaryEntryItem>[] = [
+    // {
+    //   title: '图片',
+    //   dataIndex: 'images',
+    //   search: false,
+    //   render: (_, record) => (
+    //     <Space>
+    //       {record.images.map((image, index) => (
+    //         <img key={index} src={image} alt={`img-${index}`} style={{ width: 50, height: 50 }} />
+    //       ))}
+    //     </Space>
+    //   ),
+    //   editable: false,
+    // },
     {
       title: '图片',
       dataIndex: 'images',
+      key: 'images',
+      editable: false,
       search: false,
       render: (_, record) => (
-        <Space>
-          {record.images.map((image, index) => (
-            <img key={index} src={image} alt={`img-${index}`} style={{ width: 50, height: 50 }} />
-          ))}
-        </Space>
+        <>
+          <Image
+            //key={index}
+            width={100} // 或者其他你希望的尺寸
+            src={record.coverUrl}
+            style={{ marginRight: '8px', marginBottom: '8px' }} // 添加一些间距
+            height={100}
+          />
+        </>
       ),
-      editable: false,
     },
     {
       dataIndex: 'index',
