@@ -78,7 +78,7 @@ export default () => {
 
     {
       title: '发布者',
-      dataIndex: 'userId',
+      dataIndex: 'username',
       copyable: true,
       ellipsis: true,
       width: '10%',
@@ -95,9 +95,6 @@ export default () => {
     {
       title: '状态',
       dataIndex: 'state',
-      // filters: true,
-      // onFilter: true,
-      // ellipsis: true,
       valueType: 'select',
       width: '10%',
       valueEnum: {
@@ -182,41 +179,31 @@ export default () => {
 
   const handleSave = async (key: React.Key, record: DiaryEntryItem): Promise<void> => {
     try {
-      // const id = String(record)
       const { _id, state } = record
-      console.log(state)
-      // console.log(_id)
       await updatediaryEntries(_id, state)
       if (state === 'Rejected') {
         setIsModalVisible(true)
+        setCurReasonId(_id)
+        message.warning('审核状态未通过')
+      } else if (state === 'Approved') {
+        message.success('审核状态已通过')
       }
-      message.success('保存成功')
       actionRef.current?.reload()
     } catch (error) {
-      console.error('保存失败', error)
       message.error('保存异常')
     }
   }
 
-  const handleOk = async (key: React.Key, record: DiaryEntryItem): Promise<void> => {
+  const [curReasonId, setCurReasonId] = useState<string>('')
+  const handleOk = async () => {
     try {
-      // const values = await modalForm.validateFields()
-      // console.log('Modal Form Values:', values)
-      //console.log(record)
-      const { _id, reasons } = record // 从表单值中提取原因
-      console.log(reasons)
+      const formData = form.getFieldsValue()
+      const { reasons } = formData
       // 发送请求到后端API，更新状态
-      await diaryEntries(_id, reasons)
-
-      if (response.success) {
-        // 如果更新成功，关闭模态框并刷新表格数据
-        message.success('状态更新成功')
-        setIsModalVisible(false)
-        modalForm.resetFields() // 重置表单
-        actionRef.current?.reload() // 刷新表格
-      } else {
-        message.error('状态更新失败')
-      }
+      await diaryEntries(curReasonId, reasons)
+      setIsModalVisible(false)
+      modalForm.resetFields() // 重置表单
+      actionRef.current?.reload() // 刷新表格
     } catch (errorInfo) {
       console.error('Failed:', errorInfo)
       message.error('表单验证失败或更新过程中发生错误')
@@ -237,7 +224,7 @@ export default () => {
         request={async (params) => {
           return request<{
             data: DiaryEntryItem[]
-          }>('http://localhost:3000/getDiaryEntries', {
+          }>('http://localhost:3000/getAllDiaries', {
             params,
           })
         }}
@@ -291,7 +278,7 @@ export default () => {
       <Modal
         title="审核说明"
         open={isModalVisible}
-        onFinish={handleOk}
+        onOk={handleOk}
         onCancel={() => setIsModalVisible(false)}
       >
         <Form form={form} layout="vertical">

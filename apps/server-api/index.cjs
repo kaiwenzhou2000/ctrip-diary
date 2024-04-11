@@ -335,8 +335,8 @@ app.get('/getAllDiaries', async (req, res) => {
     if (req.query.username) {
       findParams.username = req.query.username
     }
-    if (req.query.identity) {
-      findParams.identity = req.query.identity
+    if (req.query.state) {
+      findParams.state = req.query.state
     }
     if (req.query.startTime && req.query.endTime) {
       findParams.created_at = {
