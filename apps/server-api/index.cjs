@@ -255,6 +255,7 @@ app.get('/getAllUserTourList', async (req, res) => {
         { userId: user._id.toString() },
         {
           userId: user._id.toString(),
+          username: user.username,
           userAvatar: user.avatar,
           tours,
         },

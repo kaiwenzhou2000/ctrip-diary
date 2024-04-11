@@ -1,11 +1,5 @@
 import { request } from '@/app/utils/request'
 
-// interface Response<T> {
-//   code?: number
-//   message: string
-//   data: T
-// }
-
 type PublishItem = {
   userId: string
   title: string

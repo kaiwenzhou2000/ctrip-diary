@@ -32,16 +32,17 @@ import {
   AvatarImage,
 } from '@gluestack-ui/themed'
 import { UploadMedia } from '@/components/uploadMedia'
-import { Pressable } from 'react-native'
+import { Animated, Pressable, StyleSheet } from 'react-native'
 import { useAuth } from '@/components/authContext'
 import { router, useLocalSearchParams } from 'expo-router'
 import { loginUser } from '../api/user'
 
 interface LoginProps {
   type: string
+  opacity?: Animated.AnimatedInterpolation<number>
 }
 
-export default function Login({ type }: LoginProps) {
+export default function Login({ type, opacity }: LoginProps) {
   const toast = useToast()
   const { setIsLoggedIn, setUserId } = useAuth()
   const [disabledLogin, setDisabledLogin] = useState(false)
@@ -107,7 +108,9 @@ export default function Login({ type }: LoginProps) {
         // 登录成功设置状态
         setIsLoggedIn(true)
         const { _id } = data
-        setUserId(_id)
+        if (_id) {
+          setUserId(_id)
+        }
         if (type === 'tab2') {
           router.push('/tabs/(tabs)/tab2')
         } else {
@@ -199,94 +202,104 @@ export default function Login({ type }: LoginProps) {
 
   return (
     <Center flex={1}>
-      <Heading size="3xl" color="$indigo600">
-        游小记
-      </Heading>
-      <Box
-        p="$5"
-        maxWidth="$96"
-        borderWidth="$1"
-        borderColor="$backgroundLight300"
-        borderRadius="$lg"
-        $dark-borderColor="$backgroundDark700"
-      >
-        <VStack space="xs" pb="$4" w="$80" alignItems="center">
-          <Heading lineHeight={30}>用户登录</Heading>
-          <Pressable onPress={handleSelectedAvatar}>
-            <Avatar bgColor="$amber600" size="lg" borderRadius="$full">
-              <AvatarFallbackText>Rinna Chen</AvatarFallbackText>
-              {selectedAvatar !== null && (
-                <AvatarImage
-                  alt=""
-                  source={{
-                    uri: selectedAvatar.localUri,
-                  }}
-                ></AvatarImage>
-              )}
-            </Avatar>
-          </Pressable>
-        </VStack>
-        <VStack space="xl" py="$2">
-          <FormControl isInvalid={usernameValid} isRequired={true}>
-            <Input>
-              <InputField
-                py="$2"
-                placeholder="请输入用户名"
-                value={username}
-                onChangeText={setUsername}
-              />
-            </Input>
-            <FormControlError>
-              <FormControlErrorIcon as={AlertCircleIcon} />
-              <FormControlErrorText>仅可输入字母、数字和下划线</FormControlErrorText>
-            </FormControlError>
-          </FormControl>
-          <FormControl isInvalid={passwordValid}>
-            <Input>
-              <InputField
-                py="$2"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="请输入密码"
-                value={password}
-                onChangeText={setPassword}
-              />
-              <InputSlot pr="$3" onPress={handleState}>
-                <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} color="$darkBlue500" />
-              </InputSlot>
-            </Input>
-            <FormControlError>
-              <FormControlErrorIcon as={AlertCircleIcon} />
-              <FormControlErrorText>无效的密码，仅可输入字母、数字和下划线</FormControlErrorText>
-            </FormControlError>
-          </FormControl>
-        </VStack>
-        <VStack space="lg" pt="$4">
-          <Button size="sm" bgColor="$indigo600" onPress={checkLogin} isDisabled={disabledLogin}>
-            <ButtonText color="$white">登录</ButtonText>
-          </Button>
-        </VStack>
-        <VStack pt="$4">
-          <Checkbox
-            aria-label="check"
-            size="md"
-            isInvalid={isAgreement}
-            isDisabled={false}
-            onChange={checkAgreement}
-            value={''}
-          >
-            <CheckboxIndicator mr="$2">
-              <CheckboxIcon as={CheckIcon} />
-            </CheckboxIndicator>
-            <CheckboxLabel>我已阅读并同意《用户协议》</CheckboxLabel>
-          </Checkbox>
-          <Box flexDirection="row">
-            <Button variant="link" p="$0" size="md" onPress={gotoRegister}>
-              <Icon size="md" mr="$1" as={ArrowLeftIcon} />
-              <ButtonText>注册</ButtonText>
+      <Animated.View style={[styles.container, { opacity }]}>
+        <Heading size="3xl" color="$indigo600">
+          游小记
+        </Heading>
+        <Box
+          p="$5"
+          maxWidth="$96"
+          borderWidth="$1"
+          borderColor="$backgroundLight300"
+          borderRadius="$lg"
+          $dark-borderColor="$backgroundDark700"
+        >
+          <VStack space="xs" pb="$4" w="$80" alignItems="center">
+            <Heading lineHeight={30}>用户登录</Heading>
+            <Pressable onPress={handleSelectedAvatar}>
+              <Avatar bgColor="$amber600" size="lg" borderRadius="$full">
+                <AvatarFallbackText>Rinna Chen</AvatarFallbackText>
+                {selectedAvatar !== null && (
+                  <AvatarImage
+                    alt=""
+                    source={{
+                      uri: selectedAvatar.localUri,
+                    }}
+                  ></AvatarImage>
+                )}
+              </Avatar>
+            </Pressable>
+          </VStack>
+          <VStack space="xl" py="$2">
+            <FormControl isInvalid={usernameValid} isRequired={true}>
+              <Input>
+                <InputField
+                  py="$2"
+                  placeholder="请输入用户名"
+                  value={username}
+                  onChangeText={setUsername}
+                />
+              </Input>
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>仅可输入字母、数字和下划线</FormControlErrorText>
+              </FormControlError>
+            </FormControl>
+            <FormControl isInvalid={passwordValid}>
+              <Input>
+                <InputField
+                  py="$2"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="请输入密码"
+                  value={password}
+                  onChangeText={setPassword}
+                />
+                <InputSlot pr="$3" onPress={handleState}>
+                  <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} color="$darkBlue500" />
+                </InputSlot>
+              </Input>
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>无效的密码，仅可输入字母、数字和下划线</FormControlErrorText>
+              </FormControlError>
+            </FormControl>
+          </VStack>
+          <VStack space="lg" pt="$4">
+            <Button size="sm" bgColor="$indigo600" onPress={checkLogin} isDisabled={disabledLogin}>
+              <ButtonText color="$white">登录</ButtonText>
             </Button>
-          </Box>
-        </VStack>
-      </Box>
+          </VStack>
+          <VStack pt="$4">
+            <Checkbox
+              aria-label="check"
+              size="md"
+              isInvalid={isAgreement}
+              isDisabled={false}
+              onChange={checkAgreement}
+              value={''}
+            >
+              <CheckboxIndicator mr="$2">
+                <CheckboxIcon as={CheckIcon} />
+              </CheckboxIndicator>
+              <CheckboxLabel>我已阅读并同意《用户协议》</CheckboxLabel>
+            </Checkbox>
+            <Box flexDirection="row">
+              <Button variant="link" p="$0" size="md" onPress={gotoRegister}>
+                <Icon size="md" mr="$1" as={ArrowLeftIcon} />
+                <ButtonText>注册</ButtonText>
+              </Button>
+            </Box>
+          </VStack>
+        </Box>
+      </Animated.View>
     </Center>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+})

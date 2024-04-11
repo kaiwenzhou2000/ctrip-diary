@@ -27,7 +27,9 @@ import {
   CheckboxLabel,
   Avatar,
   AvatarFallbackText,
+  Text,
 } from '@gluestack-ui/themed'
+import { TouchableOpacity } from 'react-native'
 import { router } from 'expo-router'
 import { registerUser } from '../api/user'
 
@@ -170,6 +172,11 @@ export default function Register() {
             <CheckboxLabel>我已阅读并同意《用户协议》</CheckboxLabel>
           </Checkbox>
         </VStack>
+        <TouchableOpacity onPress={() => router.push('/login/')} style={{ marginTop: 5 }}>
+          <Text underline={true} size={'lg'}>
+            ? 已有账号,前去登录
+          </Text>
+        </TouchableOpacity>
       </Box>
     </Center>
   )
