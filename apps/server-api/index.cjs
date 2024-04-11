@@ -345,6 +345,7 @@ app.get('/getAllDiaries', async (req, res) => {
       }
     }
     const skip = (page - 1) * pageSize
+    const allUserItem = await User.find()
     const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
     const totalCount = await ReleaseNote.countDocuments(findParams)
     const modifiedUserList = userList.map((item) => {
@@ -353,9 +354,14 @@ app.get('/getAllDiaries', async (req, res) => {
       })
       const videoUrl = req.protocol + '://' + req.get('host') + '/' + item.video
       const coverUrl = req.protocol + '://' + req.get('host') + '/' + item.cover
+
+      const user = allUserItem.find((user) => item.userId.toString() === user._id.toString())
+      const avatarUrl = user ? `${req.protocol}://${req.get('host')}/${user.avatar}` : ''
+
       return {
         ...item.toObject(),
         imgUrls,
+        avatarUrl,
         videoUrl,
         coverUrl,
       }
