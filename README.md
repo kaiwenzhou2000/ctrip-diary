@@ -4,6 +4,12 @@
 pnpm install
 ```
 
+#### 首先开启服务器
+
+```bash
+pnpm run dev:server
+```
+
 #### 开启移动端
 
 ```bash
@@ -16,13 +22,7 @@ pnpm run dev:mobile
 pnpm run dev:admin
 ```
 
-#### 开启服务器
-
-```bash
-pnpm run dev:server
-```
-
-- 项目运行在simulator环境下。
+- 项目运行在simulator环境下，iphone15型号
 - 如需启动expo go进行使用，需要进入mobile-app/app/utils的request.js文件夹，将localhost替换为本机编译的ip地址
 
 ### 技术栈

@@ -21,7 +21,7 @@ import Tab1 from '../tabs/(tabs)/tab1'
 
 export default function Admin() {
   const SettingsStack = createNativeStackNavigator()
-  const { userId, setUserId, setIsLoggedIn } = useAuth()
+  const { userId, setUserId, setIsLoggedIn, setDataUsername } = useAuth()
   const [userInfo, setUserInfo] = useState({
     username: '',
     avatarUrl: '',
@@ -58,6 +58,7 @@ export default function Admin() {
   const userLogout = () => {
     setIsLoggedIn(false)
     setUserId('')
+    setDataUsername('')
   }
 
   return (

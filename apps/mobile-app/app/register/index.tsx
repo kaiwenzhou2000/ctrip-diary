@@ -34,8 +34,10 @@ import { TouchableOpacity, Pressable } from 'react-native'
 import { router } from 'expo-router'
 import { registerUser } from '../api/user'
 import { UploadMedia } from '@/components/uploadMedia'
+import { useAuth } from '@/components/authContext'
 
 export default function Register() {
+  const { setDataUsername } = useAuth()
   const toast = useToast()
   const [username, setUsername] = useState('')
   const [usernameValid, setUsernameValid] = useState(false)
@@ -56,6 +58,7 @@ export default function Register() {
         const formData = new FormData()
         formData.append('username', username)
         formData.append('password', password)
+        setDataUsername(username)
         if (selectedAvatar) {
           const localUri = selectedAvatar.localUri
           const filename = localUri.split('/').pop()
@@ -76,7 +79,6 @@ export default function Register() {
         })
         // 注册成功进入登录页面
         router.push('/login/')
-        router.setParams({ name: username })
       } else {
         // 密码校验失败
         setPasswordValid(true)

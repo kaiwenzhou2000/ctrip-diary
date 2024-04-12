@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, Text, Image, ScrollView, SafeAreaView } from 'react-native'
 import PagerView from 'react-native-pager-view'
 import { getTourItem } from '../api/tour'
+import { Video, ResizeMode } from 'expo-av'
 
 export default function Index(props: { id: string }) {
   const { id } = props
@@ -11,6 +12,7 @@ export default function Index(props: { id: string }) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [time, setTime] = useState('')
+  const [videoUrl, setVideoUrl] = useState('')
 
   useEffect(() => {
     getTourItem(id)
@@ -22,6 +24,7 @@ export default function Index(props: { id: string }) {
         setTitle(data.title)
         setContent(data.description)
         setTime(data.create_at)
+        setVideoUrl(data.videoUrl)
       })
       .then(() => {
         setFinish(true)
@@ -55,6 +58,17 @@ export default function Index(props: { id: string }) {
                     </View>
                   )
                 })}
+                <Video
+                  source={{ uri: videoUrl }}
+                  rate={1.0}
+                  volume={1}
+                  isMuted={false}
+                  resizeMode={ResizeMode.CONTAIN}
+                  shouldPlay
+                  isLooping
+                  useNativeControls
+                  // style={{ width: 380, height: 540 }}
+                />
               </PagerView>
             )}
           </View>

@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Center } from '@gluestack-ui/themed'
+import {
+  Button,
+  ButtonText,
+  Input,
+  InputField,
+  InputIcon,
+  SearchIcon,
+  View,
+} from '@gluestack-ui/themed'
+import { StyleSheet } from 'react-native'
 import { WaterFall } from '../../../components'
 import { WaterFallItem } from '../../../types'
 import { getAllUserTourList } from '../../api/tour'
@@ -51,19 +60,54 @@ export default function Home() {
       <SettingsStack.Screen
         name="首页"
         component={({ navigation }) => (
-          <Center style={{ backgroundColor: '#F6F6F6' }} flex={1}>
-            <WaterFall
-              data={data}
-              onEndReached={fetchData}
-              onPress={({ id }) => {
-                setCurrentId(id)
-                navigation.navigate('Details')
-              }}
-            />
-          </Center>
+          <>
+            <View style={styles.searchContainer}>
+              <Input style={styles.searchInput}>
+                <InputField type="text" />
+                <InputIcon as={SearchIcon} color="$darkBlue500" />
+              </Input>
+              <Button style={styles.btn}>
+                <ButtonText>搜索</ButtonText>
+              </Button>
+            </View>
+            <View style={styles.waterfull}>
+              <WaterFall
+                data={data}
+                onEndReached={fetchData}
+                onPress={({ id }) => {
+                  setCurrentId(id)
+                  navigation.navigate('Details')
+                }}
+              />
+            </View>
+          </>
         )}
       />
       <SettingsStack.Screen name="Details" component={() => Detail({ id: currentId })} />
     </SettingsStack.Navigator>
   )
 }
+
+const styles = StyleSheet.create({
+  searchContainer: {
+    // flex: 1,
+    flexDirection: 'row',
+  },
+  searchInput: {
+    flex: 1,
+    margin: 10,
+    paddingVertical: 10,
+    paddingRight: 10,
+    borderRadius: 10,
+    backgroundColor: '#f0f0f0',
+  },
+  btn: {
+    marginVertical: 10,
+    marginRight: 10,
+    padding: 10,
+    borderRadius: 10,
+  },
+  waterfull: {
+    flexGrow: 1,
+  },
+})

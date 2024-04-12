@@ -32,7 +32,7 @@ import { updateTourItem, getTourItem } from '../api/tour'
 import { useAuth } from '@/components/authContext'
 
 export default function Publish({ id }: { id?: string }) {
-  const { userId, username } = useAuth()
+  const { userId, dataUsername } = useAuth()
   const toast = useToast()
 
   useEffect(() => {
@@ -53,11 +53,10 @@ export default function Publish({ id }: { id?: string }) {
         setSelectedVideoUri({ localUri: videoUrl })
       }
     }
-    // 替换为实际publishId
     if (id) {
       getReleaseNote()
     }
-  }, [])
+  }, [id])
 
   const [titleValid, setTitleValid] = useState(false)
   const [title, setTitle] = useState('')
@@ -204,19 +203,15 @@ export default function Publish({ id }: { id?: string }) {
         await updateTourItem(id, formData)
         router.back()
       } else {
-        await publishTourItem(userId, username, formData)
+        await publishTourItem(userId, dataUsername, formData)
         setTitle('')
         setDescription('')
         setImageList([])
-        setSelectedVideo({
-          uri: '',
-          type: '',
-          fileName: '',
-          cover: '',
-        })
+        setSelectedVideo({})
         setSelectedVideoUri(null)
+        setHasMedia(false)
       }
-      router.push('/tabs/(tabs)/tab2')
+      router.navigate('/tabs/(tabs)/tab2')
     } catch (e) {
       console.log(e)
     }

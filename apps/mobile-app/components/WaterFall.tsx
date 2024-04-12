@@ -45,7 +45,7 @@ const Item = ({
   )
 }
 
-const getState = (state) => {
+const getState = (state: string) => {
   switch (state) {
     case 'Pending review':
       return (
@@ -54,7 +54,11 @@ const getState = (state) => {
         </Badge>
       )
     case 'Approved':
-      return <></>
+      return (
+        <Badge size="md" variant="solid" borderRadius="$none" action="success">
+          <BadgeText>已通过</BadgeText>
+        </Badge>
+      )
     case 'Rejected':
       return (
         <Badge size="md" variant="solid" borderRadius="$none" action="error">
@@ -70,7 +74,6 @@ const WaterFall = (props: {
   onPress: (data: WaterFallItem) => void
 }) => {
   const { data, onEndReached, onPress } = props
-  console.log(data, 'waterfall data')
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,7 +117,7 @@ const styles = StyleSheet.create({
     width: '48%',
     height: 230,
     display: 'flex',
-    borderRadius: 5,
+    borderRadius: 10,
   },
   userContainer: {
     display: 'flex',

@@ -20,6 +20,18 @@ type UserList = {
   userList: UserItem[]
 }
 
+// 用户登录
+export const pcUserLogin = (data: {
+  username: string
+  password: string
+}): Promise<Response<UserItem>> => {
+  return request({
+    url: '/PClogin',
+    method: 'POST',
+    data,
+  })
+}
+
 // 获取用户列表
 export const getPCUserList = (): Promise<Response<UserList>> => {
   return request({
@@ -61,14 +73,6 @@ export const delPCUser = (userId: string) => {
   return request({
     url: `/deletePCUser/${userId}`,
     method: 'DELETE',
-  })
-}
-
-//获取用户游记
-export const getPCUserWork = (): Promise<Response<UserList>> => {
-  return request({
-    url: '/getDiaryEntries',
-    method: 'GET',
   })
 }
 

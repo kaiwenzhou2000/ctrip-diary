@@ -5,7 +5,7 @@ interface AuthContextType {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
   userId: string
   setUserId: React.Dispatch<React.SetStateAction<string>>
-  username: string
+  dataUsername: string
   setDataUsername: React.Dispatch<React.SetStateAction<string>>
 }
 
@@ -14,11 +14,11 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userId, setUserId] = useState<string>('')
-  const [username, setDataUsername] = useState<string>('')
+  const [dataUsername, setDataUsername] = useState<string>('')
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, setIsLoggedIn, userId, setUserId, username, setDataUsername }}
+      value={{ isLoggedIn, setIsLoggedIn, userId, setUserId, dataUsername, setDataUsername }}
     >
       {children}
     </AuthContext.Provider>
