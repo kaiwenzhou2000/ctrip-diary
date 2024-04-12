@@ -23,8 +23,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Expo V3',
+          title: '首页',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          header: () => <></>,
         }}
       />
       <Tabs.Screen

@@ -21,6 +21,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@react-navigation/drawer": "^6.6.7",
     "@react-navigation/native": "^6.0.2",
+    "@react-navigation/stack": "^6.3.29",
     "expo": "~50.0.3",
     "expo-av": "^13.10.5",
     "expo-font": "~11.10.2",

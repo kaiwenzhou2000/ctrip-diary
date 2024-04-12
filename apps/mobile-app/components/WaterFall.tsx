@@ -70,6 +70,7 @@ const WaterFall = (props: {
   onPress: (data: WaterFallItem) => void
 }) => {
   const { data, onEndReached, onPress } = props
+  console.log(data, 'waterfall data')
 
   return (
     <SafeAreaView style={styles.container}>
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
   contentContainerStyle: {
     display: 'flex',
     justifyContent: 'center',
-    backgroundColor: 'lightblue',
+    // backgroundColor: 'lightblue',
   },
   list: {
     width: '100%',

@@ -1,39 +1,66 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, Text, Image, ScrollView, SafeAreaView } from 'react-native'
 import PagerView from 'react-native-pager-view'
+import { getTourItem } from '../api/tour'
 
-export default function MyPager() {
+export default function Index(props: { id: string }) {
+  const { id } = props
   const [currentPage, setCurrentPage] = useState(0)
+  const [urls, setUrls] = useState<string[]>([])
+  const [finish, setFinish] = useState(false)
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [time, setTime] = useState('')
+
+  useEffect(() => {
+    getTourItem(id)
+      .then(({ data }) => {
+        console.log(data, 'getTourItem')
+        setUrls(() => {
+          return data.imgUrls
+        })
+        setTitle(data.title)
+        setContent(data.description)
+        setTime(data.create_at)
+      })
+      .then(() => {
+        setFinish(true)
+      })
+  }, [])
+
+  const getTime = (time) => {
+    const date = new Date(time)
+    const month = date.getMonth() + 1 // getMonth() 返回的月份从0开始
+    const day = date.getDate()
+    return `${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`
+  }
 
   return (
     <SafeAreaView>
       <ScrollView horizontal={false}>
         <View style={styles.wrapper}>
           <View style={styles.imageContainer}>
-            <PagerView
-              style={styles.container}
-              initialPage={0}
-              onPageSelected={(event) => {
-                setCurrentPage(event.nativeEvent.position)
-              }}
-            >
-              <View style={styles.page} key="1">
-                <Image
-                  style={styles.img}
-                  source={require('../../assets/images/1040g0k0310r1ajkl6g005pg0d4b1hiaa1v8r550!nc_n_webp_mw_1.webp')}
-                />
-              </View>
-              <View style={styles.page} key="2">
-                <Text>Second page</Text>
-              </View>
-              <View style={styles.page} key="3">
-                <Text>Third page</Text>
-              </View>
-            </PagerView>
+            {finish && (
+              <PagerView
+                style={styles.container}
+                initialPage={0}
+                onPageSelected={(event) => {
+                  setCurrentPage(event.nativeEvent.position)
+                }}
+              >
+                {urls.map((item, index) => {
+                  return (
+                    <View style={styles.page} key={index}>
+                      <Image style={styles.img} source={{ uri: item }} />
+                    </View>
+                  )
+                })}
+              </PagerView>
+            )}
           </View>
 
           <View style={styles.pagination}>
-            {[0, 1, 2].map((index) => (
+            {Array.from({ length: urls.length }, (_, index) => index).map((index) => (
               <View
                 key={index}
                 style={[
@@ -53,7 +80,7 @@ export default function MyPager() {
                 marginRight: 10,
               }}
             >
-              标题
+              {title}
             </Text>
             <Text
               style={{
@@ -65,7 +92,7 @@ export default function MyPager() {
                 // minHeight: 300,
               }}
             >
-              {'内容'.repeat(1001)}
+              {content}
             </Text>
             <Text
               style={{
@@ -77,7 +104,7 @@ export default function MyPager() {
                 marginRight: 10,
               }}
             >
-              编辑于 04-10
+              编辑于 {getTime(time)}
             </Text>
           </View>
         </View>
@@ -101,7 +128,7 @@ const styles = StyleSheet.create({
   },
   container: {
     // flex: 1,
-    backgroundColor: 'blue',
+    // backgroundColor: 'blue',
     // width: 380,
     height: 540,
     // marginBottom: 20,
@@ -114,6 +141,7 @@ const styles = StyleSheet.create({
     // height: 300,
   },
   img: {
+    backgroundColor: 'blue',
     flex: 1,
     alignSelf: 'center',
     width: 380,

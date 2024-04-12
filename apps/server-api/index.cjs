@@ -233,9 +233,9 @@ app.get('/getAllDiaries', async (req, res) => {
     const skip = (page - 1) * pageSize
     const allUserItem = await User.find()
     const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
-    const totalCount = await ReleaseNote.countDocuments(findParams)
+    // const totalCount = await ReleaseNote.countDocuments(findParams)
     const modifiedUserList = userList.map((item) => {
-      if (item.state !== 'Approved') return
+      if (item.state !== 'Approved') return null
       const imgUrls = item.images.map((img) => {
         return req.protocol + '://' + req.get('host') + '/' + img
       })
@@ -254,8 +254,12 @@ app.get('/getAllDiaries', async (req, res) => {
       }
     })
 
+    const filteredUserList = modifiedUserList.filter((item) => item !== null)
+
+    const totalCount = filteredUserList.length
+
     return res.status(200).send({
-      data: modifiedUserList,
+      data: filteredUserList,
       page,
       success: true,
       total: totalCount,

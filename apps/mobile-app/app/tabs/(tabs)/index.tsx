@@ -3,27 +3,30 @@ import { Center } from '@gluestack-ui/themed'
 import { WaterFall } from '../../../components'
 import { WaterFallItem } from '../../../types'
 import { getAllUserTourList } from '../../api/tour'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import Detail from '../../detail'
+// import { NavigationContainer } from '@react-navigation/native'
+// import { createStackNavigator } from '@react-navigation/stack'
 // import { useNavigation } from '@react-navigation/native'
 // import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 export default function Home() {
-  // const Stack = createNativeStackNavigator()
+  const SettingsStack = createNativeStackNavigator()
+  // const Stack = createStackNavigator()
   // const navigation = useNavigation()
   const [data, setData] = useState<WaterFallItem[]>([])
   const [current, setCurrent] = useState(1)
-
-  const onPress = (data) => {
-    console.log(data)
-  }
+  const [currentId, setCurrentId] = useState<string>('')
 
   const fetchData = () => {
     getAllUserTourList({ current, pageSize: 10 }).then(({ data: d }) => {
+      console.log(d, 'getAllUserTourList')
       if (d.length != 0) {
         setData(() => {
+          console.log(data, d, 'setData')
           return [
             ...data,
             ...d.map((item) => {
-              console.log(item)
               return {
                 id: item._id,
                 title: item.title,
@@ -43,24 +46,24 @@ export default function Home() {
     fetchData()
   }, [])
 
-  // const Detail = () => {
-  //   return <div>123</div>
-  // }
-
   return (
-    // <Stack.Navigator>
-    //   <Stack.Screen
-    //     name="waterfall"
-    //     component={() => (
-    //       <Center style={{ backgroundColor: '#F6F6F6' }} flex={1}>
-    //         <WaterFall data={data} onEndReached={loadMoreData} onPress={onPress} />
-    //       </Center>
-    //     )}
-    //   />
-    //   <Stack.Screen name="detail" component={Detail} />
-    // </Stack.Navigator>
-    <Center style={{ backgroundColor: '#F6F6F6' }} flex={1}>
-      <WaterFall data={data} onEndReached={fetchData} onPress={onPress} />
-    </Center>
+    <SettingsStack.Navigator>
+      <SettingsStack.Screen
+        name="首页"
+        component={({ navigation }) => (
+          <Center style={{ backgroundColor: '#F6F6F6' }} flex={1}>
+            <WaterFall
+              data={data}
+              onEndReached={fetchData}
+              onPress={({ id }) => {
+                setCurrentId(id)
+                navigation.navigate('Details')
+              }}
+            />
+          </Center>
+        )}
+      />
+      <SettingsStack.Screen name="Details" component={() => Detail({ id: currentId })} />
+    </SettingsStack.Navigator>
   )
 }
