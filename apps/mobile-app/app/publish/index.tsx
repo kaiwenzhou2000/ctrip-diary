@@ -53,11 +53,10 @@ export default function Publish({ id }: { id?: string }) {
         setSelectedVideoUri({ localUri: videoUrl })
       }
     }
-    // 替换为实际publishId
     if (id) {
       getReleaseNote()
     }
-  }, [])
+  }, [id])
 
   const [titleValid, setTitleValid] = useState(false)
   const [title, setTitle] = useState('')
@@ -208,12 +207,7 @@ export default function Publish({ id }: { id?: string }) {
         setTitle('')
         setDescription('')
         setImageList([])
-        setSelectedVideo({
-          uri: '',
-          type: '',
-          fileName: '',
-          cover: '',
-        })
+        setSelectedVideo({})
         setSelectedVideoUri(null)
       }
       router.push('/tabs/(tabs)/tab2')
