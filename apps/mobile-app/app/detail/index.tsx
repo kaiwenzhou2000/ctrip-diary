@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     // height: 300,
   },
   img: {
-    backgroundColor: 'blue',
+    // backgroundColor: 'blue',
     flex: 1,
     alignSelf: 'center',
     width: 380,
