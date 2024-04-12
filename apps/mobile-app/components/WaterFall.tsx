@@ -74,7 +74,6 @@ const WaterFall = (props: {
   onPress: (data: WaterFallItem) => void
 }) => {
   const { data, onEndReached, onPress } = props
-  console.log(data, 'waterfall data')
 
   return (
     <SafeAreaView style={styles.container}>

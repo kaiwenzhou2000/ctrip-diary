@@ -163,7 +163,7 @@ export default () => {
     }
   }
 
-  const handleSave = async (_key: Key, record: DiaryEntryItem): Promise<void> => {
+  const handleSave = async (_key: Key | Key[], record: DiaryEntryItem): Promise<void> => {
     try {
       const { _id, state } = record
       await updatediaryEntries(_id, state)

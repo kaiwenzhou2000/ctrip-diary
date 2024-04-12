@@ -20,7 +20,7 @@ import type { CSSProperties } from 'react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { pcUserLogin } from '@/app/api/systemUser'
-import { useAuth } from '../components/permit'
+import { useAuth, usePermit } from '../components/permit'
 
 type LoginType = 'phone' | 'account'
 
@@ -34,15 +34,17 @@ const iconStyles: CSSProperties = {
 const Page = () => {
   const router = useRouter()
   const { setIsLoggedIn, setUserId } = useAuth()
+  const { setIdentity } = usePermit()
   const [loginType, setLoginType] = useState<LoginType>('account')
   const { token } = theme.useToken()
 
   const handleLogin = async (values: { username: string; password: string }) => {
     const res = await pcUserLogin(values)
     if (res.message === 'success') {
-      const { _id } = res.data
+      const { _id, identity } = res.data
       setIsLoggedIn(true)
       setUserId(_id)
+      setIdentity(identity)
       router.push(`/`)
     } else {
       message.error(res.message)
