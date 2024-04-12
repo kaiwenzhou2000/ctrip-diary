@@ -605,8 +605,74 @@ app.put('/deletediaryEntries/:id', async (req, res) => {
   }
 })
 
+const insertSampleUser = async () => {
+  try {
+    // 检查是否已有用户数据
+    const existingUsers = await PCUser.find()
+    if (existingUsers.length > 0) {
+      console.log('已存在用户数据，无需插入示例数据')
+      return
+    }
+
+    // 插入新的用户数据，后续删除
+    await PCUser.insertMany([
+      {
+        username: 'test',
+        password: 'test111',
+        identity: 'superadmin',
+        created_at: '2024-04-10T10:51:47Z',
+        permission: ['welcome', 'manage', 'userManage', 'menuManage', 'check', 'checkList'],
+      },
+      {
+        username: 'aaa',
+        password: 'aaa111',
+        identity: 'publishGroup',
+        created_at: '2024-04-01T19:01:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: 'uuu',
+        password: 'uuu111',
+        identity: 'monitorGroup',
+        created_at: '2024-04-03T14:13:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: '要删掉的',
+        password: 'uuu111',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: 'fegdgdr',
+        password: 'grgeher',
+        identity: 'publishGroup',
+        created_at: '2024-04-03T14:13:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: '5geg6j',
+        password: 'vsniodvnis',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+        permission: ['welcome'],
+      },
+      {
+        username: 'aaaa',
+        password: 'nnnnnn',
+        identity: 'monitorGroup',
+        created_at: '2024-03-31T18:34:47Z',
+      },
+    ])
+    console.log('Sample user inserted successfully')
+  } catch (error) {
+    console.error('Error inserting sample user:', error)
+  }
+}
 mongoose.connect('mongodb://localhost/ctrip').then(async () => {
   console.log('连接数据库成功!!!')
+  await insertSampleUser()
   // 监听 3000 端口
   app.listen(3000, function () {
     console.log('app is listening at port 3000')

@@ -21,7 +21,7 @@ const permissionsMap: { [key in IdentityType]: string[] } = {
 }
 
 export const PermitProvider = ({ children }: { children: ReactNode }) => {
-  const [identity, setIdentity] = useState<IdentityType>('superadmin')
+  const [identity, setIdentity] = useState<IdentityType>('publishGroup')
 
   return (
     <PermitContext.Provider value={{ identity, setIdentity }}>{children}</PermitContext.Provider>
