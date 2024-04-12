@@ -206,21 +206,18 @@ app.get('/getAllDiaries', async (req, res) => {
     // 分页
     const page = parseInt(req.query.current) || 1
     const pageSize = parseInt(req.query.pageSize) || 5
-    // 筛选
+    // 筛选参数
+    // const search = req.query.search
+
+    // 过滤
     let findParams = { isDeleted: false }
 
-    if (req.query.username) {
-      findParams.username = req.query.username
-    }
-    if (req.query.state) {
-      findParams.state = req.query.state
-    }
-    if (req.query.startTime && req.query.endTime) {
-      findParams.created_at = {
-        $gte: req.query.startTime,
-        $lte: req.query.endTime,
-      }
-    }
+    // if (search) {
+    //   findParams.$or = [
+    //     { title: { $regex: new RegExp(search, 'i') } },
+    //     { description: { $regex: new RegExp(search, 'i') } },
+    //   ]
+    // }
     const skip = (page - 1) * pageSize
     const allUserItem = await User.find()
     const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)

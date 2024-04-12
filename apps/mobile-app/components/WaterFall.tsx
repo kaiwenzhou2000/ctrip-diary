@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     width: '48%',
     height: 230,
     display: 'flex',
-    borderRadius: 5,
+    borderRadius: 10,
   },
   userContainer: {
     display: 'flex',

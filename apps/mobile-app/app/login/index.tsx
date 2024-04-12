@@ -77,8 +77,6 @@ export default function Login({ type, opacity }: LoginProps) {
       username,
       password,
     }
-    console.log(userInfo)
-
     // 1. 用户名、密码正确，数据库无 - 未注册
     // 2. 用户名或密码错误，数据库有 - 账号或密码错误
     // 3. 用户名、密码正确，数据库有 - 登录成功

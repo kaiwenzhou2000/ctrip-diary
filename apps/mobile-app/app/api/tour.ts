@@ -45,9 +45,11 @@ export const getCurUserTourList = (userId: string) => {
 export const getAllUserTourList = ({
   current,
   pageSize,
+  // search,
 }: {
   current: number
   pageSize: number
+  // search: string
 }) => {
   return request({
     url: `/getAllDiaries?current=${current}&pageSize=${pageSize}`,
