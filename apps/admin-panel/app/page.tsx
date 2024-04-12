@@ -17,9 +17,11 @@ import {
   SettingDrawer,
 } from '@ant-design/pro-components'
 import { ConfigProvider, Divider, Dropdown, Input, theme } from 'antd'
-import React, { useState } from 'react'
-// import { getUserInfo } from './api/systemUser'
+import React, { useEffect, useState } from 'react'
 import getRouteConfig from './_defaultProps'
+import { getUserInfo } from './api/systemUser'
+import { useAuth } from './components/permit'
+import { useRouter } from 'next/navigation'
 
 const MenuCard = () => {
   return (
@@ -82,6 +84,7 @@ const SearchInput = () => {
 }
 
 export default () => {
+  const router = useRouter()
   const [settings, setSetting] = useState<Partial<ProSettings> | undefined>({
     fixSiderbar: true,
     layout: 'mix',
@@ -94,7 +97,7 @@ export default () => {
     return <div />
   }
 
-  const [permission] = useState([
+  const [permission, setPermsission] = useState([
     'welcome',
     'manage',
     'userManage',
@@ -102,16 +105,19 @@ export default () => {
     'check',
     'checkList',
   ])
-  // useEffect(() => {
-  // const getUserPermit = async () => {
-  //   // 替换为实际id
-  //   // const res = await getUserInfo('66156bb3a2870a73ac3cd53e')
-  //   const res = await getUserInfo('66156bb3a2870a73ac3cd53a')
-  //   const { permission } = res.data
-  //   setPermsission(permission)
-  // }
-  // getUserPermit()
-  // }, [])
+  const [username, setUsername] = useState('')
+  const { userId, isLoggedIn } = useAuth()
+  useEffect(() => {
+    const getUserPermit = async () => {
+      if (userId === null) return
+      const res = await getUserInfo(userId)
+      const { username, permission } = res.data
+      setUsername(username)
+      setPermsission(permission)
+    }
+    getUserPermit()
+  }, [isLoggedIn, router, userId])
+
   const routeConfig = getRouteConfig(permission)
 
   const getCurrentComponent = (pathname: string) => {
@@ -190,7 +196,7 @@ export default () => {
             avatarProps={{
               src: 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
               size: 'small',
-              title: '七妮妮',
+              title: username ? username : '默认用户',
               render: (_props, dom) => {
                 return (
                   <Dropdown
@@ -249,8 +255,7 @@ export default () => {
                     paddingBlockStart: 12,
                   }}
                 >
-                  <div>© 2021 Made with love</div>
-                  <div>by Ant Design</div>
+                  <div>© 2024 Made with love</div>
                 </div>
               )
             }}

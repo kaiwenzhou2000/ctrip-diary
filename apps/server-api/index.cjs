@@ -105,7 +105,7 @@ app.post('/login', async (req, res) => {
 
     return res.status(200).send({ message: 'success', data: user })
   } catch (error) {
-    console.error('Error logging in:', error, 111)
+    console.error('Error logging in:', error)
     res.status(500).json({ error: 'Error logging in' })
   }
 })
@@ -419,6 +419,28 @@ app.get('/getPCUserList', async (req, res) => {
   }
 })
 
+// PC端用户登录
+app.post('/PClogin', async (req, res) => {
+  try {
+    const { username, password } = req.body
+    let user = await PCUser.findOne({ username })
+    // 如果用户不存在
+    if (!user) {
+      return res.status(401).send({ message: '用户名不存在' })
+    }
+
+    // 如果用户存在，则验证密码
+    const validPassword = await bcrypt.compare(password, user.password)
+    if (!validPassword) {
+      return res.status(401).send({ message: '密码错误' })
+    }
+
+    return res.status(200).send({ message: 'success', data: user })
+  } catch (error) {
+    console.error('Error logging in:', error)
+    res.status(500).json({ error: 'Error logging in' })
+  }
+})
 // 修改用户信息
 app.put('/updatePCUser/:userId', async (req, res) => {
   try {
@@ -549,7 +571,7 @@ const insertSampleUser = async () => {
     }
 
     // 插入新的用户数据，后续删除
-    await PCUser.insertMany([
+    const insertedPCusers = [
       {
         username: 'superadmin',
         password: '123456',
@@ -599,7 +621,20 @@ const insertSampleUser = async () => {
         identity: 'monitorGroup',
         created_at: '2024-03-31T18:34:47Z',
       },
-    ])
+    ]
+
+    // 使用bcrypt加密所有用户的密码
+    const promises = insertedPCusers.map(async (user) => {
+      const hashedPassword = await bcrypt.hash(user.password, 10)
+      return { ...user, password: hashedPassword }
+    })
+
+    // 等待所有密码加密完成
+    const usersWithHashedPasswords = await Promise.all(promises)
+
+    // 插入加密后的用户数据
+    await PCUser.insertMany(usersWithHashedPasswords)
+
     console.log('Sample user inserted successfully')
   } catch (error) {
     console.error('Error inserting sample user:', error)

@@ -4,6 +4,10 @@ type IdentityType = 'superadmin' | 'publishGroup' | 'monitorGroup'
 interface PermitContextType {
   identity: IdentityType
   setIdentity: React.Dispatch<React.SetStateAction<IdentityType>>
+  isLoggedIn: boolean
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
+  userId: string | null
+  setUserId: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 const PermitContext = createContext<PermitContextType | null>(null)
@@ -22,9 +26,15 @@ const permissionsMap: { [key in IdentityType]: string[] } = {
 
 export const PermitProvider = ({ children }: { children: ReactNode }) => {
   const [identity, setIdentity] = useState<IdentityType>('superadmin')
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   return (
-    <PermitContext.Provider value={{ identity, setIdentity }}>{children}</PermitContext.Provider>
+    <PermitContext.Provider
+      value={{ identity, setIdentity, isLoggedIn, setIsLoggedIn, userId, setUserId }}
+    >
+      {children}
+    </PermitContext.Provider>
   )
 }
 
@@ -42,4 +52,15 @@ export const usePermit = () => {
   }
 
   return { identity, setIdentity, hasPermission }
+}
+
+export const useAuth = () => {
+  const context = useContext(PermitContext)
+
+  if (!context) {
+    throw new Error('useAuth must be used within a PermitProvider')
+  }
+
+  const { isLoggedIn, setIsLoggedIn, userId, setUserId } = context
+  return { isLoggedIn, setIsLoggedIn, userId, setUserId }
 }

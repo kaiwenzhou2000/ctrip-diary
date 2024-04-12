@@ -20,6 +20,18 @@ type UserList = {
   userList: UserItem[]
 }
 
+// 用户登录
+export const pcUserLogin = (data: {
+  username: string
+  password: string
+}): Promise<Response<UserItem>> => {
+  return request({
+    url: '/PClogin',
+    method: 'POST',
+    data,
+  })
+}
+
 // 获取用户列表
 export const getPCUserList = (): Promise<Response<UserList>> => {
   return request({

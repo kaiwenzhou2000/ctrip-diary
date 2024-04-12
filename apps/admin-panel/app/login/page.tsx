@@ -19,6 +19,8 @@ import { Divider, Space, Tabs, message, theme } from 'antd'
 import type { CSSProperties } from 'react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { pcUserLogin } from '@/app/api/systemUser'
+import { useAuth } from '../components/permit'
 
 type LoginType = 'phone' | 'account'
 
@@ -31,8 +33,21 @@ const iconStyles: CSSProperties = {
 
 const Page = () => {
   const router = useRouter()
+  const { setIsLoggedIn, setUserId } = useAuth()
   const [loginType, setLoginType] = useState<LoginType>('account')
   const { token } = theme.useToken()
+
+  const handleLogin = async (values: { username: string; password: string }) => {
+    const res = await pcUserLogin(values)
+    if (res.message === 'success') {
+      const { _id } = res.data
+      setIsLoggedIn(true)
+      setUserId(_id)
+      router.push(`/`)
+    } else {
+      message.error(res.message)
+    }
+  }
   return (
     <div
       style={{
@@ -41,9 +56,7 @@ const Page = () => {
       }}
     >
       <LoginFormPage
-        onFinish={() => {
-          router.push('/')
-        }}
+        onFinish={handleLogin}
         backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
         backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
         title="游小记"
