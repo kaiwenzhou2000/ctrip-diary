@@ -5,12 +5,12 @@ import { useAuth } from '@/components/authContext'
 import Publish from '@/app/publish'
 import { Link } from 'expo-router'
 
-export default function Tabs1() {
+export default function Tabs1({ id }: { id: string }) {
   const { isLoggedIn } = useAuth()
   return (
     <>
       {isLoggedIn ? (
-        <Publish />
+        <Publish id={id} />
       ) : (
         <Center flex={1}>
           <Link href="/login/" asChild>

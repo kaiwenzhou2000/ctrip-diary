@@ -40,6 +40,7 @@ export default function TabLayout() {
         options={{
           title: '我的',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          header: () => <></>,
         }}
       />
     </Tabs>

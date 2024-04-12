@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
   Text,
   View,
@@ -28,36 +28,36 @@ import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
 import { publishTourItem } from '../api/tour'
-// import { updateTourItem, getTourItem } from '../api/tour'
+import { updateTourItem, getTourItem } from '../api/tour'
 import { useAuth } from '@/components/authContext'
 
-export default function Publish() {
+export default function Publish({ id }: { id?: string }) {
   const { userId, username } = useAuth()
   const toast = useToast()
 
-  // useEffect(() => {
-  //   // 重新编辑游记，回填数据
-  //   const getReleaseNote = async () => {
-  //     const res = await getTourItem('6616075f4404239f23d61489')
-  //     const { title, description, imgUrls, videoUrl } = res.data
-  //     const imgList = imgUrls.map((imgUrl) => ({ uri: imgUrl }))
-  //     setTitle(title)
-  //     setDescription(description)
-  //     setHasMedia(true)
-  //     if (imgUrls) {
-  //       setHasImages(true)
-  //       setImageList(imgList)
-  //     }
-  //     if (videoUrl) {
-  //       setHasVideo(true)
-  //       setSelectedVideoUri({ localUri: videoUrl })
-  //     }
-  //   }
-  //   // 替换为实际publishId
-  //   if (publishId) {
-  //     getReleaseNote()
-  //   }
-  // }, [])
+  useEffect(() => {
+    // 重新编辑游记，回填数据
+    const getReleaseNote = async () => {
+      const res = await getTourItem(id)
+      const { title, description, imgUrls, videoUrl } = res.data
+      const imgList = imgUrls.map((imgUrl) => ({ uri: imgUrl }))
+      setTitle(title)
+      setDescription(description)
+      setHasMedia(true)
+      if (imgUrls) {
+        setHasImages(true)
+        setImageList(imgList)
+      }
+      if (videoUrl) {
+        setHasVideo(true)
+        setSelectedVideoUri({ localUri: videoUrl })
+      }
+    }
+    // 替换为实际publishId
+    if (id) {
+      getReleaseNote()
+    }
+  }, [])
 
   const [titleValid, setTitleValid] = useState(false)
   const [title, setTitle] = useState('')
@@ -200,22 +200,22 @@ export default function Publish() {
     }
     try {
       // 替换为实际publishId
-      // const publishId = '6616075f4404239f23d61489'
-      // if (publishId) {
-      // await updateTourItem(publishId, formData)
-      // } else {
-      await publishTourItem(userId, username, formData)
-      setTitle('')
-      setDescription('')
-      setImageList([])
-      setSelectedVideo({
-        uri: '',
-        type: '',
-        fileName: '',
-        cover: '',
-      })
-      setSelectedVideoUri(null)
-      router.push('/tabs/(tabs)/tab2')
+      if (id) {
+        await updateTourItem(publishId, formData)
+      } else {
+        await publishTourItem(userId, username, formData)
+        setTitle('')
+        setDescription('')
+        setImageList([])
+        setSelectedVideo({
+          uri: '',
+          type: '',
+          fileName: '',
+          cover: '',
+        })
+        setSelectedVideoUri(null)
+        router.push('/tabs/(tabs)/tab2')
+      }
     } catch (e) {
       console.log(e)
     }
