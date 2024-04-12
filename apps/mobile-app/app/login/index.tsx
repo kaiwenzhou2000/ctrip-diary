@@ -31,10 +31,9 @@ import {
   ArrowLeftIcon,
   AvatarImage,
 } from '@gluestack-ui/themed'
-import { UploadMedia } from '@/components/uploadMedia'
-import { Animated, Pressable, StyleSheet } from 'react-native'
+import { Animated, StyleSheet } from 'react-native'
 import { useAuth } from '@/components/authContext'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router } from 'expo-router'
 import { loginUser } from '../api/user'
 
 interface LoginProps {
@@ -44,12 +43,9 @@ interface LoginProps {
 
 export default function Login({ type, opacity }: LoginProps) {
   const toast = useToast()
-  const { setIsLoggedIn, setUserId, setDataUsername } = useAuth()
+  const { setIsLoggedIn, setUserId, username, setDataUsername } = useAuth()
   const [disabledLogin, setDisabledLogin] = useState(false)
-  // 获取不到
-  const { name } = useLocalSearchParams<{ name: string }>()
-  const initialUsername = name || ''
-  const [username, setUsername] = useState<string>(initialUsername)
+  const [loginUsername, setLoginUsername] = useState<string>('')
   const [usernameValid, setUsernameValid] = useState(false)
   const [password, setPassword] = useState('')
   const [passwordValid, setPasswordValid] = useState(false)
@@ -72,24 +68,18 @@ export default function Login({ type, opacity }: LoginProps) {
       return
     }
 
-    const formData = new FormData()
-    formData.append('username', username)
-    formData.append('password', password)
-
-    if (selectedAvatar) {
-      const localUri = selectedAvatar.localUri
-      const filename = localUri.split('/').pop()
-      // const match = /\.(\w+)$/.exec(filename)
-      // const type = match ? `image/${match[1]}` : `image`
-      formData.append('avatar', { uri: localUri, name: filename, type: selectedImage.mimeType })
+    const userInfo = {
+      username,
+      password,
     }
+
     // 1. 用户名、密码正确，数据库无 - 未注册
     // 2. 用户名或密码错误，数据库有 - 账号或密码错误
     // 3. 用户名、密码正确，数据库有 - 登录成功
 
     // 与数据库比对
     try {
-      const { message, data } = await loginUser(formData)
+      const { message, data } = await loginUser(userInfo)
       // 如果用户名、密码正确，数据库有，则登录成功
       if (message === 'success') {
         toast.show({
@@ -104,7 +94,6 @@ export default function Login({ type, opacity }: LoginProps) {
             )
           },
         })
-        // loginSuccess()
         // 登录成功设置状态
         setIsLoggedIn(true)
         const { _id } = data
@@ -172,35 +161,6 @@ export default function Login({ type, opacity }: LoginProps) {
     router.push('/register/')
   }
 
-  const [selectedAvatar, setSelectedAvatar] = useState<{ localUri: string } | null>(null)
-  const [selectedImage, setSelectedImage] = useState({
-    uri: '',
-    mimeType: '',
-    fileName: '',
-  })
-  const handleSelectedAvatar = async () => {
-    const image = await UploadMedia({ mediaTypes: 'Images', aspect: [1, 1] })
-    if (image.length > 0) {
-      setSelectedImage(image[0])
-      // 图片为数组，包含许多信息(名称,uri,width)
-      const { uri } = image[0]
-      setSelectedAvatar({ localUri: uri })
-    } else {
-      toast.show({
-        placement: 'top',
-        render: () => {
-          return (
-            <Toast variant="solid" action="error">
-              <VStack space="xs">
-                <ToastTitle>授权失败</ToastTitle>
-              </VStack>
-            </Toast>
-          )
-        },
-      })
-    }
-  }
-
   return (
     <Center flex={1}>
       <Animated.View style={[styles.container, { opacity }]}>
@@ -217,19 +177,10 @@ export default function Login({ type, opacity }: LoginProps) {
         >
           <VStack space="xs" pb="$4" w="$80" alignItems="center">
             <Heading lineHeight={30}>用户登录</Heading>
-            <Pressable onPress={handleSelectedAvatar}>
-              <Avatar bgColor="$amber600" size="lg" borderRadius="$full">
-                <AvatarFallbackText>Rinna Chen</AvatarFallbackText>
-                {selectedAvatar !== null && (
-                  <AvatarImage
-                    alt=""
-                    source={{
-                      uri: selectedAvatar.localUri,
-                    }}
-                  ></AvatarImage>
-                )}
-              </Avatar>
-            </Pressable>
+            <Avatar bgColor="$indigo600" size="lg" borderRadius="$full">
+              <AvatarFallbackText></AvatarFallbackText>
+              <AvatarImage alt="" source={require('@/assets/images/avatar.jpg')} />
+            </Avatar>
           </VStack>
           <VStack space="xl" py="$2">
             <FormControl isInvalid={usernameValid} isRequired={true}>
@@ -237,8 +188,8 @@ export default function Login({ type, opacity }: LoginProps) {
                 <InputField
                   py="$2"
                   placeholder="请输入用户名"
-                  value={username}
-                  onChangeText={setUsername}
+                  value={loginUsername}
+                  onChangeText={setLoginUsername}
                 />
               </Input>
               <FormControlError>

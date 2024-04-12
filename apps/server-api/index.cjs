@@ -9,7 +9,7 @@ const fs = require('fs')
 // 配置Multer存储
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // 根据请求中的某些条件动态设置存储目录
+    // 根据请求中的条件动态设置存储目录
     let uploadFolder = 'uploads/' // 默认目录
     if (req.path.includes('login')) {
       uploadFolder += 'avatar/'
@@ -50,7 +50,6 @@ app.use('/uploads', express.static('uploads'))
 
 const User = require('./model/UserModel.cjs')
 const PCUser = require('./model/PCUserModel.cjs')
-// const UserDetail = require('./model/UserDetail.cjs')
 const ReleaseNote = require('./model/ReleaseModel.cjs')
 
 // 用户注册
@@ -75,6 +74,7 @@ app.post('/register', upload.single('avatar'), async (req, res) => {
       username,
       password: hashedPassword,
     })
+    // 保存上传的头像路径到用户记录
     if (req.file) {
       user.avatar = req.file.path
     }
@@ -88,7 +88,7 @@ app.post('/register', upload.single('avatar'), async (req, res) => {
 })
 
 // 用户登录
-app.post('/login', upload.single('avatar'), async (req, res) => {
+app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body
     let user = await User.findOne({ username })
@@ -102,15 +102,6 @@ app.post('/login', upload.single('avatar'), async (req, res) => {
     if (!validPassword) {
       return res.status(401).send({ message: '密码错误' })
     }
-    // 保存上传的头像路径到用户记录
-    // if (req.file) {
-    //   user.avatar = req.file.path
-    //   await user.save()
-    // }
-
-    // 如果用户名和密码都有效，发送成功消息
-    // const token = jwt.sign({ userId: user._id }, 'qweasdzxciopjklbnm', { expiresIn: '1h' })
-    // req.session.token = token
 
     return res.status(200).send({ message: 'success', data: user })
   } catch (error) {
@@ -209,7 +200,7 @@ app.get('/getCurUserTourList/:userId', async (req, res) => {
   }
 })
 
-// 获取所有游记列表
+// 获取所有用户游记列表
 app.get('/getAllDiaries', async (req, res) => {
   try {
     // 分页
@@ -233,7 +224,6 @@ app.get('/getAllDiaries', async (req, res) => {
     const skip = (page - 1) * pageSize
     const allUserItem = await User.find()
     const userList = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
-    // const totalCount = await ReleaseNote.countDocuments(findParams)
     const modifiedUserList = userList.map((item) => {
       if (item.state !== 'Approved') return null
       const imgUrls = item.images.map((img) => {
@@ -270,7 +260,7 @@ app.get('/getAllDiaries', async (req, res) => {
   }
 })
 
-// 获取游记具体信息
+// 获取单条游记具体信息
 app.get('/getPublishNote/:publishId', async (req, res) => {
   try {
     const publishId = req.params.publishId
@@ -291,7 +281,7 @@ app.get('/getPublishNote/:publishId', async (req, res) => {
   }
 })
 
-// 更新游记信息
+// 更新单条游记信息
 app.put(
   '/updatePublishNote/:publishId',
   upload.fields([
@@ -305,10 +295,6 @@ app.put(
       const { title, description } = req.body
 
       const releaseNote = await ReleaseNote.findById(publishId)
-
-      // if (!releaseNote) {
-      //   return res.status(404).send({ message: '游记未找到' })
-      // }
 
       // 更新标题和描述
       releaseNote.title = title || releaseNote.title
@@ -461,7 +447,7 @@ app.get('/getPCUserInfo/:userId', async (req, res) => {
   }
 })
 
-// 设置权限
+// 设置用户权限
 app.post('/setPermission/:userId', async (req, res) => {
   try {
     const pcUserId = req.params.userId
@@ -493,84 +479,37 @@ app.delete('/deletePCUser/:userId', async (req, res) => {
   }
 })
 
-// 审核数据
-//查询
-app.get('/getDiaryEntries', async (req, res) => {
-  try {
-    const page = parseInt(req.query.current) || 1
-    const pageSize = parseInt(req.query.pageSize) || 10
-
-    let findParams = { isDeleted: false }
-
-    if (req.query.title) {
-      findParams.title = new RegExp(req.query.title, 'i')
-    }
-
-    if (req.query.state) {
-      findParams.state = req.query.state
-    }
-
-    // 假设create_at已经是日期类型，这里使用范围查询
-    if (req.query.startTime && req.query.endTime) {
-      findParams.create_at = {
-        $gte: new Date(req.query.startTime),
-        $lte: new Date(req.query.endTime),
-      }
-    }
-
-    const skip = (page - 1) * pageSize
-    const releaseNotes = await ReleaseNote.find(findParams).skip(skip).limit(pageSize)
-    const totalCount = await ReleaseNote.countDocuments(findParams)
-
-    res.status(200).send({
-      data: releaseNotes,
-      current: page,
-      pageSize,
-      total: totalCount,
-    })
-  } catch (e) {
-    console.error(e)
-    res.status(500).send({ message: 'Server error' })
-  }
-})
-
-// 更新state状态
+// 更新游记的审核状态
 app.put('/updatediaryEntries/:id', async (req, res) => {
-  const { id } = req.params // 从URL中获取日记条目的ID
-  const { state } = req.body // 从请求体中获取新的状态值
+  const { id } = req.params
+  const { state } = req.body
   console.log(state)
   if (!state) {
-    // 如果没有提供新的状态值，则返回错误响应
     return res.status(400).send({ message: 'State is required.' })
   }
   try {
-    const entry = await ReleaseNote.findByIdAndUpdate(
-      id, // 使用正确的参数名
-      { state: state }, // 更新状态
-      { new: true } // 返回更新后的文档
-    )
+    const updatedList = await ReleaseNote.findByIdAndUpdate(id, { state: state }, { new: true })
 
-    if (!entry) {
-      // 如果找不到对应的日记条目，则返回错误响应
+    if (!updatedList) {
       return res.status(404).send({ message: 'Diary entry not found.' })
     }
 
-    // 返回更新成功的响应，包括更新后的日记条目
-    res.send({ message: 'Diary entry updated successfully.', data: entry })
+    res.send({ message: 'Diary entry updated successfully.', data: updatedList })
   } catch (error) {
     console.error(error)
     res.status(500).send({ message: 'Error updating diary entry.' })
   }
 })
 
+// 审核未通过，更新游记原因
 app.put('/diaryEntries/:id', async (req, res) => {
   const { id } = req.params
-  const { reasons } = req.body // 接收状态和原因
+  const { reasons } = req.body
 
   try {
     const updatedEntry = await ReleaseNote.findByIdAndUpdate(
       id,
-      { reasons: reasons }, // 更新状态和原因
+      { reasons: reasons },
       { new: true }
     )
 
@@ -585,16 +524,11 @@ app.put('/diaryEntries/:id', async (req, res) => {
   }
 })
 
-// 逻辑删除
+// 游记列表逻辑删除
 app.put('/deletediaryEntries/:id', async (req, res) => {
-  // console.log('Received ID:', req.params.id)
   const { id } = req.params
   try {
-    const updatedEntry = await ReleaseNote.findByIdAndUpdate(
-      id,
-      { isDeleted: true }, // 直接将 isDeleted 设为 true
-      { new: true }
-    )
+    const updatedEntry = await ReleaseNote.findByIdAndUpdate(id, { isDeleted: true }, { new: true })
     if (!updatedEntry) {
       return res.status(404).send({ message: 'Diary entry not found.' })
     }
@@ -617,32 +551,33 @@ const insertSampleUser = async () => {
     // 插入新的用户数据，后续删除
     await PCUser.insertMany([
       {
-        username: 'test',
-        password: 'test111',
+        username: 'superadmin',
+        password: '123456',
         identity: 'superadmin',
         created_at: '2024-04-10T10:51:47Z',
+        // 菜单权限
         permission: ['welcome', 'manage', 'userManage', 'menuManage', 'check', 'checkList'],
       },
       {
-        username: 'aaa',
-        password: 'aaa111',
+        username: 'publishUser',
+        password: 'publish123',
         identity: 'publishGroup',
         created_at: '2024-04-01T19:01:47Z',
-        permission: ['welcome'],
+        permission: ['welcome', 'manage', 'userManage', 'check', 'checkList'],
       },
       {
-        username: 'uuu',
-        password: 'uuu111',
+        username: 'monitorUser',
+        password: 'monitor123',
         identity: 'monitorGroup',
         created_at: '2024-04-03T14:13:47Z',
-        permission: ['welcome'],
+        permission: ['welcome', 'manage', 'userManage', 'check', 'checkList'],
       },
       {
-        username: '要删掉的',
+        username: 'otherUser',
         password: 'uuu111',
         identity: 'monitorGroup',
         created_at: '2024-03-31T18:34:47Z',
-        permission: ['welcome'],
+        permission: ['welcome', 'manage'],
       },
       {
         username: 'fegdgdr',

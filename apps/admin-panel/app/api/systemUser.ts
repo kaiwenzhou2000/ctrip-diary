@@ -64,14 +64,6 @@ export const delPCUser = (userId: string) => {
   })
 }
 
-//获取用户游记
-export const getPCUserWork = (): Promise<Response<UserList>> => {
-  return request({
-    url: '/getDiaryEntries',
-    method: 'GET',
-  })
-}
-
 //更新用户状态
 export const updatediaryEntries = (id: string, state: string) => {
   return request({
