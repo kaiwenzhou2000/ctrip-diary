@@ -1,7 +1,7 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components'
 import { ProTable } from '@ant-design/pro-components'
 import { Input, Form, Modal, Select, message, Row, Col, Popconfirm, Button, Image } from 'antd'
-import { useState, useRef } from 'react'
+import { useState, useRef, Key } from 'react'
 import request from 'umi-request'
 import { usePermit } from '../components/permit'
 import { updatediaryEntries, deletediaryEntries, diaryEntries } from '../api/systemUser'
@@ -9,14 +9,16 @@ import { updatediaryEntries, deletediaryEntries, diaryEntries } from '../api/sys
 type DiaryEntryItem = {
   _id: string
   userId: string
+  username: string
   title: string
   description: string
-  images: string[]
-  video: string
+  imgUrls: string[]
+  videoUrl: string
   time: string
   state: string
   reasons: string[]
   create_at: string[]
+  coverUrl: string
 }
 
 export default () => {
@@ -25,25 +27,14 @@ export default () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isViewModalVisible, setIsViewModalVisible] = useState(false) // 新增状态控制查看详情的模态框
   const [currentRecord, setCurrentRecord] = useState<DiaryEntryItem | null>(null) // 保存当前查看的记录
-  // const [setEditingRecord] = useState<DiaryEntryItem | null>(null)
   const actionRef = useRef<ActionType>()
   const [modalForm] = Form.useForm()
   const [form] = Form.useForm()
 
   const handleView = (record: DiaryEntryItem) => {
-    setCurrentRecord(record) // 设置当前选中的记录
-    setIsViewModalVisible(true) // 显示模态框
+    setCurrentRecord(record)
+    setIsViewModalVisible(true)
   }
-
-  // const handleEdit = (record: DiaryEntryItem) => {
-  //   setEditingRecord(record)
-  //   if (record.state === 'Rejected') {
-  //     // 如果状态为未通过，则显示Modal
-  //     setIsModalVisible(true)
-  //   } else {
-  //     // 处理其他状态更新逻辑...
-  //   }
-  // }
 
   const columns: ProColumns<DiaryEntryItem>[] = [
     {
@@ -55,10 +46,10 @@ export default () => {
       render: (_, record) => (
         <>
           <Image
-            //key={index}
-            width={100} // 或者其他你希望的尺寸
+            alt=""
+            width={100}
             src={record.coverUrl}
-            style={{ marginRight: '8px', marginBottom: '8px' }} // 添加一些间距
+            style={{ marginRight: '8px', marginBottom: '8px' }}
             height={100}
           />
         </>
@@ -137,10 +128,12 @@ export default () => {
         <Button key="view" type="link" onClick={() => handleView(record)}>
           查看
         </Button>,
-        // <a key="edit" onClick={() => action?.startEditable(record._id)}>
-        //   编辑
-        // </a>,
-        <Button key="editable" type="link" onClick={() => action?.startEditable(record._id)}>
+        <Button
+          key="editable"
+          type="link"
+          disabled={hasPermission('checkEdit')}
+          onClick={() => action?.startEditable(record._id)}
+        >
           编辑
         </Button>,
         <Popconfirm
@@ -160,7 +153,6 @@ export default () => {
 
   const handleDelete = async (id: string): Promise<void> => {
     try {
-      // const { _id } = record
       console.log(id)
       await deletediaryEntries(id, true)
       message.success('删除成功')
@@ -171,7 +163,7 @@ export default () => {
     }
   }
 
-  const handleSave = async (key: React.Key, record: DiaryEntryItem): Promise<void> => {
+  const handleSave = async (_key: Key, record: DiaryEntryItem): Promise<void> => {
     try {
       const { _id, state } = record
       await updatediaryEntries(_id, state)
@@ -193,7 +185,6 @@ export default () => {
     try {
       const formData = form.getFieldsValue()
       const { reasons } = formData
-      // 发送请求到后端API，更新状态
       await diaryEntries(curReasonId, reasons)
       setIsModalVisible(false)
       modalForm.resetFields() // 重置表单
@@ -241,7 +232,6 @@ export default () => {
           },
         }}
         rowKey="_id"
-        // 更多ProTable配置...
         search={{
           labelWidth: 'auto',
         }}
@@ -284,25 +274,27 @@ export default () => {
 
       <Modal
         title="详情"
-        visible={isViewModalVisible}
+        open={isViewModalVisible}
         onOk={() => setIsViewModalVisible(false)}
         onCancel={() => setIsViewModalVisible(false)}
-        width={800} // 调整模态框的宽度以适应内容
+        width={800}
       >
         <Row gutter={16}>
           <Col span={8}>
-            {currentRecord?.imgUrls?.map((imgUrls, index) => (
-              <div key={index}>
-                <Image
-                  src={imgUrls}
-                  alt={`Image-${index}`}
-                  style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} // 调整为您需要的尺寸
-                />
-              </div>
-            ))}
+            {currentRecord?.imgUrls?.map(
+              (imgUrls: string | undefined, index: Key | null | undefined) => (
+                <div key={index}>
+                  <Image
+                    src={imgUrls}
+                    alt={`Image-${index}`}
+                    style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} // 调整为您需要的尺寸
+                  />
+                </div>
+              )
+            )}
 
             {/* 如果有视频，下方展示视频 */}
-            {currentRecord?.video && (
+            {currentRecord?.videoUrl && (
               <video style={{ width: '100%', marginTop: '10px' }} controls>
                 <source src={currentRecord.videoUrl} type="video/mp4" />
                 您的浏览器不支持视频标签。

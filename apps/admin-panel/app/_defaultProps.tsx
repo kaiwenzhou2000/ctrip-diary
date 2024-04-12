@@ -45,7 +45,7 @@ function getRouteConfig(permissions: string[]) {
           name: '管理页',
           icon: <CrownFilled />,
           access: 'manage',
-          component: <CheckList />,
+          component: <Welcome />,
           routes: [
             {
               path: '/manage/userManage',
@@ -75,13 +75,6 @@ function getRouteConfig(permissions: string[]) {
               name: '审核列表',
               icon: <CrownFilled />,
               access: 'checkList',
-              component: <CheckList />,
-            },
-            {
-              path: '/list/sub-page2',
-              name: '二级列表页面',
-              icon: <CrownFilled />,
-              access: 'subPage2',
               component: <CheckList />,
             },
           ],

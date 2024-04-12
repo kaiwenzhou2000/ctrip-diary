@@ -10,18 +10,18 @@ const PermitContext = createContext<PermitContextType | null>(null)
 
 // 不同身份用户不能使用的操作
 const permissionsMap: { [key in IdentityType]: string[] } = {
-  // 审核列表：查看、通过、拒绝、删除
+  // 审核列表：查看、编辑、删除
   // 'checkView', 'checkApprove', 'checkReject', 'checkDelete'
   // 用户管理：新建、编辑、删除
   // 'new','userEdit', 'userDelete'
   // 菜单管理：权限设置('permit')
   superadmin: [],
   publishGroup: ['checkDelete', 'userEdit', 'userDelete', 'permit'],
-  monitorGroup: ['checkApprove', 'checkReject', 'checkDelete', 'userEdit', 'userDelete', 'permit'],
+  monitorGroup: ['checkEdit', 'checkDelete', 'userEdit', 'userDelete', 'permit'],
 }
 
 export const PermitProvider = ({ children }: { children: ReactNode }) => {
-  const [identity, setIdentity] = useState<IdentityType>('publishGroup')
+  const [identity, setIdentity] = useState<IdentityType>('superadmin')
 
   return (
     <PermitContext.Provider value={{ identity, setIdentity }}>{children}</PermitContext.Provider>
