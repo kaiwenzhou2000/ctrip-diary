@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -43,12 +43,17 @@ interface LoginProps {
 
 export default function Login({ type, opacity }: LoginProps) {
   const toast = useToast()
-  const { setIsLoggedIn, setUserId, username, setDataUsername } = useAuth()
+  // 执行上下文
+  const { setIsLoggedIn, setUserId, dataUsername, setDataUsername } = useAuth()
   const [disabledLogin, setDisabledLogin] = useState(false)
-  const [loginUsername, setLoginUsername] = useState<string>('')
+  const [username, setUsername] = useState<string>('')
   const [usernameValid, setUsernameValid] = useState(false)
   const [password, setPassword] = useState('')
   const [passwordValid, setPasswordValid] = useState(false)
+
+  useEffect(() => {
+    setUsername(dataUsername)
+  }, [dataUsername])
 
   const checkLogin = async () => {
     // 首先进行表单校验
@@ -72,6 +77,7 @@ export default function Login({ type, opacity }: LoginProps) {
       username,
       password,
     }
+    console.log(userInfo)
 
     // 1. 用户名、密码正确，数据库无 - 未注册
     // 2. 用户名或密码错误，数据库有 - 账号或密码错误
@@ -188,8 +194,8 @@ export default function Login({ type, opacity }: LoginProps) {
                 <InputField
                   py="$2"
                   placeholder="请输入用户名"
-                  value={loginUsername}
-                  onChangeText={setLoginUsername}
+                  value={username}
+                  onChangeText={setUsername}
                 />
               </Input>
               <FormControlError>

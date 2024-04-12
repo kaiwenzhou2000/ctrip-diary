@@ -11,7 +11,7 @@ export default function Home() {
     // 开始执行渐变消失动画
     Animated.timing(fadeOutAnim, {
       toValue: 0,
-      duration: 5000,
+      duration: 3000,
       useNativeDriver: true,
     }).start()
     setTimeout(() => {
@@ -20,7 +20,7 @@ export default function Home() {
         duration: 1000,
         useNativeDriver: true,
       }).start()
-    }, 3000)
+    }, 2000)
   }, [fadeOutAnim, fadeInAnim])
 
   return (
