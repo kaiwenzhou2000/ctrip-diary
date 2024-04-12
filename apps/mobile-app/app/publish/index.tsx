@@ -201,7 +201,8 @@ export default function Publish({ id }: { id?: string }) {
     try {
       // 替换为实际publishId
       if (id) {
-        await updateTourItem(publishId, formData)
+        await updateTourItem(id, formData)
+        router.back()
       } else {
         await publishTourItem(userId, username, formData)
         setTitle('')
@@ -214,8 +215,8 @@ export default function Publish({ id }: { id?: string }) {
           cover: '',
         })
         setSelectedVideoUri(null)
-        router.push('/tabs/(tabs)/tab2')
       }
+      router.push('/tabs/(tabs)/tab2')
     } catch (e) {
       console.log(e)
     }

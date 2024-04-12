@@ -38,6 +38,9 @@ export default function RootLayout() {
     if (loaded) {
       SplashScreen.hideAsync()
     }
+
+    console.error = () => {}
+    console.warn = () => {}
   }, [loaded])
 
   return <RootLayoutNav />
