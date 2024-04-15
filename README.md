@@ -22,6 +22,16 @@ pnpm run dev:mobile
 pnpm run dev:admin
 ```
 
+pc端账号
+超级管理员：superadmin
+密码：123456
+
+发布群组管理员：publishUser
+密码：publish123
+
+监听群组管理员：monitorUser
+密码：monitor123
+
 - 项目运行在simulator环境下，iphone15型号
 - 如需启动expo go进行使用，需要进入mobile-app/app/utils的request.js文件夹，将localhost替换为本机编译的ip地址
 
