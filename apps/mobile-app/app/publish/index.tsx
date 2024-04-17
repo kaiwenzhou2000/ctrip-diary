@@ -28,7 +28,7 @@ import { Video, ResizeMode } from 'expo-av'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
 import { publishTourItem } from '../api/tour'
-import { updateTourItem, getTourItem } from '../api/tour'
+import { updateTourItem, getTourItem, chatWithAI } from '../api/tour'
 import { useAuth } from '@/components/authContext'
 
 export default function Publish({ id }: { id?: string }) {
@@ -217,6 +217,14 @@ export default function Publish({ id }: { id?: string }) {
     }
   }
 
+  const onAIGenerate = async () => {
+    const res = await chatWithAI(title)
+    console.log(res)
+
+    setTitle(res.title)
+    setDescription(res.description)
+  }
+
   return (
     <>
       <View style={styles.topBanner}>
@@ -305,13 +313,23 @@ export default function Publish({ id }: { id?: string }) {
         </Card>
 
         <HStack style={styles.publishContainer}>
-          <View>
+          <View style={{ flexDirection: 'row' }}>
             <Pressable style={styles.saveBtn}>
               {({ pressed }) => (
                 <>
                   <FontAwesome name="save" size={18} color={pressed ? 'grey' : 'black'} />
                   <Text mt={5} color={pressed ? 'grey' : 'black'}>
                     存草稿
+                  </Text>
+                </>
+              )}
+            </Pressable>
+            <Pressable style={styles.ai} onPress={onAIGenerate}>
+              {({ pressed }) => (
+                <>
+                  <FontAwesome name="magic" size={18} color={pressed ? 'grey' : 'black'} />
+                  <Text mt={5} color={pressed ? 'grey' : 'black'}>
+                    AI生成
                   </Text>
                 </>
               )}
@@ -391,5 +409,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  ai: {
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 20,
   },
 })
