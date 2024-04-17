@@ -56,3 +56,16 @@ export const getAllUserTourList = ({
     method: 'GET',
   })
 }
+
+// AI生成游记
+export const chatWithAI = (content: string) => {
+  return fetch('http://127.0.0.1:3001/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      request: content,
+    }),
+  }).then((response) => response.json())
+}
